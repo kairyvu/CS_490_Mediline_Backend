@@ -1,4 +1,4 @@
-.PHONY: install venv clean
+.PHONY: install venv clean run
 
 venv:
 	python -m venv venv
@@ -10,3 +10,6 @@ install: venv
 
 clean:
 	rm -rf venv
+
+run:
+	flask run
