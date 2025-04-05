@@ -3,15 +3,14 @@ SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 
 DROP SCHEMA IF EXISTS doctor_patient_system;
-CREATE SCHEMA doctor_patient_system DEFAULT CHARACTER SET utf8;
+CREATE SCHEMA doctor_patient_system DEFAULT CHARACTER SET utf8mb4;
 USE doctor_patient_system;
 
-
--- User is used to mainly handle social media page
+-- User is used tao mainly handle social media page
 CREATE TABLE user (
 	user_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	username VARCHAR(255) NOT NULL,
-	password VARCHAR(255),
+	password VARCHAR(255) NOT NULL,
 	account_type ENUM('doctor', 'patient', 'pharmacy', 'super_user') NOT NULL,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -19,8 +18,7 @@ CREATE TABLE user (
 
 -- Super user doesn't need to have a name or address (it's more like a group of users that have the privilege to access the system).
 CREATE TABLE super_user (
-	super_user_id INT PRIMARY KEY AUTO_INCREMENT,
-	user_id INT NOT NULL,
+	user_id INT PRIMARY KEY AUTO_INCREMENT,
 	FOREIGN KEY (user_id) REFERENCES user(user_id)
 );
 
@@ -29,7 +27,7 @@ CREATE TABLE notification (
 	notification_id INT PRIMARY KEY AUTO_INCREMENT,
 	user_id INT NOT NULL,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	notification_content TEXT,
+	notification_content TEXT NOT NULL,
 	FOREIGN KEY (user_id) REFERENCES user(user_id)
 );
 
@@ -43,8 +41,8 @@ CREATE TABLE doctor (
 	phone VARCHAR(20) NOT NULL,
 	specialization VARCHAR(100) NOT NULL,
 	bio TEXT,
-	fees DECIMAL(10,2) NOT NULL,
-	profile_Image VARCHAR(255),
+	fee DECIMAL(10,2) NOT NULL,
+	profile_picture VARCHAR(255),
 	dob DATE NOT NULL,
 	license_id VARCHAR(50) NOT NULL,
 	FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE
@@ -57,12 +55,12 @@ CREATE TABLE patient (
 	first_name VARCHAR(255) NOT NULL,
 	dob DATE NOT NULL,
 	email VARCHAR(255) NOT NULL,
-	phone_number VARCHAR(20),
+	phone VARCHAR(20),
 	doctor_id INT NOT NULL,
 	pharmacy_id INT NOT NULL,
 	FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE,
 	FOREIGN KEY (doctor_id) REFERENCES doctor(user_id) ON DELETE CASCADE,
-	FOREIGN KEY (pharmacy_id) REFERENCES pharmacy(user_id) ON DELETE CASCADE,
+	FOREIGN KEY (pharmacy_id) REFERENCES pharmacy(user_id) ON DELETE CASCADE
 );
 
 -- Appointment references to the doctor and patient (participants of a specific meeting)
@@ -71,7 +69,7 @@ CREATE TABLE appointment (
 	doctor_id INT NOT NULL,
 	patient_id INT NOT NULL,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 	FOREIGN KEY (doctor_id) REFERENCES doctor(user_id) ON DELETE CASCADE,
 	FOREIGN KEY (patient_id) REFERENCES patient(user_id) ON DELETE CASCADE
 );
@@ -107,7 +105,7 @@ CREATE TABLE prescription (
 
 -- The table contains the dosage and medical instructions for the medication
 CREATE TABLE prescription_medication (
-	prescription_Medication_id INT PRIMARY KEY AUTO_INCREMENT,
+	prescription_medication_id INT PRIMARY KEY AUTO_INCREMENT,
 	prescription_id INT NOT NULL,
 	medication_id INT NOT NULL,
 	dosage VARCHAR(100),
@@ -116,35 +114,29 @@ CREATE TABLE prescription_medication (
 	FOREIGN KEY (medication_id) REFERENCES medication(medication_id)
 );
 
--- Survey types
-CREATE TABLE survey (
-	survey_id INT PRIMARY KEY AUTO_INCREMENT,
-	Type ENUM('weekly', 'daily', 'monthly') NOT NULL,
+-- Report types
+CREATE TABLE report (
+	report_id INT PRIMARY KEY AUTO_INCREMENT,
+	type ENUM('weekly', 'daily', 'monthly') NOT NULL,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Identify who is taking the survey and who is their doctor
-CREATE TABLE patient_survey (
-	patient_survey_id INT PRIMARY KEY AUTO_INCREMENT,
-	survey_id INT NOT NULL,
+-- Identify who is taking the report and who is their doctor
+-- All information that a patient needs to provide in the report
+CREATE TABLE patient_report (
+	patient_report_id INT PRIMARY KEY AUTO_INCREMENT,
+	report_id INT NOT NULL,
 	patient_id INT NOT NULL,
 	doctor_id INT NOT NULL,
-	FOREIGN KEY (survey_id) REFERENCES survey(survey_id) ON DELETE CASCADE,
-	FOREIGN KEY (patient_id) REFERENCES patient(user_id) ON DELETE CASCADE,
-	FOREIGN KEY (doctor_id) REFERENCES doctor(user_id) ON DELETE CASCADE
-);
-
--- All information that a patient needs to provide in the survey
-CREATE TABLE survey_detail (
-	survey_detail_id INT PRIMARY KEY AUTO_INCREMENT,
-	patient_survey_id INT NOT NULL,
 	height FLOAT,
 	weight FLOAT,
 	calories_intake INT,
 	hours_of_exercise INT,
 	hours_of_sleep INT,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	FOREIGN KEY (patient_survey_id) REFERENCES patient_survey(patient_survey_id)
+	FOREIGN KEY (report_id) REFERENCES report(report_id) ON DELETE CASCADE,
+	FOREIGN KEY (patient_id) REFERENCES patient(user_id) ON DELETE CASCADE,
+	FOREIGN KEY (doctor_id) REFERENCES doctor(user_id) ON DELETE CASCADE
 );
 
 -- Patient and doctor invoice
@@ -173,8 +165,8 @@ CREATE TABLE patient_exercise (
 	patient_id INT NOT NULL,
 	doctor_id INT NOT NULL,
 	reps VARCHAR(30),
-	Created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	FOREIGN KEY (exercise_id) REFERENCES exercise_bank(exercise_id),
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	FOREIGN KEY (exercise_id) REFERENCES exercise_bank(exercise_id) ON DELETE CASCADE,
 	FOREIGN KEY (patient_id) REFERENCES patient(user_id) ON DELETE CASCADE,
 	FOREIGN KEY (doctor_id) REFERENCES doctor(user_id) ON DELETE CASCADE
 );
@@ -183,7 +175,7 @@ CREATE TABLE patient_exercise (
 CREATE TABLE post (
 	post_id INT PRIMARY KEY AUTO_INCREMENT,
 	user_id INT NOT NULL,
-	title VARCHAR(255),
+	title VARCHAR(255) NOT NULL,
 	content TEXT,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -195,7 +187,7 @@ CREATE TABLE comment (
 	comment_id INT PRIMARY KEY AUTO_INCREMENT,
 	post_id INT NOT NULL,
 	user_id INT NOT NULL,
-	content TEXT,
+	content TEXT NOT NULL,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 	FOREIGN KEY (post_id) REFERENCES post(post_id),
@@ -238,7 +230,7 @@ CREATE TABLE pharmacy (
 CREATE TABLE payment_prescription (
 	payment_prescription_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	prescription_id INT NOT NULL,
-	amount DECIMAL(4,2) NOT NULL,
+	amount DECIMAL(10,2) NOT NULL,
 	FOREIGN KEY (prescription_id) REFERENCES prescription(prescription_id) ON UPDATE RESTRICT ON DELETE CASCADE
 );
 
@@ -254,7 +246,7 @@ CREATE TABLE inventory (
 	inventory_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	pharmacy_id INT NOT NULL,
 	medication_id INT NOT NULL,
-	stock INT DEFAULT 0,
+	quantity INT DEFAULT 0,
 	FOREIGN KEY (pharmacy_id) REFERENCES pharmacy(user_id) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (medication_id) REFERENCES medication(medication_id) ON UPDATE RESTRICT ON DELETE CASCADE
 );
@@ -265,7 +257,7 @@ CREATE TABLE rating_survey (
 	patient_id INT NOT NULL,
 	doctor_id INT NOT NULL,
 	comment VARCHAR(255),
-	stars DECIMAL(10,1),
+	stars INT NOT NULL,
 	FOREIGN KEY (doctor_id) REFERENCES doctor(user_id) ON DELETE RESTRICT ON UPDATE RESTRICT,
 	FOREIGN KEY (patient_id) REFERENCES patient(user_id) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
@@ -279,11 +271,11 @@ CREATE TABLE rating_record (
 	FOREIGN KEY (survey_id) REFERENCES rating_survey(survey_id) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
 
--- Graph tat shows data collected from (doctor-patient) surveys 
+-- Graph tat shows data collected from (doctor-patient) reports 
 CREATE TABLE progress_graph (
 	progress_graph_id INT PRIMARY KEY AUTO_INCREMENT,
-	patient_survey_id INT NOT NULL,
-	FOREIGN KEY (patient_survey_id) REFERENCES patient_survey(patient_survey_id) ON DELETE RESTRICT ON UPDATE RESTRICT
+	patient_report_id INT NOT NULL,
+	FOREIGN KEY (patient_report_id) REFERENCES patient_report(patient_report_id) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
 
 -- Audit table
@@ -348,10 +340,10 @@ CREATE TABLE doctor_audit (
 	specialization_new VARCHAR(100),
 	bio_old TEXT,
 	bio_new TEXT,
-	fees_old DECIMAL(10,2),
-	fees_new DECIMAL(10,2),
-	profile_Image_old VARCHAR(255),
-	profile_Image_new VARCHAR(255),
+	fee_old DECIMAL(10,2),
+	fee_new DECIMAL(10,2),
+	profile_picture_old VARCHAR(255),
+	profile_picture_new VARCHAR(255),
 	dob_old DATE,
 	dob_new DATE,
 	license_id_old VARCHAR(50),
@@ -367,24 +359,24 @@ CREATE TRIGGER doctor_audit_trigger
 AFTER UPDATE ON doctor
 FOR EACH ROW
 BEGIN
-	INSERT INTO doctor_audit (user_id, first_name_old, first_name_new, last_name_old, last_name_new, email_old, email_new, phone_old, phone_new, specialization_old, specialization_new, bio_old, bio_new, fees_old, fees_new, profile_Image_old, profile_Image_new, dob_old, dob_new, license_id_old, license_id_new, action, audit_user)
-	VALUES (OLD.user_id, OLD.first_name, NEW.first_name, OLD.last_name, NEW.last_name, OLD.email, NEW.email, OLD.phone, NEW.phone, OLD.specialization, NEW.specialization, OLD.bio, NEW.bio, OLD.fees, NEW.fees, OLD.profile_Image, NEW.profile_Image, OLD.dob, NEW.dob, OLD.license_id, NEW.license_id, 'UPDATE', current_user());
+	INSERT INTO doctor_audit (user_id, first_name_old, first_name_new, last_name_old, last_name_new, email_old, email_new, phone_old, phone_new, specialization_old, specialization_new, bio_old, bio_new, fee_old, fee_new, profile_picture_old, profile_picture_new, dob_old, dob_new, license_id_old, license_id_new, action, audit_user)
+	VALUES (OLD.user_id, OLD.first_name, NEW.first_name, OLD.last_name, NEW.last_name, OLD.email, NEW.email, OLD.phone, NEW.phone, OLD.specialization, NEW.specialization, OLD.bio, NEW.bio, OLD.fee, NEW.fee, OLD.profile_picture, NEW.profile_picture, OLD.dob, NEW.dob, OLD.license_id, NEW.license_id, 'UPDATE', current_user());
 END //
 
 CREATE TRIGGER doctor_audit_insert_trigger
 AFTER INSERT ON doctor
 FOR EACH ROW
 BEGIN
-	INSERT INTO doctor_audit (user_id, first_name_new, last_name_new, email_new, phone_new, specialization_new, bio_new, fees_new, profile_Image_new, dob_new, license_id_new, action, audit_user)
-	VALUES (NEW.user_id, NEW.first_name, NEW.last_name, NEW.email, NEW.phone, NEW.specialization, NEW.bio, NEW.fees, NEW.profile_Image, NEW.dob, NEW.license_id, 'INSERT', current_user());
+	INSERT INTO doctor_audit (user_id, first_name_new, last_name_new, email_new, phone_new, specialization_new, bio_new, fee_new, profile_picture_new, dob_new, license_id_new, action, audit_user)
+	VALUES (NEW.user_id, NEW.first_name, NEW.last_name, NEW.email, NEW.phone, NEW.specialization, NEW.bio, NEW.fee, NEW.profile_picture, NEW.dob, NEW.license_id, 'INSERT', current_user());
 END //
 
 CREATE TRIGGER doctor_audit_delete_trigger
 AFTER DELETE ON doctor
 FOR EACH ROW
 BEGIN
-	INSERT INTO doctor_audit (user_id, first_name_old, last_name_old, email_old, phone_old, specialization_old, bio_old, fees_old, profile_Image_old, dob_old, license_id_old, action, audit_user)
-	VALUES (OLD.user_id, OLD.first_name, OLD.last_name, OLD.email, OLD.phone, OLD.specialization, OLD.bio, OLD.fees, OLD.profile_Image, OLD.dob, OLD.license_id, 'DELETE', current_user());
+	INSERT INTO doctor_audit (user_id, first_name_old, last_name_old, email_old, phone_old, specialization_old, bio_old, fee_old, profile_picture_old, dob_old, license_id_old, action, audit_user)
+	VALUES (OLD.user_id, OLD.first_name, OLD.last_name, OLD.email, OLD.phone, OLD.specialization, OLD.bio, OLD.fee, OLD.profile_picture, OLD.dob, OLD.license_id, 'DELETE', current_user());
 END //
 DELIMITER ;
 
@@ -401,8 +393,8 @@ CREATE TABLE patient_audit (
 	dob_new DATE,
 	email_old VARCHAR(255),
 	email_new VARCHAR(255),
-	phone_number_old VARCHAR(20),
-	phone_number_new VARCHAR(20),
+	phone_old VARCHAR(20),
+	phone_new VARCHAR(20),
 	doctor_id_old INT,
 	doctor_id_new INT,
 	pharmacy_id_old INT,
@@ -418,24 +410,24 @@ CREATE TRIGGER patient_audit_trigger
 AFTER UPDATE ON patient
 FOR EACH ROW
 BEGIN
-	INSERT INTO patient_audit (user_id, last_name_old, last_name_new, first_name_old, first_name_new, dob_old, dob_new, email_old, email_new, phone_number_old, phone_number_new, doctor_id_old, doctor_id_new, pharmacy_id_old, pharmacy_id_new, action, audit_user)
-	VALUES (OLD.user_id, OLD.last_name, NEW.last_name, OLD.first_name, NEW.first_name, OLD.dob, NEW.dob, OLD.email, NEW.email, OLD.phone_number, NEW.phone_number, OLD.doctor_id, NEW.doctor_id, OLD.pharmacy_id, NEW.pharmacy_id, 'UPDATE', current_user());
+	INSERT INTO patient_audit (user_id, last_name_old, last_name_new, first_name_old, first_name_new, dob_old, dob_new, email_old, email_new, phone_old, phone_new, doctor_id_old, doctor_id_new, pharmacy_id_old, pharmacy_id_new, action, audit_user)
+	VALUES (OLD.user_id, OLD.last_name, NEW.last_name, OLD.first_name, NEW.first_name, OLD.dob, NEW.dob, OLD.email, NEW.email, OLD.phone, NEW.phone, OLD.doctor_id, NEW.doctor_id, OLD.pharmacy_id, NEW.pharmacy_id, 'UPDATE', current_user());
 END //
 
 CREATE TRIGGER patient_audit_insert_trigger
 AFTER INSERT ON patient
 FOR EACH ROW
 BEGIN
-	INSERT INTO patient_audit (user_id, last_name_new, first_name_new, dob_new, email_new, phone_number_new, doctor_id_new, pharmacy_id_new, action, audit_user)
-	VALUES (NEW.user_id, NEW.last_name, NEW.first_name, NEW.dob, NEW.email, NEW.phone_number, NEW.doctor_id, NEW.pharmacy_id, 'INSERT', current_user());
+	INSERT INTO patient_audit (user_id, last_name_new, first_name_new, dob_new, email_new, phone_new, doctor_id_new, pharmacy_id_new, action, audit_user)
+	VALUES (NEW.user_id, NEW.last_name, NEW.first_name, NEW.dob, NEW.email, NEW.phone, NEW.doctor_id, NEW.pharmacy_id, 'INSERT', current_user());
 END //
 
 CREATE TRIGGER patient_audit_delete_trigger
 AFTER DELETE ON patient
 FOR EACH ROW
 BEGIN
-	INSERT INTO patient_audit (user_id, last_name_old, first_name_old, dob_old, email_old, phone_number_old, doctor_id_old, pharmacy_id_old, action, audit_user)
-	VALUES (OLD.user_id, OLD.last_name, OLD.first_name, OLD.dob, OLD.email, OLD.phone_number, OLD.doctor_id, OLD.pharmacy_id, 'DELETE', current_user());
+	INSERT INTO patient_audit (user_id, last_name_old, first_name_old, dob_old, email_old, phone_old, doctor_id_old, pharmacy_id_old, action, audit_user)
+	VALUES (OLD.user_id, OLD.last_name, OLD.first_name, OLD.dob, OLD.email, OLD.phone, OLD.doctor_id, OLD.pharmacy_id, 'DELETE', current_user());
 END //
 DELIMITER ;
 
@@ -449,8 +441,8 @@ CREATE TABLE appointment_audit (
 	patient_id_new INT,
 	created_at_old TIMESTAMP,
 	created_at_new TIMESTAMP,
-	last_updated_old TIMESTAMP,
-	last_updated_new TIMESTAMP,
+	updated_at_old TIMESTAMP,
+	updated_at_new TIMESTAMP,
 	action ENUM('INSERT', 'UPDATE', 'DELETE') NOT NULL,
 	audit_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	audit_user VARCHAR(255)
@@ -462,23 +454,23 @@ CREATE TRIGGER appointment_audit_trigger
 AFTER UPDATE ON appointment
 FOR EACH ROW
 BEGIN
-	INSERT INTO appointment_audit (appointment_id, doctor_id_old, doctor_id_new, patient_id_old, patient_id_new, created_at_old, created_at_new, last_updated_old, last_updated_new, action, audit_user)
-	VALUES (OLD.appointment_id, OLD.doctor_id, NEW.doctor_id, OLD.patient_id, NEW.patient_id, OLD.created_at, NEW.created_at, OLD.last_updated, NEW.last_updated, 'UPDATE', current_user());
+	INSERT INTO appointment_audit (appointment_id, doctor_id_old, doctor_id_new, patient_id_old, patient_id_new, created_at_old, created_at_new, updated_at_old, updated_at_new, action, audit_user)
+	VALUES (OLD.appointment_id, OLD.doctor_id, NEW.doctor_id, OLD.patient_id, NEW.patient_id, OLD.created_at, NEW.created_at, OLD.updated_at, NEW.updated_at, 'UPDATE', current_user());
 END //
 
 CREATE TRIGGER appointment_audit_insert_trigger
 AFTER INSERT ON appointment
 FOR EACH ROW
 BEGIN
-	INSERT INTO appointment_audit (appointment_id, doctor_id_new, patient_id_new, created_at_new, last_updated_new, action, audit_user)
-	VALUES (NEW.appointment_id, NEW.doctor_id, NEW.patient_id, NEW.created_at, NEW.last_updated, 'INSERT', current_user());
+	INSERT INTO appointment_audit (appointment_id, doctor_id_new, patient_id_new, created_at_new, updated_at_new, action, audit_user)
+	VALUES (NEW.appointment_id, NEW.doctor_id, NEW.patient_id, NEW.created_at, NEW.updated_at, 'INSERT', current_user());
 END //
 
 CREATE TRIGGER appointment_audit_delete_trigger
 AFTER DELETE ON appointment
 FOR EACH ROW
 BEGIN
-	INSERT INTO appointment_audit (appointment_id, doctor_id_old, patient_id_old, created_at_old, last_updated_old, action)
-	VALUES (OLD.appointment_id, OLD.doctor_id, OLD.patient_id, OLD.created_at, OLD.last_updated, 'DELETE', current_user());
+	INSERT INTO appointment_audit (appointment_id, doctor_id_old, patient_id_old, created_at_old, updated_at_old, action)
+	VALUES (OLD.appointment_id, OLD.doctor_id, OLD.patient_id, OLD.created_at, OLD.updated_at, 'DELETE', current_user());
 END //
 DELIMITER ;
