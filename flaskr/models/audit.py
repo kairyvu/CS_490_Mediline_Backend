@@ -29,7 +29,7 @@ class UserAudit(db.Model):
     updated_at_new = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
     action = db.Column(db.Enum(Action), nullable=False)
     audit_timestamp = db.Column(db.DateTime, server_default=db.func.now())
-    audit_user = db.Column(db.String(255), db.ForeignKey('user.user_id'), nullable=False)
+    audit_user = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
 
 class DoctorAudit(db.Model):
     __tablename__ = 'doctor_audit'
@@ -58,7 +58,7 @@ class DoctorAudit(db.Model):
     license_id_new = db.Column(db.String(80), unique=True, nullable=False)
     action = db.Column(db.Enum(Action), nullable=False)
     audit_timestamp = db.Column(db.DateTime, server_default=db.func.now())
-    audit_user = db.Column(db.String(255), db.ForeignKey('user.user_id'), nullable=False)
+    audit_user = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
 
 class PatientAudit(db.Model):
     __tablename__ = 'patient_audit'
@@ -81,7 +81,7 @@ class PatientAudit(db.Model):
     pharmacy_id_new = db.Column(db.Integer, db.ForeignKey('pharmacy.user_id'), nullable=False)
     action = db.Column(db.Enum(Action), nullable=False)
     audit_timestamp = db.Column(db.DateTime, server_default=db.func.now())
-    audit_user = db.Column(db.String(255), db.ForeignKey('user.user_id'), nullable=False)
+    audit_user = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
 
 class AppointmentAudit(db.Model):
     __tablename__ = 'appointment_audit'
@@ -98,4 +98,4 @@ class AppointmentAudit(db.Model):
     last_updated_at_new = db.Column(db.DateTime, nullable=False)
     action = db.Column(db.Enum(Action), nullable=False)
     audit_timestamp = db.Column(db.DateTime, server_default=db.func.now())
-    audit_user = db.Column(db.String(255), db.ForeignKey('user.user_id'), nullable=False)
+    audit_user = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)

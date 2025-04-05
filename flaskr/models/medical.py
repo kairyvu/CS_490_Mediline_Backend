@@ -18,8 +18,8 @@ class Prescription(db.Model):
     __tablename__ = 'prescription'
 
     prescription_id = db.Column(db.Integer, primary_key=True)
-    patient_id = db.Column(db.Integer, db.ForeignKey('patient.user_id'), nullable=False, ondelete='CASCADE')
-    doctor_id = db.Column(db.Integer, db.ForeignKey('doctor.user_id'), nullable=False, ondelete='CASCADE')
+    patient_id = db.Column(db.Integer, db.ForeignKey('patient.user_id', ondelete='CASCADE'), nullable=False)
+    doctor_id = db.Column(db.Integer, db.ForeignKey('doctor.user_id', ondelete='CASCADE'), nullable=False)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
     patient = db.relationship('Patient', backref=db.backref('prescriptions', lazy=True))
@@ -59,7 +59,7 @@ class Inventory(db.Model):
     __tablename__ = 'inventory'
 
     inventory_id = db.Column(db.Integer, primary_key=True)
-    pharmacy_id = db.Column(db.Integer, db.ForeignKey('pharmacy.pharmacy_id'), nullable=False)
+    pharmacy_id = db.Column(db.Integer, db.ForeignKey('pharmacy.user_id'), nullable=False)
     medication_id = db.Column(db.Integer, db.ForeignKey('medication.medication_id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
 

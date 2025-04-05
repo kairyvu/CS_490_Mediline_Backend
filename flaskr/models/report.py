@@ -20,9 +20,9 @@ class PatientReport(db.Model):
     __tablename__ = 'patient_report'
 
     patient_report_id = db.Column(db.Integer, primary_key=True)
-    report_id = db.Column(db.Integer, db.ForeignKey('report.report_id'), nullable=False, ondelete='CASCADE')
-    patient_id = db.Column(db.Integer, db.ForeignKey('patient.user_id'), nullable=False, ondelete='CASCADE')
-    doctor_id = db.Column(db.Integer, db.ForeignKey('doctor.user_id'), nullable=False, ondelete='CASCADE')
+    report_id = db.Column(db.Integer, db.ForeignKey('report.report_id', ondelete='CASCADE'), nullable=False)
+    patient_id = db.Column(db.Integer, db.ForeignKey('patient.user_id', ondelete='CASCADE'), nullable=False)
+    doctor_id = db.Column(db.Integer, db.ForeignKey('doctor.user_id', ondelete='CASCADE'), nullable=False)
     height = db.Column(db.Float, nullable=True)
     weight = db.Column(db.Float, nullable=True)
     calories_intake = db.Column(db.Integer, nullable=True)
@@ -47,7 +47,7 @@ class ProgressGraph(db.Model):
     __tablename__ = 'progress_graph'
 
     progress_graph_id = db.Column(db.Integer, primary_key=True)
-    patient_report_id = db.Column(db.Integer, db.ForeignKey('patient_report.patient_report_id'), nullable=False, ondelete='CASCADE')
+    patient_report_id = db.Column(db.Integer, db.ForeignKey('patient_report.patient_report_id', ondelete='CASCADE'), nullable=False)
     
     def __init__(self, patient_report_id):
         self.patient_report_id = patient_report_id
