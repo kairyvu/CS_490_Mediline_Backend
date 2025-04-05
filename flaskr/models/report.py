@@ -42,3 +42,12 @@ class PatientReport(db.Model):
 
     def __repr__(self):
         return f'<Patientreport {self.report_id} {self.patient_id}>'
+
+class ProgressGraph(db.Model):
+    __tablename__ = 'progress_graph'
+
+    progress_graph_id = db.Column(db.Integer, primary_key=True)
+    patient_report_id = db.Column(db.Integer, db.ForeignKey('patient_report.patient_report_id'), nullable=False, ondelete='CASCADE')
+    
+    def __init__(self, patient_report_id):
+        self.patient_report_id = patient_report_id

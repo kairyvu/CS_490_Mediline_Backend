@@ -1,23 +1,38 @@
 from flaskr import db
+import enum
+
+class AccountType(enum.Enum):
+    Patient = 'patient'
+    Doctor = 'doctor'
+    Pharmacy = 'pharmacy'
+    SuperUser = 'super_user'
 
 class User(db.Model):
     __tablename__ = 'user'
     
-    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
-    account_type = db.Column(db.String(20), nullable=False)
+    account_type = db.Column(db.Enum(AccountType), nullable=False)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 
+    def __init__(self, username, password, account_type):
+        self.username = username
+        self.password = password
+        self.account_type = account_type
+
     def __repr__(self):
-        return f'<User {self.username}>'
+        return f'<User {self.username} {self.account_type}>'
 
 class SuperUser(db.Model):
     __tablename__ = 'super_user'
     
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), primary_key=True, autoincrement=False)
     user = db.relationship('User', backref=db.backref('super_user', uselist=False))
+
+    def __init__(self, user_id):
+        self.user_id = user_id
 
     def __repr__(self):
         return f'<SuperUser {self.user_id}>'
@@ -25,7 +40,7 @@ class SuperUser(db.Model):
 class Doctor(db.Model):
     __tablename__ = 'doctor'
     
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), primary_key=True, autoincrement=False)
     first_name = db.Column(db.String(80), nullable=False)
     last_name = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -45,7 +60,7 @@ class Doctor(db.Model):
 class Pharmacy(db.Model):
     __tablename__ = 'pharmacy'
     
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), primary_key=True, nullable=False)
     pharmacy_name = db.Column(db.String(80), nullable=False)
     phone = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -61,7 +76,7 @@ class Pharmacy(db.Model):
 class Patient(db.Model):
     __tablename__ = 'patient'
     
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), primary_key=True, nullable=False)
     first_name = db.Column(db.String(80), nullable=False)
     last_name = db.Column(db.String(80), nullable=False)
     dob = db.Column(db.Date, nullable=False)
