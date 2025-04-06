@@ -1,4 +1,4 @@
-from flaskr import db
+from flaskr.extensions import db
 from flaskr.struct import ReportType
 
 class Report(db.Model):
@@ -7,9 +7,6 @@ class Report(db.Model):
     report_id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.Enum(ReportType), nullable=False)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
-
-    def __init__(self, type):
-        self.type = type
     
 class PatientReport(db.Model):
     __tablename__ = 'patient_report'
@@ -24,16 +21,3 @@ class PatientReport(db.Model):
     hours_of_exercise = db.Column(db.Integer, nullable=True)
     hours_of_sleep = db.Column(db.Integer, nullable=True)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
-
-    def __init__(self, report_id, patient_id, doctor_id, height=None, weight=None, calories_intake=None, hours_of_exercise=None, hours_of_sleep=None):
-        self.report_id = report_id
-        self.patient_id = patient_id
-        self.doctor_id = doctor_id
-        self.height = height
-        self.weight = weight
-        self.calories_intake = calories_intake
-        self.hours_of_exercise = hours_of_exercise
-        self.hours_of_sleep = hours_of_sleep
-
-    def __repr__(self):
-        return f'<Patientreport {self.report_id} {self.patient_id}>'

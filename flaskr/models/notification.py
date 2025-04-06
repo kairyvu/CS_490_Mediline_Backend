@@ -1,4 +1,4 @@
-from flaskr import db
+from flaskr.extensions import db
 
 class Notification(db.Model):
     __tablename__ = 'notification'
@@ -9,10 +9,3 @@ class Notification(db.Model):
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
     user = db.relationship('User', backref=db.backref('notifications', lazy=True))
-
-    def __init__(self, user_id, notification_content):
-        self.user_id = user_id
-        self.message = notification_content
-
-    def __repr__(self):
-        return f'<Notification {self.notification_id} {self.message}>'

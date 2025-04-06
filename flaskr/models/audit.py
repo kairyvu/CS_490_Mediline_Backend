@@ -1,4 +1,4 @@
-from flaskr import db
+from flaskr.extensions import db
 import enum
 
 class AccountType(enum.Enum):

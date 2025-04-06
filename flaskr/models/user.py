@@ -1,4 +1,4 @@
-from flaskr import db
+from flaskr.extensions import db
 from flaskr.struct import AccountType
 
 class User(db.Model):
@@ -11,25 +11,11 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 
-    def __init__(self, username, password, account_type):
-        self.username = username
-        self.password = password
-        self.account_type = account_type
-
-    def __repr__(self):
-        return f'<User {self.username} {self.account_type}>'
-
 class SuperUser(db.Model):
     __tablename__ = 'super_user'
     
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), primary_key=True)
     user = db.relationship('User', backref=db.backref('super_user', uselist=False))
-
-    def __init__(self, user_id):
-        self.user_id = user_id
-
-    def __repr__(self):
-        return f'<SuperUser {self.user_id}>'
     
 class Doctor(db.Model):
     __tablename__ = 'doctor'
@@ -47,9 +33,6 @@ class Doctor(db.Model):
     license_id = db.Column(db.String(80), unique=True, nullable=False)
     
     user = db.relationship('User', backref=db.backref('doctor', uselist=False))
-
-    def __repr__(self):
-        return f'<Doctor {self.first_name} {self.last_name}>'
     
 class Pharmacy(db.Model):
     __tablename__ = 'pharmacy'
@@ -62,9 +45,6 @@ class Pharmacy(db.Model):
     zipcode = db.Column(db.String(20), nullable=False)
     
     user = db.relationship('User', backref=db.backref('pharmacy', uselist=False))
-
-    def __repr__(self):
-        return f'<Pharmacy {self.name}>'
 
 
 class Patient(db.Model):
@@ -82,13 +62,3 @@ class Patient(db.Model):
     user = db.relationship('User', backref=db.backref('patient', uselist=False))
     doctor = db.relationship('Doctor', backref=db.backref('patients', lazy=True))
     pharmacy = db.relationship('Pharmacy', backref=db.backref('patients', lazy=True))
-
-    def __init__(self, first_name, last_name, dob, email, phone):
-        self.first_name = first_name
-        self.last_name = last_name
-        self.dob = dob
-        self.email = email
-        self.phone = phone
-
-    def __repr__(self):
-        return f'<Patient {self.first_name} {self.last_name}>'

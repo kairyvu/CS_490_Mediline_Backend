@@ -1,4 +1,4 @@
-from flaskr import db
+from flaskr.extensions import db
 
 class Chat(db.Model):
     __tablename__ = 'chat'
@@ -10,10 +10,6 @@ class Chat(db.Model):
     
     messages = db.relationship("Message", back_populates="chat", cascade="all, delete-orphan")
     appointment = db.relationship('Appointment', backref=db.backref('chat', uselist=False))
-
-    def __init__(self, appointment_id, end_date=None):
-        self.appointment_id = appointment_id
-        self.end_date = end_date
     
 class Message(db.Model):
     __tablename__ = 'message'
@@ -26,8 +22,3 @@ class Message(db.Model):
 
     chat = db.relationship("Chat", back_populates="messages")
     user = db.relationship('User', backref=db.backref('messages', lazy=True))
-
-    def __init__(self, chat_id, user_id, message_content):
-        self.chat_id = chat_id
-        self.user_id = user_id
-        self.message_content = message_content

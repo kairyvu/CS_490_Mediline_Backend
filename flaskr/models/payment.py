@@ -1,4 +1,4 @@
-from flaskr import db
+from flaskr.extensions import db
 from flaskr.struct import PaymentStatus
 
 class Invoice(db.Model):
@@ -13,9 +13,3 @@ class Invoice(db.Model):
 
     patient = db.relationship('Patient', backref=db.backref('invoices', lazy=True))
     doctor = db.relationship('Doctor', backref=db.backref('invoices', lazy=True))
-
-    def __init__(self, patient_id, doctor_id, status=PaymentStatus.PENDING, pay_date=None):
-        self.patient_id = patient_id
-        self.doctor_id = doctor_id
-        self.status = status
-        self.pay_date = pay_date

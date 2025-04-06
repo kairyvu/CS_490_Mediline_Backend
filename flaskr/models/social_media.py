@@ -1,4 +1,4 @@
-from flaskr import db
+from flaskr.extensions import db
 
 class Post(db.Model):
     __tablename__ = 'post'
@@ -12,14 +12,6 @@ class Post(db.Model):
 
     user = db.relationship('User', backref=db.backref('posts', lazy=True))
 
-    def __init__(self, user_id, title, content):
-        self.user_id = user_id
-        self.title = title
-        self.content = content
-    
-    def __repr__(self):
-        return f'<Post {self.post_id} {self.title}>'
-
 class Comment(db.Model):
     __tablename__ = 'comment'
 
@@ -32,11 +24,3 @@ class Comment(db.Model):
 
     post = db.relationship('Post', backref=db.backref('comments', lazy=True))
     user = db.relationship('User', backref=db.backref('comments', lazy=True))
-
-    def __init__(self, post_id, user_id, content):
-        self.post_id = post_id
-        self.user_id = user_id
-        self.content = content
-    
-    def __repr__(self):
-        return f'<Comment {self.comment_id} {self.content}>'

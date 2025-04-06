@@ -1,4 +1,4 @@
-from flaskr import db
+from flaskr.extensions import db
 
 class MedicalRecord(db.Model):
     __tablename__ = 'medical_record'
@@ -9,10 +9,6 @@ class MedicalRecord(db.Model):
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
     patient = db.relationship('Patient', backref=db.backref('medical_records', lazy=True))
-
-    def __init__(self, patient_id, description):
-        self.patient_id = patient_id
-        self.description = description
 
 class Prescription(db.Model):
     __tablename__ = 'prescription'
@@ -26,11 +22,6 @@ class Prescription(db.Model):
     patient = db.relationship('Patient', backref=db.backref('prescriptions', lazy=True))
     doctor = db.relationship('Doctor', backref=db.backref('prescriptions', lazy=True))
 
-    def __init__(self, patient_id, doctor_id, amount):
-        self.patient_id = patient_id
-        self.doctor_id = doctor_id
-        self.amount = amount
-
 class PrescriptionMedication(db.Model):
     __tablename__ = 'prescription_medication'
 
@@ -40,22 +31,12 @@ class PrescriptionMedication(db.Model):
     dosage = db.Column(db.String(100), nullable=False)
     medical_instructions = db.Column(db.Text, nullable=False)
 
-    def __init__(self, prescription_id, medication_id, dosage, medical_instructions):
-        self.prescription_id = prescription_id
-        self.medication_id = medication_id
-        self.dosage = dosage
-        self.medical_instructions = medical_instructions
-
 class Medication(db.Model):
     __tablename__ = 'medication'
 
     medication_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
     description = db.Column(db.Text, nullable=False)
-
-    def __init__(self, name, description):
-        self.name = name
-        self.description = description
 
 class Inventory(db.Model):
     __tablename__ = 'inventory'
@@ -67,8 +48,3 @@ class Inventory(db.Model):
 
     pharmacy = db.relationship('Pharmacy', backref=db.backref('inventories', lazy=True))
     medication = db.relationship('Medication', backref=db.backref('inventories', lazy=True))
-
-    def __init__(self, pharmacy_id, medication_id, quantity=0):
-        self.pharmacy_id = pharmacy_id
-        self.medication_id = medication_id
-        self.quantity = quantity
