@@ -17,16 +17,3 @@ class RatingSurvey(db.Model):
         self.doctor_id = doctor_id
         self.comment = comment
         self.stars = stars
-
-class RatingRecord(db.Model):
-    __tablename__ = 'rating_record'
-
-    rating_record_id = db.Column(db.Integer, primary_key=True)
-    doctor_id = db.Column(db.Integer, db.ForeignKey('doctor.user_id'), nullable=False)
-    survey_id = db.Column(db.Integer, db.ForeignKey('rating_survey.survey_id'), nullable=False)
-
-    doctor = db.relationship('Doctor', backref=db.backref('rating_records', lazy=True))
-
-    def __inti__(self, doctor_id, survey_id):
-        self.doctor_id = doctor_id
-        self.survey_id = survey_id

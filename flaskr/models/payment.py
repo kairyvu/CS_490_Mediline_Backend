@@ -1,9 +1,5 @@
 from flaskr import db
-import enum
-
-class PaymentStatus(enum.Enum):
-    PAID = 'paid'
-    PENDING = 'pending'
+from flaskr.struct import PaymentStatus
 
 class Invoice(db.Model):
     __tablename__ = 'invoice'
@@ -23,17 +19,3 @@ class Invoice(db.Model):
         self.doctor_id = doctor_id
         self.status = status
         self.pay_date = pay_date
-
-class PaymentPrescription(db.Model):
-    __tablename__ = 'payment_prescription'
-
-    payment_prescription_id = db.Column(db.Integer, primary_key=True)
-    prescription_id = db.Column(db.Integer, db.ForeignKey('prescription.prescription_id'), nullable=False)
-    amount = db.Column(db.Float, nullable=False)
-
-    prescription = db.relationship('Prescription', backref=db.backref('payment_prescriptions', lazy=True))
-    invoice = db.relationship('Invoice', backref=db.backref('payment_prescriptions', lazy=True))
-
-    def __init__(self, prescription_id, amount):
-        self.prescription_id = prescription_id
-        self.amount = amount

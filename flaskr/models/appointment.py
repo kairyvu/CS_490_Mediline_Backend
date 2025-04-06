@@ -1,11 +1,5 @@
 from flaskr import db
-import enum
-
-class AppointmentStatus(enum.Enum):
-    PENDING = 'pending'
-    CONFIRMED = 'confirmed'
-    CANCELLED = 'cancelled'
-    COMPLETED = 'completed'
+from flaskr.struct import AppointmentStatus
 
 class Appointment(db.Model):
     __tablename__ = 'appointment'
@@ -26,13 +20,10 @@ class Appointment(db.Model):
 class AppointmentDetail(db.Model):
     __tablename__ = 'appointment_detail'
 
-    appointment_details_id = db.Column(db.Integer, primary_key=True)
-    appointment_id = db.Column(db.Integer, db.ForeignKey('appointment.appointment_id', ondelete='CASCADE'), nullable=False)
+    appointment_details_id = db.Column(db.Integer, db.ForeignKey('appointment.appointment_id'), primary_key=True, nullable=False)
     start_date = db.Column(db.DateTime, nullable=False)
     end_date = db.Column(db.DateTime, nullable=False)
     status = db.Column(db.Enum(AppointmentStatus), nullable=False, default=AppointmentStatus.PENDING)
-
-    appointment = db.relationship('Appointment', backref=db.backref('appointment_detail', lazy=True))
     
     def __init__(self, appointment_id, start_date, end_date, status=AppointmentStatus.PENDING):
         self.appointment_id = appointment_id

@@ -20,14 +20,16 @@ class Prescription(db.Model):
     prescription_id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(db.Integer, db.ForeignKey('patient.user_id', ondelete='CASCADE'), nullable=False)
     doctor_id = db.Column(db.Integer, db.ForeignKey('doctor.user_id', ondelete='CASCADE'), nullable=False)
+    amount = db.Column(db.Float, nullable=False)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
     patient = db.relationship('Patient', backref=db.backref('prescriptions', lazy=True))
     doctor = db.relationship('Doctor', backref=db.backref('prescriptions', lazy=True))
 
-    def __init__(self, patient_id, doctor_id):
+    def __init__(self, patient_id, doctor_id, amount):
         self.patient_id = patient_id
         self.doctor_id = doctor_id
+        self.amount = amount
 
 class PrescriptionMedication(db.Model):
     __tablename__ = 'prescription_medication'

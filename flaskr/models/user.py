@@ -1,11 +1,5 @@
 from flaskr import db
-import enum
-
-class AccountType(enum.Enum):
-    Patient = 'patient'
-    Doctor = 'doctor'
-    Pharmacy = 'pharmacy'
-    SuperUser = 'super_user'
+from flaskr.struct import AccountType
 
 class User(db.Model):
     __tablename__ = 'user'
@@ -28,7 +22,7 @@ class User(db.Model):
 class SuperUser(db.Model):
     __tablename__ = 'super_user'
     
-    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), primary_key=True, autoincrement=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), primary_key=True)
     user = db.relationship('User', backref=db.backref('super_user', uselist=False))
 
     def __init__(self, user_id):
@@ -40,11 +34,11 @@ class SuperUser(db.Model):
 class Doctor(db.Model):
     __tablename__ = 'doctor'
     
-    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), primary_key=True, autoincrement=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), primary_key=True)
     first_name = db.Column(db.String(80), nullable=False)
     last_name = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    phone = db.Column(db.String(20), nullable=False)
+    phone = db.Column(db.String(50), nullable=False)
     specialization = db.Column(db.String(80), nullable=False)
     bio = db.Column(db.Text, nullable=True)
     fee = db.Column(db.Float, nullable=False)
@@ -62,7 +56,7 @@ class Pharmacy(db.Model):
     
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), primary_key=True, nullable=False)
     pharmacy_name = db.Column(db.String(80), nullable=False)
-    phone = db.Column(db.String(20), nullable=False)
+    phone = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     hours = db.Column(db.String(80), nullable=False)
     zipcode = db.Column(db.String(20), nullable=False)
@@ -76,12 +70,12 @@ class Pharmacy(db.Model):
 class Patient(db.Model):
     __tablename__ = 'patient'
     
-    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), primary_key=True, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), primary_key=True)
     first_name = db.Column(db.String(80), nullable=False)
     last_name = db.Column(db.String(80), nullable=False)
     dob = db.Column(db.Date, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    phone = db.Column(db.String(20), nullable=False)
+    phone = db.Column(db.String(50), nullable=False)
     doctor_id = db.Column(db.Integer, db.ForeignKey('doctor.user_id'), nullable=True)
     pharmacy_id = db.Column(db.Integer, db.ForeignKey('pharmacy.user_id'), nullable=True)
     

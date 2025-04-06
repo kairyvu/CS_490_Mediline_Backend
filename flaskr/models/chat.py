@@ -8,7 +8,7 @@ class Chat(db.Model):
     start_date = db.Column(db.DateTime, server_default=db.func.now())
     end_date = db.Column(db.DateTime, nullable=True)
     
-    message = db.relationship('Message', backref='chat', lazy=True)
+    messages = db.relationship("Message", back_populates="chat", cascade="all, delete-orphan")
     appointment = db.relationship('Appointment', backref=db.backref('chat', uselist=False))
 
     def __init__(self, appointment_id, end_date=None):
@@ -24,7 +24,7 @@ class Message(db.Model):
     message_content = db.Column(db.Text, nullable=False)
     time = db.Column(db.DateTime, server_default=db.func.now())
 
-    chat = db.relationship('Chat', backref=db.backref('messages', lazy=True))
+    chat = db.relationship("Chat", back_populates="messages")
     user = db.relationship('User', backref=db.backref('messages', lazy=True))
 
     def __init__(self, chat_id, user_id, message_content):
