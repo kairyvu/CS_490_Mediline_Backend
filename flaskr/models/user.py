@@ -62,3 +62,15 @@ class Patient(db.Model):
     user = db.relationship('User', backref=db.backref('patient', uselist=False))
     doctor = db.relationship('Doctor', backref=db.backref('patients', lazy=True))
     pharmacy = db.relationship('Pharmacy', backref=db.backref('patients', lazy=True))
+    
+    def to_dict(self):
+        return {
+            "user_id": self.user_id,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "dob": self.dob.isoformat() if self.dob else None,
+            "email": self.email,
+            "phone": self.phone,
+            "doctor_id": self.doctor_id,
+            "pharmacy_id": self.pharmacy_id
+        }
