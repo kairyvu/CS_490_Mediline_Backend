@@ -3,10 +3,10 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import os
 from dotenv import load_dotenv
+from flaskr.cli import register_commands
+from flaskr.extensions import db
 
 load_dotenv()
-
-db = SQLAlchemy()
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
@@ -20,5 +20,6 @@ def create_app():
     
     from flaskr.routes import register_routes
     register_routes(app)
+    register_commands(app)
 
     return app
