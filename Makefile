@@ -1,4 +1,4 @@
-.PHONY: install venv clean run
+.PHONY: install venv clean run schema db_update fake
 
 venv:
 	python -m venv venv
@@ -13,3 +13,15 @@ clean:
 
 run:
 	flask run
+
+schema:
+	python -m flask db init
+	python -m flask db migrate
+	python -m flask db upgrade
+
+db_update:
+	python -m flask db migrate
+	python -m flask db upgrade
+
+fake:
+	flask seed-db
