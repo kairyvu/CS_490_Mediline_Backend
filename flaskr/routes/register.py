@@ -1,7 +1,10 @@
 """\
     Route for user registration in Mediline API Backend
-    - accepts only http POST requests
-    - expects JSON mime type; coerces body into JSON format
+    - accepts only http POST requests with content types of:
+      - application/json
+      - application/x-www-form-urlencoded
+      - multipart/form-data
+      then makes it into a werkzeug ImmutableMultiDict
 """
 from werkzeug.datastructures import ImmutableMultiDict
 from flask import Blueprint, request, make_response, jsonify
