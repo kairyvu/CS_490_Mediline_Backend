@@ -1,30 +1,52 @@
 """\
     Used in `register.py`; ORM-like models for form data used in validation
 """
-from wtforms import Form, StringField, PasswordField, EmailField, validators
+from wtforms import Form, Field, ValidationError, TelField, DateField, StringField, PasswordField, EmailField, validators
+
+def length(min=-1, max=-1):
+    message = f'Must be between {min} and {max} characters long.'
+    def _length(form: dict[str, str], field: Field):
+        l = field.data and len(field.data) or 0
+        if l < min or max != -1 and l > max:
+            raise ValidationError(message)
+    return _length
+
+def length_no_max(min=-1):
+    message = f'Must be at least {min} characters long.'
+    def _length(form: dict[str, str], field: Field):
+        l = field.data and len(field.data) or 0
+        if l < min:
+            raise ValidationError(message)
+    return _length
 
 class UserRegistrationForm(Form):
     _phone_num_regexp = "^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$"
     username        =   StringField('Username', [
-                            validators.Length(min=4, max=25),
+                            length(4, 25),
                             validators.InputRequired()
                         ])
     password        =   PasswordField('Password', [
-                            validators.Length(min=8),
+                            length_no_max(8),
                             validators.InputRequired()
                         ])
-    account_type    =   StringField('Password', [
-                            validators.AnyOf(['patient', 'doctor', 'pharmacy']),
+    account_type    =   StringField('Account Type', [
+                            validators.AnyOf(
+                                ['patient', 'doctor', 'pharmacy'], 
+                                message='invalid account type'
+                            ),
                             validators.InputRequired()
                         ])
     email           =   EmailField('Email', [
                             validators.Email(),
                             validators.InputRequired()
                         ])
-    phone           =   StringField('Phone Number', [
-                            validators.Regexp(_phone_num_regexp),
+    phone           =   TelField('Phone Number', [
+                            validators.Regexp(
+                                _phone_num_regexp, 
+                                message='invalid phone number'),
                             validators.InputRequired()
                         ]) 
+
 
 class PtRegForm(UserRegistrationForm):
     first_name      =   StringField('First Name', [
@@ -33,7 +55,7 @@ class PtRegForm(UserRegistrationForm):
     last_name       =   StringField('Last Name', [
                             validators.InputRequired()
                         ])
-    dob             =   StringField('Date of Birth', [
+    dob             =   DateField('Date of Birth', [
                             validators.InputRequired()
                             #TODO: Include date validator
                         ])
