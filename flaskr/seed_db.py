@@ -293,10 +293,14 @@ def seed_exercises(n=100):
         users["exercises"].append(exercise.exercise_id)
 
         for _ in range(faker.random_int(min=0, max=10)):
+            patient_id = faker.random_element(tuple(users["patients"]))
+            doctor_id = user_relationship[patient_id][0]
+            if not doctor_id:
+                continue
             patient_exercise = PatientExercise(
                 exercise_id=exercise.exercise_id,
-                patient_id=faker.random_element(tuple(users["patients"])),
-                doctor_id=faker.random_element(tuple(users["doctors"])),
+                patient_id=patient_id,
+                doctor_id=doctor_id,
                 reps=faker.random_int(min=1, max=20),
                 created_at=faker.date_time_this_year(),
             )
@@ -335,6 +339,7 @@ def seed_appointments(n=300):
         )
         appointment_detail = AppointmentDetail(
             appointment_details_id=appointment.appointment_id,
+            treatment=faker.word(),
             start_date=start_date,
             end_date=end_date,
             status=status,
