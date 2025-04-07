@@ -1,6 +1,6 @@
 from datetime import datetime
 from flask import Blueprint, jsonify, request
-from flaskr.services import get_upcoming_appointments, add_appointment
+from flaskr.services import get_upcoming_appointments, add_appointment, update_appointment
 
 appointment_bp = Blueprint('appointment', __name__)
 
@@ -46,4 +46,20 @@ def create_appointment():
         add_appointment(doctor_id, patient_id, treatment, start_date, end_date)
         return jsonify({"message": "Appointment created successfully"}), 201
     except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@appointment_bp.route('/update/<int:appointment_id>', methods=['PUT'])
+def update_appointment_detail(appointment_id):
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No input data provided"}), 400
+    treatment = data.get('treatment')
+    start_date = data.get('start_date')
+
+    if not treatment or not start_date:
+        return jsonify({"error": "treatment and start_date are required."}), 400
+    try:
+        update_appointment(appointment_id, treatment=treatment, start_date=start_date)
+        return jsonify({"message": "Appointment updated successfully"}), 200
+    except ValueError as e:
         return jsonify({"error": str(e)}), 400
