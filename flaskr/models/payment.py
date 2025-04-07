@@ -13,3 +13,13 @@ class Invoice(db.Model):
 
     patient = db.relationship('Patient', backref=db.backref('invoices', lazy=True))
     doctor = db.relationship('Doctor', backref=db.backref('invoices', lazy=True))
+
+    def to_dict(self):
+        return {
+            'invoice_id': self.invoice_id,
+            'patient_id': self.patient_id,
+            'doctor_id': self.doctor_id,
+            'status': self.status.name,
+            'pay_date': self.pay_date.isoformat() if self.pay_date else None,
+            'created_at': self.created_at.isoformat()
+        }
