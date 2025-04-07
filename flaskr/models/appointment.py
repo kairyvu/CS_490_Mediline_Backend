@@ -35,9 +35,10 @@ class AppointmentDetail(db.Model):
         if self.appointment:
             result['doctor_id'] = self.appointment.doctor_id
             result['patient_id'] = self.appointment.patient_id
-            
+
             if self.appointment.doctor:
                 result['doctor_name'] = f"{self.appointment.doctor.first_name} {self.appointment.doctor.last_name}"
+                result['fee'] = self.appointment.doctor.fee
             else:
                 result['doctor_name'] = None
 

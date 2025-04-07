@@ -32,3 +32,18 @@ def get_upcoming_appointments(user_id, sort_by='start_date', order='desc'):
     appointments = query.all()
     
     return [ap.to_dict() for ap in appointments]
+
+def add_appointment(doctor_id, patient_id, treatment, start_date, end_date=None):
+    appointment_detail = AppointmentDetail(
+        treatment=treatment,
+        start_date=start_date,
+        end_date=end_date,
+        status=AppointmentStatus.PENDING
+    )
+    appointment = Appointment(
+        doctor_id=doctor_id,
+        patient_id=patient_id,
+        appointment_detail=appointment_detail
+    )
+    db.session.add(appointment)
+    db.session.commit()
