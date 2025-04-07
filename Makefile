@@ -19,9 +19,5 @@ schema:
 	python -m flask db migrate
 	python -m flask db upgrade
 
-db_update:
-	python -m flask db migrate
-	python -m flask db upgrade
-
 fake:
 	flask seed-db
