@@ -21,3 +21,21 @@ class PatientReport(db.Model):
     hours_of_exercise = db.Column(db.Integer, nullable=True)
     hours_of_sleep = db.Column(db.Integer, nullable=True)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
+
+    report = db.relationship('Report', backref='patient_reports', lazy=True)
+    patient = db.relationship('Patient', backref='patient_reports', lazy=True)
+    doctor = db.relationship('Doctor', backref='patient_reports', lazy=True)
+
+    def to_dict(self):
+        return {
+            'patient_report_id': self.patient_report_id,
+            'report_id': self.report_id,
+            'patient_id': self.patient_id,
+            'doctor_id': self.doctor_id,
+            'height': self.height,
+            'weight': self.weight,
+            'calories_intake': self.calories_intake,
+            'hours_of_exercise': self.hours_of_exercise,
+            'hours_of_sleep': self.hours_of_sleep,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }
