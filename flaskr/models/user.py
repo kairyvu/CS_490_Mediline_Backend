@@ -11,11 +11,25 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 
+    def to_dict(self):
+        return {
+            "user_id": self.user_id,
+            "username": self.username,
+            "account_type": self.account_type.name,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None
+        }
+
 class SuperUser(db.Model):
     __tablename__ = 'super_user'
     
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), primary_key=True)
     user = db.relationship('User', backref=db.backref('super_user', uselist=False))
+
+    def to_dict(self):
+        return {
+            "user_id": self.user_id
+        }
     
 class Doctor(db.Model):
     __tablename__ = 'doctor'
@@ -33,6 +47,21 @@ class Doctor(db.Model):
     license_id = db.Column(db.String(80), unique=True, nullable=False)
     
     user = db.relationship('User', backref=db.backref('doctor', uselist=False))
+
+    def to_dict(self):
+        return {
+            "user_id": self.user_id,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "email": self.email,
+            "phone": self.phone,
+            "specialization": self.specialization,
+            "bio": self.bio,
+            "fee": self.fee,
+            "profile_picture": self.profile_picture,
+            "dob": self.dob.isoformat() if self.dob else None,
+            "license_id": self.license_id
+        }
     
 class Pharmacy(db.Model):
     __tablename__ = 'pharmacy'
@@ -45,6 +74,16 @@ class Pharmacy(db.Model):
     zipcode = db.Column(db.String(20), nullable=False)
     
     user = db.relationship('User', backref=db.backref('pharmacy', uselist=False))
+
+    def to_dict(self):
+        return {
+            "user_id": self.user_id,
+            "pharmacy_name": self.pharmacy_name,
+            "phone": self.phone,
+            "email": self.email,
+            "hours": self.hours,
+            "zipcode": self.zipcode
+        }
 
 
 class Patient(db.Model):

@@ -11,6 +11,21 @@ class Post(db.Model):
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 
     user = db.relationship('User', backref=db.backref('posts', lazy=True))
+    comments = db.relationship('Comment', back_populates='post', lazy=True)
+
+    def to_dict(self, comments=False):
+        result = {
+            'post_id': self.post_id,
+            'user_id': self.user_id,
+            'title': self.title,
+            'content': self.content,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at,
+            }
+        if comments:
+            result['comments'] = [comment.to_dict() for comment in self.comments]
+        return result
+
 
 class Comment(db.Model):
     __tablename__ = 'comment'
@@ -22,5 +37,15 @@ class Comment(db.Model):
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 
-    post = db.relationship('Post', backref=db.backref('comments', lazy=True))
+    post = db.relationship('Post', back_populates='comments')
     user = db.relationship('User', backref=db.backref('comments', lazy=True))
+
+    def to_dict(self):
+        return {
+            'comment_id': self.comment_id,
+            'post_id': self.post_id,
+            'user_id': self.user_id,
+            'content': self.content,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at
+        }

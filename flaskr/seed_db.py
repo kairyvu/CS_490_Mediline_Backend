@@ -4,7 +4,7 @@ from faker import Faker
 from flaskr.models import User, Patient, Doctor, Pharmacy, SuperUser, Post, Comment, Report, PatientReport, RatingSurvey, Invoice, Notification, MedicalRecord, Prescription, PrescriptionMedication, Medication, Inventory, ExerciseBank, PatientExercise, Chat, Message, Appointment, AppointmentDetail
 import contextlib
 from sqlalchemy import MetaData
-from flaskr.struct import AccountType, ReportType, PaymentStatus, AppointmentStatus
+from flaskr.struct import AccountType, ReportType, PaymentStatus, AppointmentStatus, ExerciseStatus, PrescriptionStatus
 from collections import defaultdict
 from flaskr.extensions import db
 from sqlalchemy import text
@@ -130,20 +130,28 @@ def seed_users():
 
 def seed_posts(n=1000):
     for _ in range(n):
+        created_at = faker.date_time_this_year()
+        updated_at = created_at + timedelta(minutes=random.randint(0, 300))
         post = Post(
             user_id=faker.random_element(tuple(users["users"])),
             title=faker.sentence(),
             content=faker.text(max_nb_chars=500),
+            created_at=faker.date_time_this_year(),
+            updated_at=updated_at,
         )
         db.session.add(post)
         db.session.flush()
         users["posts"].append(post.post_id)
 
         for _ in range(faker.random_int(min=0, max=5)):
+            created_at = faker.date_time_this_year()
+            updated_at = created_at + timedelta(minutes=random.randint(0, 300))
             comment = Comment(
                 post_id=post.post_id,
                 user_id=faker.random_element(tuple(users["users"])),
                 content=faker.text(max_nb_chars=200),
+                created_at=created_at,
+                updated_at=updated_at,
             )
             db.session.add(comment)
             db.session.flush()
@@ -220,6 +228,7 @@ def seed_prescriptions(n=400):
             patient_id=faker.random_element(tuple(users["patients"])),
             doctor_id=faker.random_element(tuple(users["doctors"])),
             amount=faker.random_number(digits=3, fix_len=False),
+            status=faker.random_element([PrescriptionStatus.PAID, PrescriptionStatus.UNPAID]),
             created_at=faker.date_time_this_year(),
         )
         db.session.add(prescription)
@@ -293,11 +302,18 @@ def seed_exercises(n=100):
         users["exercises"].append(exercise.exercise_id)
 
         for _ in range(faker.random_int(min=0, max=10)):
+            patient_id = faker.random_element(tuple(users["patients"]))
+            doctor_id = user_relationship[patient_id][0]
+            if not doctor_id:
+                continue
             patient_exercise = PatientExercise(
                 exercise_id=exercise.exercise_id,
-                patient_id=faker.random_element(tuple(users["patients"])),
-                doctor_id=faker.random_element(tuple(users["doctors"])),
+                patient_id=patient_id,
+                doctor_id=doctor_id,
                 reps=faker.random_int(min=1, max=20),
+                status=faker.random_element([
+                    ExerciseStatus.IN_PROGRESS,
+                    ExerciseStatus.COMPLETED]),
                 created_at=faker.date_time_this_year(),
             )
             db.session.add(patient_exercise)
@@ -335,6 +351,7 @@ def seed_appointments(n=300):
         )
         appointment_detail = AppointmentDetail(
             appointment_details_id=appointment.appointment_id,
+            treatment=faker.word(),
             start_date=start_date,
             end_date=end_date,
             status=status,
