@@ -1,5 +1,6 @@
 from flask import Blueprint, Flask
 from .database import database_bp
+from .register import register_bp
 from .exercise_routes import exercise_bp
 from .payment_routes import payment_bp
 from .appointment_routes import appointment_bp
@@ -25,3 +26,4 @@ def register_routes(app: Flask):
     app.register_blueprint(doctor_bp, url_prefix='/doctor')
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(patient_bp, url_prefix='/patient')
+    app.register_blueprint(register_bp, url_prefix='/register')
