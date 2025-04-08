@@ -55,11 +55,13 @@ def update_appointment_detail(appointment_id):
         return jsonify({"error": "No input data provided"}), 400
     treatment = data.get('treatment')
     start_date = data.get('start_date')
-
+    end_date = data.get('end_date')
+    status = data.get('status')
+    
     if not treatment or not start_date:
         return jsonify({"error": "treatment and start_date are required."}), 400
     try:
-        update_appointment(appointment_id, treatment=treatment, start_date=start_date)
+        update_appointment(appointment_id, treatment=treatment, start_date=start_date, status=status, end_date=end_date)
         return jsonify({"message": "Appointment updated successfully"}), 200
     except ValueError as e:
         return jsonify({"error": str(e)}), 400

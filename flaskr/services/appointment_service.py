@@ -49,7 +49,7 @@ def add_appointment(doctor_id, patient_id, treatment, start_date, end_date=None)
     db.session.add(appointment)
     db.session.commit()
 
-def update_appointment(appointment_id, treatment, start_date, end_date=None):
+def update_appointment(appointment_id, treatment, start_date, status=AppointmentStatus.PENDING, end_date=None):
     appointment_detail = AppointmentDetail.query.get(appointment_id)
     if not appointment_detail:
         raise ValueError("Appointment not found")
@@ -57,7 +57,8 @@ def update_appointment(appointment_id, treatment, start_date, end_date=None):
         raise ValueError("Only appointments with pending or confirmed status can be updated")
     if not treatment or not start_date:
         raise ValueError("treatment and start_date are required")
-    
+    if status and status not in ['PENDING', 'CONFIRMED', 'CANCELLED']:
+        raise ValueError("Invalid status value")
     if isinstance(start_date, str):
         try:
             start_date = datetime.fromisoformat(start_date)
@@ -78,5 +79,5 @@ def update_appointment(appointment_id, treatment, start_date, end_date=None):
         raise ValueError("end_date must be after start_date")
     appointment_detail.start_date = start_date
     appointment_detail.end_date = end_date
-    appointment_detail.status = AppointmentStatus.PENDING
+    appointment_detail.status = status
     db.session.commit()

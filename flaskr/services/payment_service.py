@@ -1,4 +1,4 @@
-from flaskr.models.payment import Invoice
+from flaskr.models import Invoice
 
 def get_invoices_by_user(user_id, sort_by='created_at', order='desc'):
     if not hasattr(Invoice, sort_by):
