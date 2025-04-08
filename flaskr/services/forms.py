@@ -1,7 +1,7 @@
 """\
     Used in `register.py`; ORM-like models for form data used in validation
 """
-from wtforms import Form, Field, ValidationError, TelField, DateField, StringField, PasswordField, EmailField, validators
+from wtforms import Form, Field, ValidationError, DecimalField, TelField, DateField, StringField, PasswordField, EmailField, validators
 
 def length(min=-1, max=-1):
     message = f'Must be between {min} and {max} characters long.'
@@ -57,14 +57,13 @@ class PtRegForm(UserRegistrationForm):
                         ])
     dob             =   DateField('Date of Birth', [
                             validators.InputRequired()
-                            #TODO: Include date validator
                         ])
 
 class DrRegForm(PtRegForm):
     specialization  =   StringField('Specialization', [
                             validators.InputRequired()
                         ])
-    fee             =   StringField('Fee', [
+    fee             =   DecimalField('Fee', [
                             validators.InputRequired()
                         ])
     license_id      =   StringField('License ID', [

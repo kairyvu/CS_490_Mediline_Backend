@@ -1,126 +1,108 @@
-from werkzeug.datastructures import ImmutableMultiDict
-from flask import make_response, jsonify
+from werkzeug.datastructures import ImmutableMultiDict      # For type hints
+from flask import make_response, jsonify, Response
 from flaskr.models import User, Patient, Doctor, Pharmacy
 from flaskr.extensions import db
 
+from sqlalchemy.exc import IntegrityError                   # For exception handling: Duplicate user creation (unique usernames and emails)
+
 from .forms import UserRegistrationForm, PtRegForm, DrRegForm, PharmRegForm
 
-def add_user(user_info: ImmutableMultiDict):
+def add_user(user_info: ImmutableMultiDict) -> Response:
     user = UserRegistrationForm(user_info)
     # Validate the form data first
     if not user.validate():
         m = list(user.errors.items())
-        return make_response(jsonify(message=m), 400)
+        return make_response(jsonify({'error': m}), 400)
+    # Form data for user creation passed; create user object and pass to specific user creation
+    new_user = User(
+        username=user.username.data,
+        password=user.password.data,
+        account_type=user.account_type.data
+    )
     match user.account_type.data:
         case 'patient':
-            return add_patient(user_info)
+            return add_patient(user_info, new_user)
         case 'doctor':
-            return add_doctor(user_info)
+            return add_doctor(user_info, new_user)
         case 'pharmacy':
-            return add_pharmacy(user_info)
+            return add_pharmacy(user_info, new_user)
         case _:
-            return make_response(jsonify(message='unknown account type'), 400)
-    #return make_response(jsonify(message='good'), 200)
+            # This should not be reachable; here for completeness
+            return make_response(jsonify({'error':  'unknown account type'}), 400)
     
-def add_patient(pt_info):
+def add_patient(pt_info: ImmutableMultiDict, user_obj: User) -> Response:
     patient = PtRegForm(pt_info)
-    # Validate the form data first
+    # Validate patient form data first
     if not patient.validate():
         m = list(patient.errors.items())
-        return make_response(jsonify(message=m), 400)
-    return make_response(jsonify(message='good'), 201)
-
-def add_doctor(dr_info):
-    pass
-
-def add_pharmacy(pharm_info):
-    pass
-
-
-    """
-    ## Check needed form data present from args
-    valid = validate_form_data(needed_keys, user_info)
-    if not valid[0]: 
-        return make_response(jsonify(message=valid[1]), 400)
+        return make_response(jsonify({'error': m}), 400)
+    # Form validations for patient passed; create object
+    new_patient = Patient(
+        first_name=patient.first_name.data,
+        last_name=patient.last_name.data,
+        dob=patient.dob.data,
+        email=patient.email.data,
+        phone=patient.phone.data,
+        user=user_obj
+    )
+    db.session.add(new_patient)
+    try:
+        db.session.commit()
+    except IntegrityError as e:
+        return make_response(jsonify({'error': f'{e}'}), 400)
+    except Exception as e:
+        m = f'unexpected: {e=}, {type(e)=}'
+        return make_response(jsonify({'error': m}), 400)
     else:
-        match user_info['account_type']:
-            case 'patient':
-                return add_patient(user_info)
-            case 'doctor':
-                return add_doctor(user_info)
-            case 'pharmacy':
-                return add_pharmacy(user_info)
-            case _:
-                return make_response(jsonify(message='unknown account type'), 400)
-    """
+        return make_response(jsonify({'user_id': new_patient.user_id}), 201)
 
-"""
-def add_patient(pt_info):
-    valid = validate_form_data(needed_keys_pt, pt_info)
-    if not valid[0]:
-        return make_response(jsonify(message=valid[1]), 400)
-    return make_response(jsonify(message='patient added'), 201)
-
-def add_doctor(dr_info):
-    valid = validate_form_data(needed_keys_dr, dr_info)
-    if not valid[0]:
-        return make_response(jsonify(message=valid[1]), 400)
-    return make_response(jsonify(message='doctor added'), 201)
-
-def add_pharmacy(pharm_info):
-    valid = validate_form_data(needed_keys_pharm, pharm_info)
-    if not valid[0]:
-        return make_response(jsonify(message=valid[1]), 400)
-    return make_response(jsonify(message='pharmacy added'), 201)
-"""
+def add_doctor(dr_info: ImmutableMultiDict, user_obj: User) -> Response:
+    doctor = DrRegForm(dr_info)
+    if not doctor.validate():
+        m = list(doctor.errors.items())
+        return make_response(jsonify({'error': m}), 400)
+    new_doctor = Doctor(
+        first_name=doctor.first_name.data,
+        last_name=doctor.last_name.data,
+        dob=doctor.dob.data,
+        email=doctor.email.data,
+        phone=doctor.phone.data,
+        fee=doctor.fee.data,
+        license_id=doctor.license_id.data,
+        user=user_obj
+    )
+    db.session.add(new_doctor)
+    try:
+        db.session.commit()
+    except IntegrityError as e:
+        return make_response(jsonify({'error': f'{e}'}), 400)
+    except Exception as e:
+        m = f'unexpected: {e=}, {type(e)=}'
+        return make_response(jsonify({'error': m}), 400)
+    else:
+        return make_response(jsonify({'user_id': new_doctor.user_id}), 201)
 
 
-
-## OLD
-''' how to select all users from users
-from sqlalchemy import select
-users = db.session.execute(select(User)).scalars().all()
-users_list: list[dict] = []
-for user in users:
-    u_dict = user.__dict__
-    u_dict.pop('_sa_instance_state')
-    u_dict['account_type'] = u_dict['account_type'].value
-    users_list.append(u_dict)
-return jsonify(users_list)
-
-### OLD ###
-needed_keys: list[str] = [
-    'username',
-    'password', 
-    'account_type',
-    'email',
-    'phone'
-]
-
-
-needed_keys_pt: list[str] = [
-    'first_name',
-    'last_name',
-    'dob',
-]
-
-needed_keys_dr: list[str] = needed_keys_pt + [
-    'specialization',
-    'fee',
-    'license_id'
-]
-
-needed_keys_pharm: list[str] = [
-    'pharmacy_name',
-    'hours',
-    'zipcode'
-]
-
-def validate_form_data(needed: list[str], json_data: dict[str, str]) -> tuple[bool, str]:
-    key_mask = list(key in json_data for key in needed)
-    if not all(key_mask):
-        missing = [y for x, y in zip(key_mask, needed) if not x]
-        return (False, f'malformed form data: missing field(s): {missing}')
-    return (True, '')
-
-'''
+def add_pharmacy(pharm_info: ImmutableMultiDict, user_obj: User):
+    pharmacy = PharmRegForm(pharm_info)
+    if not pharmacy.validate():
+        m = list(pharmacy.errors.items())
+        return make_response(jsonify({'error': m}), 400)
+    new_pharmacy = Pharmacy(
+        pharmacy_name=pharmacy.pharmacy_name.data,
+        phone=pharmacy.phone.data,
+        email=pharmacy.email.data,
+        hours=pharmacy.hours.data,
+        zipcode=pharmacy.zipcode.data,
+        user=user_obj
+    )
+    db.session.add(new_pharmacy)
+    try:
+        db.session.commit()
+    except IntegrityError as e:
+        return make_response(jsonify({'error': f'{e}'}), 400)
+    except Exception as e:
+        m = f'unexpected: {e=}, {type(e)=}'
+        return make_response(jsonify({'error': m}), 400)
+    else:
+        return make_response(jsonify({'user_id': new_pharmacy.user_id}), 201)
