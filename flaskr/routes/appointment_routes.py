@@ -1,6 +1,6 @@
 from datetime import datetime
 from flask import Blueprint, jsonify, request
-from flaskr.services import get_upcoming_appointments, add_appointment, update_appointment
+from flaskr.services import get_upcoming_appointments, add_appointment, update_appointment, get_appointment
 
 appointment_bp = Blueprint('appointment', __name__)
 
@@ -63,5 +63,13 @@ def update_appointment_detail(appointment_id):
     try:
         update_appointment(appointment_id, treatment=treatment, start_date=start_date, status=status, end_date=end_date)
         return jsonify({"message": "Appointment updated successfully"}), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+
+@appointment_bp.route('/<int:appointment_id>', methods=['GET'])
+def get_appointment_by_id(appointment_id):
+    try:
+        appointment = get_appointment(appointment_id)
+        return jsonify(appointment), 200
     except ValueError as e:
         return jsonify({"error": str(e)}), 400

@@ -81,3 +81,9 @@ def update_appointment(appointment_id, treatment, start_date, status=Appointment
     appointment_detail.end_date = end_date
     appointment_detail.status = status
     db.session.commit()
+
+def get_appointment(appointment_id):
+    appointment_detail = AppointmentDetail.query.get(appointment_id)
+    if not appointment_detail:
+        raise ValueError("Appointment not found")
+    return appointment_detail.to_dict()
