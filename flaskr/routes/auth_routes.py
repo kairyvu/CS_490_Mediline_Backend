@@ -16,5 +16,3 @@ def login():
     if user_info:
         return jsonify(user_info), 200
     return jsonify({"error": "Invalid credentials"}), 401
-
-

@@ -11,7 +11,7 @@ load_dotenv()
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
     username = os.getenv("MYSQL_USER", "root")
-    password = os.getenv("MYSQL_PASSWORD", "password1234")
+    password = os.getenv("MYSQL_PASSWORD", "")
     host = os.getenv("MYSQL_HOST", "localhost")
     app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{username}:{password}@{host}/doctor_patient_system'
 

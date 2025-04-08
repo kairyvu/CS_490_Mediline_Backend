@@ -22,7 +22,6 @@ def register_routes(app: Flask):
     app.register_blueprint(prescription_bp, url_prefix='/prescription')
     app.register_blueprint(chat_bp, url_prefix='/chat')
     app.register_blueprint(social_media_bp, url_prefix='/social_media')
-    
-    app.register_blueprint(doctor_bp)
-    app.register_blueprint(auth_bp)
-    app.register_blueprint(patient_bp)
+    app.register_blueprint(doctor_bp, url_prefix='/doctor')
+    app.register_blueprint(auth_bp, url_prefix='/auth')
+    app.register_blueprint(patient_bp, url_prefix='/patient')
