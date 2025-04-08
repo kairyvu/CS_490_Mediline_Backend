@@ -20,3 +20,11 @@ class AppointmentStatus(enum.Enum):
     CONFIRMED = 'confirmed'
     CANCELLED = 'cancelled'
     COMPLETED = 'completed'
+
+class ExerciseStatus(enum.Enum):
+    IN_PROGRESS = 'in_progress'
+    COMPLETED = 'completed'
+
+class PrescriptionStatus(enum.Enum):
+    PAID = 'paid'
+    UNPAID = 'unpaid'

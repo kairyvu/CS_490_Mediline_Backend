@@ -4,7 +4,7 @@ from faker import Faker
 from flaskr.models import User, Patient, Doctor, Pharmacy, SuperUser, Post, Comment, Report, PatientReport, RatingSurvey, Invoice, Notification, MedicalRecord, Prescription, PrescriptionMedication, Medication, Inventory, ExerciseBank, PatientExercise, Chat, Message, Appointment, AppointmentDetail
 import contextlib
 from sqlalchemy import MetaData
-from flaskr.struct import AccountType, ReportType, PaymentStatus, AppointmentStatus
+from flaskr.struct import AccountType, ReportType, PaymentStatus, AppointmentStatus, ExerciseStatus, PrescriptionStatus
 from collections import defaultdict
 from flaskr.extensions import db
 from sqlalchemy import text
@@ -220,6 +220,7 @@ def seed_prescriptions(n=400):
             patient_id=faker.random_element(tuple(users["patients"])),
             doctor_id=faker.random_element(tuple(users["doctors"])),
             amount=faker.random_number(digits=3, fix_len=False),
+            status=faker.random_element([PrescriptionStatus.PAID, PrescriptionStatus.UNPAID]),
             created_at=faker.date_time_this_year(),
         )
         db.session.add(prescription)
@@ -302,6 +303,9 @@ def seed_exercises(n=100):
                 patient_id=patient_id,
                 doctor_id=doctor_id,
                 reps=faker.random_int(min=1, max=20),
+                status=faker.random_element([
+                    ExerciseStatus.IN_PROGRESS,
+                    ExerciseStatus.COMPLETED]),
                 created_at=faker.date_time_this_year(),
             )
             db.session.add(patient_exercise)

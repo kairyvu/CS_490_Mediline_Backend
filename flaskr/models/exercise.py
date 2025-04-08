@@ -1,4 +1,5 @@
 from flaskr.extensions import db
+from flaskr.struct import ExerciseStatus
 
 class ExerciseBank(db.Model):
     __tablename__ = 'exercise_bank'
@@ -22,6 +23,7 @@ class PatientExercise(db.Model):
     patient_id = db.Column(db.Integer, db.ForeignKey('patient.user_id', ondelete='CASCADE'), nullable=False)
     doctor_id = db.Column(db.Integer, db.ForeignKey('doctor.user_id', ondelete='CASCADE'), nullable=False)
     reps = db.Column(db.String(30), nullable=False)
+    status = db.Column(db.Enum(ExerciseStatus), nullable=False, default=ExerciseStatus.IN_PROGRESS)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
     exercise = db.relationship('ExerciseBank', backref='patient_exercises', lazy=True)
@@ -35,5 +37,6 @@ class PatientExercise(db.Model):
             "patient_id": self.patient_id,
             "doctor_id": self.doctor_id,
             "reps": self.reps,
+            "status": self.status.name,
             "created_at": self.created_at.isoformat() if self.created_at else None
         }
