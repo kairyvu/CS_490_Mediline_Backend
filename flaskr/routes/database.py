@@ -5,6 +5,6 @@ database_bp = Blueprint("database", __name__)
 
 @database_bp.route('/', methods=['GET'])
 def fetch_tables():
-    patients = Patient.query.all()
+    patients = Doctor.query.all()
     patients_list = [patient.to_dict() for patient in patients]
     return jsonify(patients_list)
