@@ -1,4 +1,4 @@
-from flaskr.models import Chat, Message
+from flaskr.models import Chat
 from flaskr.extensions import db
 
 def get_current_chat(appointment_id):

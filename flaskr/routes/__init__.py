@@ -6,6 +6,7 @@ from .appointment_routes import appointment_bp
 from .report_routes import report_bp
 from .prescription_routes import prescription_bp
 from .chat_routes import chat_bp
+from .social_media_routes import social_media_bp
 
 main_bp = Blueprint('main', __name__)
 
@@ -17,3 +18,4 @@ def register_routes(app: Flask):
     app.register_blueprint(report_bp, url_prefix='/report')
     app.register_blueprint(prescription_bp, url_prefix='/prescription')
     app.register_blueprint(chat_bp, url_prefix='/chat')
+    app.register_blueprint(social_media_bp, url_prefix='/social_media')

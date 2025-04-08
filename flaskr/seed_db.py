@@ -130,20 +130,28 @@ def seed_users():
 
 def seed_posts(n=1000):
     for _ in range(n):
+        created_at = faker.date_time_this_year()
+        updated_at = created_at + timedelta(minutes=random.randint(0, 300))
         post = Post(
             user_id=faker.random_element(tuple(users["users"])),
             title=faker.sentence(),
             content=faker.text(max_nb_chars=500),
+            created_at=faker.date_time_this_year(),
+            updated_at=updated_at,
         )
         db.session.add(post)
         db.session.flush()
         users["posts"].append(post.post_id)
 
         for _ in range(faker.random_int(min=0, max=5)):
+            created_at = faker.date_time_this_year()
+            updated_at = created_at + timedelta(minutes=random.randint(0, 300))
             comment = Comment(
                 post_id=post.post_id,
                 user_id=faker.random_element(tuple(users["users"])),
                 content=faker.text(max_nb_chars=200),
+                created_at=created_at,
+                updated_at=updated_at,
             )
             db.session.add(comment)
             db.session.flush()
