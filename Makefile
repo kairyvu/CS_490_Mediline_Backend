@@ -10,6 +10,7 @@ install: venv
 
 clean:
 	rm -rf venv
+	rm -rf migrations
 
 run:
 	flask run
