@@ -23,12 +23,21 @@ def test_register_get(test_client: FlaskClient):
     response = test_client.get('/register/')
     assert response.status_code == 405
 
-def test_register_post(test_client: FlaskClient):
+def test_register_patient_post(test_client: FlaskClient, db_session):
     """
     GIVEN a Flask app
     WHEN the '/register/' page is requested
-    THEN check '405' is returned
+    THEN check '201' is returned
     """
-    #data = 
-    response = test_client.get('/register/')
+    form_data = {
+        "username": "test_user1",
+        "password": "test_password_good",
+        "account_type": "patient",
+        "first_name": "test_user1",
+        "last_name": "test_user1",
+        "email": "test_user1",
+        "phone": "test_user1",
+        "dob": "test_user1"
+    }
+    response = test_client.post('/register/', data=form_data)
     assert response.status_code == 405
