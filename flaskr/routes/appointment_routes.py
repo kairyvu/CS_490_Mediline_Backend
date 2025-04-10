@@ -1,6 +1,7 @@
 from datetime import datetime
 from flask import Blueprint, jsonify, request
 from flaskr.services import get_upcoming_appointments, add_appointment, update_appointment, get_appointment
+from flaskr.struct import AppointmentStatus
 
 appointment_bp = Blueprint('appointment', __name__)
 
@@ -56,7 +57,9 @@ def update_appointment_detail(appointment_id):
     treatment = data.get('treatment')
     start_date = data.get('start_date')
     end_date = data.get('end_date')
-    status = data.get('status')
+    status = AppointmentStatus.PENDING
+    if data.get('status'):
+        status = data.get('status')
     
     if not treatment or not start_date:
         return jsonify({"error": "treatment and start_date are required."}), 400

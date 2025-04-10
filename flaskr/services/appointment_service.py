@@ -57,7 +57,7 @@ def update_appointment(appointment_id, treatment, start_date, status=Appointment
         raise ValueError("Only appointments with pending or confirmed status can be updated")
     if not treatment or not start_date:
         raise ValueError("treatment and start_date are required")
-    if status and status not in ['PENDING', 'CONFIRMED', 'CANCELLED']:
+    if status and status not in [AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED, AppointmentStatus.CANCELLED]:
         raise ValueError("Invalid status value")
     if isinstance(start_date, str):
         try:
@@ -72,9 +72,6 @@ def update_appointment(appointment_id, treatment, start_date, status=Appointment
             raise ValueError("Invalid end_date format") from e
 
     appointment_detail.treatment = treatment
-    current_dt = datetime.now()
-    if start_date < current_dt:
-        raise ValueError("start_date cannot be before the current date")
     if end_date and end_date <= start_date:
         raise ValueError("end_date must be after start_date")
     appointment_detail.start_date = start_date
