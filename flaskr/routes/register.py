@@ -13,7 +13,10 @@ from flaskr.services.register import add_user
 register_bp = Blueprint("register", __name__)
 
 @register_bp.route('/', methods=['POST'])
-def register_route():
+def register():
+    # Check data not empty
+    if not request.get_data():
+        return make_response(jsonify(message=f'no data provided'), 400)
     # Coerce json data from request to match http form data in werkzeug
     # This is done to be compatible with add_user
     content_type = request.content_type.split(';')[0]
