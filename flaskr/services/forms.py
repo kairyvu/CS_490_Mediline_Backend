@@ -19,7 +19,26 @@ def length_no_max(min=-1):
             raise ValidationError(message)
     return _length
 
-class UserRegistrationForm(Form):
+class AddressForm(Form):
+    address1        =   StringField('Address 1', [
+                            validators.InputRequired()
+                        ])
+    address2        =   StringField('Address 2', [ ])
+    city            =   StringField('City', [
+                            validators.InputRequired()
+                        ])
+    state           =   StringField('State', [
+                            validators.InputRequired()
+                        ])
+    country         =   StringField('Country', [
+                            validators.InputRequired()
+                        ])
+    zipcode         =   StringField('Zipcode', [
+                            validators.InputRequired()
+                        ])
+
+
+class UserRegistrationForm(AddressForm):
     _phone_num_regexp = "^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$"
     username        =   StringField('Username', [
                             length(4, 25),
@@ -32,7 +51,7 @@ class UserRegistrationForm(Form):
     account_type    =   StringField('Account Type', [
                             validators.AnyOf(
                                 ['patient', 'doctor', 'pharmacy'], 
-                                message='invalid account type'
+                                message='Invalid account type'
                             ),
                             validators.InputRequired()
                         ])
@@ -43,7 +62,7 @@ class UserRegistrationForm(Form):
     phone           =   TelField('Phone Number', [
                             validators.Regexp(
                                 _phone_num_regexp, 
-                                message='invalid phone number'),
+                                message='Invalid phone number'),
                             validators.InputRequired()
                         ]) 
 
