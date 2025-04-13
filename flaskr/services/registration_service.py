@@ -28,7 +28,7 @@ def add_user(user_info: ImmutableMultiDict) -> Response:
             return add_pharmacy(user_info, new_user)
         case _:
             # This should not be reachable; here for completeness
-            return make_response(jsonify({'error':  'unknown account type'}), 400)
+            return make_response(jsonify({'error':  'unknown server error'}), 500)
     
 def add_patient(pt_info: ImmutableMultiDict, user_obj: User) -> Response:
     patient = PtRegForm(pt_info)
@@ -49,7 +49,7 @@ def add_patient(pt_info: ImmutableMultiDict, user_obj: User) -> Response:
     try:
         db.session.commit()
     except IntegrityError as e:
-        return make_response(jsonify({'error': f'{e}'}), 400)
+        raise e
     except Exception as e:
         m = f'unexpected: {e=}, {type(e)=}'
         return make_response(jsonify({'error': m}), 400)
@@ -75,7 +75,7 @@ def add_doctor(dr_info: ImmutableMultiDict, user_obj: User) -> Response:
     try:
         db.session.commit()
     except IntegrityError as e:
-        return make_response(jsonify({'error': f'{e}'}), 400)
+        raise e
     except Exception as e:
         m = f'unexpected: {e=}, {type(e)=}'
         return make_response(jsonify({'error': m}), 400)
@@ -100,7 +100,7 @@ def add_pharmacy(pharm_info: ImmutableMultiDict, user_obj: User):
     try:
         db.session.commit()
     except IntegrityError as e:
-        return make_response(jsonify({'error': f'{e}'}), 400)
+        raise e
     except Exception as e:
         m = f'unexpected: {e=}, {type(e)=}'
         return make_response(jsonify({'error': m}), 400)
