@@ -1,6 +1,6 @@
 from flask import Blueprint, Flask
 from .database import database_bp
-from .register import register_bp
+from .registration_routes import register_bp
 from .exercise_routes import exercise_bp
 from .payment_routes import payment_bp
 from .appointment_routes import appointment_bp

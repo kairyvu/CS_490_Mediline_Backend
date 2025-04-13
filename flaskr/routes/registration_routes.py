@@ -8,7 +8,7 @@
 """
 from werkzeug.datastructures import ImmutableMultiDict
 from flask import Blueprint, request, make_response, jsonify
-from flaskr.services.register import add_user
+from flaskr.services.registration_service import add_user
 
 register_bp = Blueprint("register", __name__)
 
