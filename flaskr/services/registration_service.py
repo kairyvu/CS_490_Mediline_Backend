@@ -140,7 +140,6 @@ def add_pharmacy(pharm_info: ImmutableMultiDict, user_obj: User):
         phone=pharmacy.phone.data,
         email=pharmacy.email.data,
         hours=pharmacy.hours.data,
-        zipcode=pharmacy.zipcode.data,
         user=user_obj
     )
     db.session.add(new_pharmacy)
