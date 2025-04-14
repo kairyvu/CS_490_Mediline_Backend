@@ -175,4 +175,7 @@ cython_debug/
 
 migrations/
 
+# runs create schema doctor-patient-system ... in mysql
+db-init.sh
+
 tests

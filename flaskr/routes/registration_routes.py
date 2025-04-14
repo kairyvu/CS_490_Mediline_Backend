@@ -33,8 +33,5 @@ def register():
     try:
         return add_user(form_data)
     except IntegrityError as e:
-        return make_response(jsonify(
-            {
-                'error': f'inserting duplicate user with data: {form_data.to_dict()}'
-            }
-        ))
+        error_msg = str((str(e.args[0]).split(maxsplit=1))[1]).split(',')[1].strip().strip(')"\\')
+        return make_response(jsonify({'error': f'{error_msg}'}), 400)
