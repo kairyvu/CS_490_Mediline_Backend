@@ -1,3 +1,4 @@
+from .address import Address, City, Country
 from .user import User, Patient, Doctor, Pharmacy, SuperUser
 from .social_media import Post, Comment
 from .report import Report, PatientReport
@@ -11,7 +12,8 @@ from .audit import UserAudit, PatientAudit, DoctorAudit, AppointmentAudit
 from .appointment import Appointment, AppointmentDetail
 
 
-__all__ = ['User', 'Doctor', 'Patient', 'Pharmacy', 'SuperUser',
+__all__ = ['Address', 'City', 'Country',
+           'User', 'Doctor', 'Patient', 'Pharmacy', 'SuperUser',
            'Post', 'Comment', 'Report', 'PatientReport',
            'RatingSurvey', 'Invoice',
            'Notification', 'MedicalRecord', 'Prescription',
