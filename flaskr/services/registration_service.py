@@ -69,6 +69,7 @@ def add_doctor(dr_info: ImmutableMultiDict, user_obj: User) -> Response:
         phone=doctor.phone.data,
         fee=doctor.fee.data,
         license_id=doctor.license_id.data,
+        specialization=doctor.specialization.data,
         user=user_obj
     )
     db.session.add(new_doctor)
