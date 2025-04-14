@@ -32,8 +32,6 @@ class City(db.Model):
     city_id     = db.Column(db.Integer, primary_key=True)
     city        = db.Column(db.String(80), nullable=False, default='NULL')
     country_id  = db.Column(db.Integer, db.ForeignKey('country.country_id'), nullable=False)
-    created_at  = db.Column(db.DateTime, server_default=db.func.now())
-    updated_at  = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 
     addresses = db.relationship('Address', backref=db.backref('city', lazy=True))
 
@@ -42,7 +40,5 @@ class Country(db.Model):
 
     country_id  = db.Column(db.Integer, primary_key=True)
     country     = db.Column(db.String(80), nullable=False, unique=True, default='NULL')
-    created_at  = db.Column(db.DateTime, server_default=db.func.now())
-    updated_at  = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 
     cities = db.relationship('City', backref=db.backref('country', lazy=True))
