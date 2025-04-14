@@ -6,8 +6,6 @@ def user_id_credentials(username, password):
     if user:
         return {
             "user_id": user.user_id,
-            "account_type": user.account_type.value
+            "account_type": user.account_type.value,
         }
     return None
-
-
