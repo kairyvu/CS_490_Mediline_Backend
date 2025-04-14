@@ -12,6 +12,7 @@ from .auth_routes import auth_bp
 from .patient_routes import patient_bp
 from .doctor_routes import doctor_bp
 
+
 main_bp = Blueprint('main', __name__)
 
 def register_routes(app: Flask):
