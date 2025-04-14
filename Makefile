@@ -1,4 +1,4 @@
-.PHONY: install venv clean run schema db_update fake
+.PHONY: install venv clean run schema fake
 
 venv:
 	python -m venv venv

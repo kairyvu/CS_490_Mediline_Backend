@@ -67,7 +67,7 @@ def seed_users():
                 first_name=faker.first_name(),
                 last_name=faker.last_name(),
                 email=email,
-                phone=faker.phone_number(),
+                phone=faker.basic_phone_number(),
                 specialization=faker.job(),
                 bio=faker.text(max_nb_chars=300),
                 fee=faker.random_number(digits=3, fix_len=False),
@@ -81,7 +81,7 @@ def seed_users():
             pharmacy = Pharmacy(
                 user_id=user.user_id,
                 pharmacy_name=faker.company(),
-                phone=faker.phone_number(),
+                phone=faker.basic_phone_number(),
                 email=faker.email(),
                 hours=faker.time_delta(),
                 zipcode=faker.zipcode()
@@ -117,7 +117,7 @@ def seed_users():
             first_name=faker.first_name(),
             last_name=faker.last_name(),
             email=email,
-            phone=faker.phone_number(),
+            phone=faker.basic_phone_number(),
             dob=faker.date_of_birth(minimum_age=18, maximum_age=65),
             doctor_id=doctor_id,
             pharmacy_id=pharmacy_id,
@@ -168,12 +168,14 @@ def seed_reports(n=1000):
         db.session.add(report)
         db.session.flush()
         users["reports"].append(report.report_id)
+        patient_id=faker.random_element(tuple(users["patients"]))
+        doctor_id=user_relationship[patient_id][0]
 
         for _ in range(faker.random_int(min=0, max=5)):
             patient_report = PatientReport(
                 report_id=report.report_id,
-                patient_id=faker.random_element(tuple(users["patients"])),
-                doctor_id=faker.random_element(tuple(users["doctors"])),
+                patient_id=patient_id,
+                doctor_id=doctor_id,
                 height=faker.random_number(digits=3, fix_len=False),
                 weight=faker.random_number(digits=3, fix_len=False),
                 calories_intake=faker.random_number(digits=3, fix_len=False),
@@ -318,6 +320,7 @@ def seed_exercises(n=100):
             )
             db.session.add(patient_exercise)
             db.session.flush()
+            users["patient_exercises"].append(patient_exercise.patient_exercise_id)
     
     db.session.commit()
     print("Exercises done")

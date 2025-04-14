@@ -6,6 +6,7 @@ from .report_service import get_patient_report_result, add_patient_report
 from .prescription_service import get_medications_by_prescription, get_prescriptions
 from .chat_service import get_current_chat
 from .social_media_service import get_all_posts, get_comments_of_post
+from .auth_service import user_id_credentials
 
 __all__ = ['user_id_credentials',
            'get_exercises', 'get_all_patient_exercise', 'add_patient_exercise', 'update_patient_exercise',
@@ -14,4 +15,5 @@ __all__ = ['user_id_credentials',
            'get_patient_report_result', 'add_patient_report',
            'get_medications_by_prescription', 'get_prescriptions',
            'get_current_chat',
-           'get_all_posts', 'get_comments_of_post']
+           'get_all_posts', 'get_comments_of_post',
+           'user_id_credentials']
