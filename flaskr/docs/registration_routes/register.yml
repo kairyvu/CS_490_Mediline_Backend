@@ -1,0 +1,98 @@
+tags: 
+  - register
+parameters:
+  - name: User information
+    in: body
+    required: true
+    schema: 
+      required:
+      - country
+      - city
+      - address1
+      - state
+      - zipcode
+      - username
+      - password
+      - account_type
+      - email
+      - phone
+      properties:
+        country:
+          type: string
+        city:
+          type: string
+        address1:
+          type: string
+        address2:
+          type: string
+        state:
+          type: string
+        zipcode:
+          type: string
+        username:
+          type: string
+        password:
+          type: string
+          format: password
+        account_type:
+          type: string
+          enum:
+            - patient
+            - doctor
+            - pharmacy
+        first_name:
+          type: string
+        last_name:
+          type: string
+        dob:
+          type: string
+          format: date
+        email:
+          type: string
+        phone:
+          type: string
+        fee:
+          type: string
+        license_id:
+          type: string
+        specialization:
+          type: string
+        pharmacy_name:
+          type: string
+        hours:
+          type: string
+    description: New user details
+responses:
+  201:
+    description: Created user successfully
+    schema:
+      type: object
+      properties:
+        user_id:
+          type: string
+    examples:
+      application/json:
+        user_id: 1
+  400:
+    description: Data validation errors and duplicate resource creation
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          enum:
+          - "no data provided"
+          - "bad content type: <content-type>"
+    examples:
+      application/json: 
+        error: <exception string>
+  500:
+    description: Internal server error
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json:
+        error: unknown server error

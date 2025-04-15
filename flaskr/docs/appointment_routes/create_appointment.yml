@@ -1,0 +1,49 @@
+tags: 
+  - appointment
+parameters:
+  - name: Appointment
+    in: body
+    required: true
+    description: Appointment details
+    schema: 
+      properties:
+        doctor_id:
+          type: integer
+        patient_id:
+          type: integer
+        treatment:
+          type: string
+        start_date:
+          type: string
+        end_date:
+          type: string
+responses:
+  201:
+    description: Created an appointment successfully
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+    examples:
+      application/json:
+        message: Appointment created successfully
+  400:
+    description: Invalid date format
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          enum:
+          - "No input data provided"
+          - "doctor_id, patient_id, treatment, and start_date are required."
+          - "Invalid start_date format: <exception message>"
+          - "Invalid end_date format: <exception message>"
+          - "end_date must be after start_date"
+          - "doctor_id, patient_id, treatment, and start_date are required"
+          - "User not found as either patient or doctor"
+          - "Invalid sort field: <query argument>"
+    examples:
+      application/json: 
+        error: end_date must be after start_date

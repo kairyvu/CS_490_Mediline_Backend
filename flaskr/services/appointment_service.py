@@ -4,7 +4,7 @@ from flaskr.struct import AppointmentStatus
 from flaskr.models.appointment import Appointment, AppointmentDetail
 from flaskr.models import Patient, Doctor
 
-def get_upcoming_appointments(user_id, sort_by='start_date', order='desc'):
+def get_upcoming_appointments(user_id, sort_by='start_date', order='desc') -> list[AppointmentDetail]:
     is_patient = Patient.query.filter_by(user_id=user_id).first() is not None
     is_doctor = Doctor.query.filter_by(user_id=user_id).first() is not None
     

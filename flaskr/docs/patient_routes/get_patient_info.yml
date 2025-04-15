@@ -1,0 +1,65 @@
+tags: 
+  - patient
+parameters:
+  - name: user_id
+    in: path
+    type: integer
+    required: true
+    description: Patient ID
+responses:
+  200:
+    description: Get all patient info
+    schema:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        dob:
+          type: string
+          format: date-time
+        doctor:
+          type: object
+          properties:
+            user_id:
+              type: integer
+            first_name:
+              type: string
+            last_name:
+              type: string
+            specialization:
+              type: string
+            fee:
+              type: number
+              format: float
+    examples:
+      application/json:
+        user_id: 1
+        first_name: firstname
+        last_name: lastname
+        email: email@email.com
+        phone: 1112223333
+        dob: 2000-04-04T23:59:59Z
+        doctor:
+          user_id: 2
+          first_name: docfname
+          last_name: doclname
+          specialization: blah blah blah
+          fee: 22.48
+  404:
+    description: patient not found
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json: 
+        error: Patient not found
