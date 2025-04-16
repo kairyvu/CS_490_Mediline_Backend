@@ -1,0 +1,60 @@
+tags: 
+  - prescription
+parameters:
+  - name: prescription_id
+    in: path
+    type: integer
+    required: true
+    description: Prescription ID
+responses:
+  200:
+    description: fetch list of medications associated to a prescription ID
+    schema:
+      type: array
+      items:
+        type: object
+        properties:
+          prescription_medication_id:
+            type: integer
+          prescription_id:
+            type: integer
+          name:
+            type: string
+          description:
+            type: string
+          dosage:
+            type: string
+          medical_instructions:
+            type: string
+    examples:
+      application/json:
+        [
+          {
+            "prescription_medication_id": "1", 
+            "prescription_id": "1", 
+            "name": "MedName",
+            "description": "Blah Blah Blah",
+            "dosage": "100mg",
+            "medical_instructions": "take twice per day"
+          }
+        ]
+  404:
+    description: Prescription not found
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json: 
+        error: Prescription not found
+  500:
+    description: Internal server error
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json: 
+        error: An error occurred while fetching the medications

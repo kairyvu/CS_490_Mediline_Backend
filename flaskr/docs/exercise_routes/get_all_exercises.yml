@@ -1,0 +1,53 @@
+tags: 
+  - exercise
+parameters:
+  - name: sort_by
+    in: query
+    type: string
+    enum: 
+      - exercise_id
+      - type_of_exercise
+      - description
+    required: false
+    description: set column to sort by
+  - name: order_by
+    in: query
+    type: string
+    enum: 
+      - asc 
+      - desc
+    required: false
+    description: set ascending or descending order
+responses:
+  200:
+    description: get all exercises
+    schema:
+      type: array
+      items:
+        type: object
+        properties:
+          exercise_id:
+            type: integer
+          type_of_exercise:
+            type: string
+          description:
+            type: string
+    examples:
+      application/json:
+        [
+          {
+            "exercise_id": "1",
+            "type_of_exercise": "asdf",
+            "description": "blah blah blah",
+          }
+        ]
+  400:
+    description: invalid sort field
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json: 
+        { "error": "Invalid sort field: <sort_by arg>" }

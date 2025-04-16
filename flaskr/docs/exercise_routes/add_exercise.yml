@@ -1,0 +1,50 @@
+tags: 
+  - exercise
+parameters:
+  - name: exercise_id
+    in: path
+    type: integer
+    required: true
+    description: Exercise id
+  - name: Patient Exercise
+    in: body
+    required: true
+    schema: 
+      properties:
+        doctor_id:
+          type: integer
+        patient_id:
+          type: integer
+        exercise_id:
+          type: integer
+        reps:
+          type: string
+        status:
+          type: string
+          enum:
+          - in_progress
+          - completed
+    description: Patient Exercise details
+responses:
+  201:
+    description: Created an exercise successfully
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+    examples:
+      application/json:
+        message: Exercise added successfully
+  400:
+    description: Invalid date format
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          enum:
+          - "Missing required fields"
+    examples:
+      application/json: 
+        error: <exception string>

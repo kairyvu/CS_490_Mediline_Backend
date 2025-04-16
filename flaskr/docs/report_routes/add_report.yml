@@ -1,0 +1,61 @@
+tags: 
+  - report
+parameters:
+  - name: user_id
+    in: path
+    type: integer
+    required: true
+    description: Exercise id
+  - name: Report details
+    in: body
+    required: true
+    schema: 
+      required:
+      - report_id
+      - doctor_id
+      - height
+      - weight
+      - calories_intake
+      - hours_of_exercise
+      - hours_of_sleep
+      properties:
+        report_id:
+          type: integer
+        doctor_id:
+          type: integer
+        height:
+          type: number
+          format: float
+        weight:
+          type: number
+          format: float
+        calories_intake:
+          type: integer
+        hours_of_exercise:
+          type: integer
+        hours_of_sleep:
+          type: integer
+    description: New report details
+responses:
+  201:
+    description: Created a report successfully
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+    examples:
+      application/json:
+        message: Report added successfully
+  400:
+    description: Unsuccessful report creation
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          enum:
+          - "Missing required fields"
+    examples:
+      application/json: 
+        error: <exception string>

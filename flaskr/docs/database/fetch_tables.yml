@@ -1,0 +1,7 @@
+tags: 
+  - test_connection
+responses:
+  200:
+    description: test connection to API
+    schema:
+      type: object

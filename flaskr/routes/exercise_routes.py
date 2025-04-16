@@ -1,9 +1,11 @@
 from flask import Blueprint, jsonify, request
 from flaskr.services import get_exercises, get_all_patient_exercise, add_patient_exercise, update_patient_exercise
+from flasgger import swag_from
 
 exercise_bp = Blueprint("exercise", __name__)
 
 @exercise_bp.route('/', methods=['GET'])
+@swag_from('../docs/exercise_routes/get_all_exercises.yml')
 def get_all_exercises():
     sort_by = request.args.get('sort_by', 'exercise_id')
     order = request.args.get('order', 'asc')
@@ -15,6 +17,7 @@ def get_all_exercises():
         return jsonify({"error": str(e)}), 400
 
 @exercise_bp.route('/user/<int:user_id>', methods=['GET'])
+@swag_from('../docs/exercise_routes/get_exercise_by_user.yml')
 def get_exercise_by_user(user_id):
     sort_by = request.args.get('sort_by', 'exercise_id')
     order = request.args.get('order', 'asc')
@@ -26,6 +29,7 @@ def get_exercise_by_user(user_id):
         return jsonify({"error": str(e)}), 400
     
 @exercise_bp.route('/<int:exercise_id>', methods=['POST'])
+@swag_from('../docs/exercise_routes/add_exercise.yml')
 def add_exercise(exercise_id):
     data = request.get_json()
     if not data:
@@ -44,6 +48,7 @@ def add_exercise(exercise_id):
         return jsonify({"error": str(e)}), 400
 
 @exercise_bp.route('/<int:exercise_id>', methods=['PUT'])
+@swag_from('../docs/exercise_routes/update_exercise.yml')
 def update_exercise(exercise_id):
     data = request.get_json()
     if not data:

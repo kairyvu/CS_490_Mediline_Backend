@@ -8,7 +8,7 @@ class Address(db.Model):
     
     address_id  = db.Column(db.Integer, primary_key=True)
     address1    = db.Column(db.String(128), nullable=False)
-    address2    = db.Column(db.String(128), nullable=False)
+    address2    = db.Column(db.String(128), nullable=True)
     city_id     = db.Column(db.Integer, db.ForeignKey('city.city_id'), nullable=False)
     state       = db.Column(db.String(128), nullable=False)
     zipcode     = db.Column(db.String(20), nullable=False)

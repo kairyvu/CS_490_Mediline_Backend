@@ -64,6 +64,8 @@ def add_user(user_info: ImmutableMultiDict) -> Response:
         account_type=user.account_type.data,
         address_id=address_id
     )
+    #import ipdb
+    #ipdb.set_trace()
     # Defer the rest of user creation to specific functions per account type
     match user.account_type.data:
         case 'patient':

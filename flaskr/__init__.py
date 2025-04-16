@@ -14,9 +14,14 @@ def create_app():
     password = os.getenv("MYSQL_PASSWORD", "")
     host = os.getenv("MYSQL_HOST", "localhost")
     app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{username}:{password}@{host}/doctor_patient_system'
+    app.config['SWAGGER'] = {
+        'doc_dir': './docs/' 
+    }
 
     db.init_app(app)
     migrate = Migrate(app, db)
+    from flaskr.extensions import swag
+    swag.init_app(app)
     
     from flaskr.routes import register_routes
     register_routes(app)

@@ -1,0 +1,52 @@
+tags: 
+  - login
+parameters:
+  - name: Appointment
+    in: body
+    schema: 
+      required:
+      - username
+      - password
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+          format: password
+responses:
+  200:
+    description: Successful login
+    schema:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        account_type:
+          type: string
+          enum: [patient, doctor, pharmacy, super_user]
+    examples:
+      {
+        "user_id": "1",
+        "account_type": "patient",
+      }
+  400:
+    description: Missing username or password
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json: 
+        { "error": "Username and password are required" }
+  401:
+    description: Invalid credentials
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json: 
+        { "error": "Invalid credentials" }
+

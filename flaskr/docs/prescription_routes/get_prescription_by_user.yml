@@ -1,0 +1,85 @@
+tags: 
+  - prescription
+parameters:
+  - name: user_id
+    in: path
+    type: integer
+    required: true
+    description: User ID
+  - name: sort_by
+    in: query
+    type: string
+    enum: 
+      - prescription_id
+      - patient_id
+      - doctor_id
+      - amount
+      - status
+      - created_at
+    required: false
+    description: set column to sort by
+  - name: order_by
+    in: query
+    type: string
+    enum: 
+      - asc 
+      - desc
+    required: false
+    description: set ascending or descending order
+responses:
+  200:
+    description: fetch list of prescriptions associated to a user ID
+    schema:
+      type: array
+      items:
+        type: object
+        properties:
+          prescription_id:
+            type: integer
+          patient_id:
+            type: integer
+          doctor_id:
+            type: integer
+          amount:
+            type: number
+            format: float
+          status:
+            type: string
+            enum:
+              - paid
+              - unpaid
+          created_at:
+            type: string
+            format: date-time
+          patient_name:
+            type: string
+          doctor_name:
+            type: string
+    examples:
+      application/json:
+        [
+          {
+            "prescription_id": "1",
+            "patient_id": "1",
+            "doctor_id": "2",
+            "amount": "50.00",
+            "status": "unpaid",
+            "created_at": "2000-01-01T12:59:59Z",
+            "patient_name": "pFirstName pLastName",
+            "doctor_name": "dFirstName dLastName"
+          }
+        ]
+
+  400:
+    description: Failed to fetch data
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          enum:
+            - User not found as either patient or doctor
+            - Invalid sort field <sort_by arg>
+    examples:
+      application/json: 
+        error: Invalid sort field <sort_by arg>

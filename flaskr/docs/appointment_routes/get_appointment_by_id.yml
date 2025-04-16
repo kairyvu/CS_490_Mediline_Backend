@@ -1,0 +1,32 @@
+tags: 
+  - appointment
+parameters:
+  - name: user_id
+    in: path
+    type: integer
+    required: true
+    description: user id to look up
+responses:
+  200:
+    description: An appointment details object
+    schema:
+      $ref: '#/definitions/AppointmentDetail'
+    example:
+      application/json:
+        {
+          "appointment_details_id": 1,
+          "treatment": "string",
+          "start_date": "string",
+          "end_date": "string",
+          "status": "string"
+        }
+  400:
+    description: appointment not found
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    example:
+      application/json:
+        error: Appointment not found

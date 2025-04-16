@@ -1,0 +1,54 @@
+tags: 
+  - doctor
+parameters:
+  - name: doctor_id
+    in: path
+    type: integer
+    required: true
+    description: Doctor ID
+responses:
+  200:
+    description: Doctor details
+    schema:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        specialization:
+          type: string
+        bio:
+          type: string
+        fee:
+          type: number
+          format: float
+        profile_picture:
+          type: string
+          format: byte
+        dob:
+          type: string
+          format: date
+        license_id:
+          type: string
+    examples:
+      application/json:
+        {
+          "user_id": "1",
+          "first_name": "FirstName",
+          "last_name": "LastName",
+          "email": "email@email.com",
+          "phone": "228482183",
+          "specialization": "SpecializationString",
+          "bio": "Lorem Ipsum",
+          "fee": "23.22",
+          "profile_picture": "EncodedPicture",
+          "dob": "2000-01-01",
+          "license_id": "LicenseString",
+        }
