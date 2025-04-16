@@ -32,7 +32,7 @@ parameters:
     description: set ascending or descending order
 responses:
   200:
-    description: fetch list of prescriptions associated to a user ID
+    description: fetch list of reports associated to a user ID
     schema:
       type: array
       items:

@@ -8,22 +8,62 @@ responses:
       items:
         type: object
         properties:
-          exercise_id:
+          post_id:
             type: integer
-          type_of_exercise:
+          user_id:
+            type: integer
+          title:
             type: string
-          description:
+          content:
             type: string
+          created_at:
+            type: string
+            format: date-time
+          updated_at:
+            type: string
+            format: date-time
+          comments:
+            type: array
+            items:
+              type: object
+              properties:
+                comment_id:
+                  type: integer
+                post_id:
+                  type: integer
+                user_id:
+                  type: integer
+                content:
+                  type: string
+                created_at:
+                  type: string
+                  format: date-time
+                updated_at:
+                  type: string
+                  format: date-time
     examples:
       application/json:
         [
           {
-            "exercise_id": "1",
-            "type_of_exercise": "asdf",
-            "description": "blah blah blah",
+            "post_id": "3",
+            "user_id": "89",
+            "title": "Title",
+            "content": "Blah Blah Blah",
+            "created_at": "2000-01-01T00:00:00Z",
+            "updated_at": "2025-04-15T20:20:20Z",
+            "comments": [
+              {
+                "comment_id": "28",
+                "post_id": "3",
+                "user_id": "23",
+                "content": "alksjdflkajs",
+                "created_at": "2001-03-11T00:00:00Z",
+                "updated_at": "2001-03-11T00:00:00Z",
+              }
+            ]
           }
         ]
-  400:
+  500:
     description: invalid sort field
     schema:
       type: object
