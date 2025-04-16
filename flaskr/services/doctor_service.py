@@ -1,5 +1,6 @@
-from flaskr.models import Doctor
+from flaskr.models import Doctor, Patient, Appointment, AppointmentDetail
 from flaskr.extensions import db
+from datetime import date
 
 def all_doctors():
     doctors = Doctor.query.with_entities(
@@ -37,3 +38,30 @@ def doctor_details(doctor_id):
         "license_id": doctor.license_id,
     }
 
+def total_patients(doctor_id):
+    return Patient.query.filter_by(doctor_id=doctor_id).count()
+def upcoming_appointments_count(doctor_id):
+    upcoming_count = Appointment.query.filter_by(doctor_id=doctor_id).join(AppointmentDetail).filter(AppointmentDetail.status == "CONFIRMED").count()
+    return (upcoming_count)
+def pending_appointments_count(doctor_id):
+    pending_count = Appointment.query.filter_by(doctor_id=doctor_id).join(AppointmentDetail).filter(AppointmentDetail.status == "PENDING").count()
+    return (pending_count)
+def doctor_patients_count(doctor_id):
+    patients_count = Patient.query.filter_by(doctor_id=doctor_id).count()
+    return (patients_count)
+def todays_patient(doctor_id):
+    today = date.today()
+    appointments = Appointment.query.filter_by(doctor_id=doctor_id).join(AppointmentDetail).filter(db.func.date(AppointmentDetail.start_date) == today).all()
+    result = []
+    for app in appointments:
+        patient = Patient.query.filter_by(user_id=app.patient_id).first()
+        detail = app.appointment_detail
+
+        if patient:
+            result.append({
+                "first_name": patient.first_name,
+                "last_name": patient.last_name,
+                "visit_time": detail.start_date.strftime("%I:%M %p") 
+            })
+
+    return result
