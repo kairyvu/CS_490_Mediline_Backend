@@ -26,10 +26,11 @@ flask-openapi3-swagger==5.21.0
 Flask-RESTful==0.3.10
 flask-shell-ipython==0.5.3
 Flask-SQLAlchemy==3.1.1
-greenlet==3.1.1
 idna==3.10
 ipdb==0.13.13
 ipython==8.35.0
+greenlet==3.2.0
+gunicorn==23.0.0
 itsdangerous==2.2.0
 jedi==0.19.2
 Jinja2==3.1.6

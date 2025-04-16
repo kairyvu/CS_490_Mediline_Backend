@@ -1,0 +1,35 @@
+version: "3"
+services:
+  mediline:
+    image: mediline:1.0.0
+    container_name: mediline
+
+    privileged: true
+    restart: always
+
+    environment:
+      - PROCESSES=4
+      - HTTP_TIMEOUT=60
+
+    depends_on:
+      - mediline-mysql
+
+    ports:
+      - "2021:5000"
+
+    volumes:
+      - "/data/mediline/data:/data/data"
+      - "/data/mediline/log:/data/log"
+      - "./:/work"
+
+  mediline-mysql:
+    image: mysql:8
+    container_name: mediline-mysql
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=example
+
+networks:
+  default:
+    external: true
+    name: flask
