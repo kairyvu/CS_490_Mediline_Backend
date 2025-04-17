@@ -9,8 +9,7 @@ DROP SCHEMA IF EXISTS ${MYSQL_DATABASE};
 CREATE SCHEMA ${MYSQL_DATABASE} DEFAULT CHARACTER SET utf8mb4;
 EOF
 
-mysql -u "${MYSQL_USER}" -p"${MYSQL_PASSWORD}" -h "${MYSQL_HOST}" < tmp_create.sql
-mysql -u "${MYSQL_USER}" -p"${MYSQL_PASSWORD}" -h "${MYSQL_HOST}" -e "SHOW SCHEMAS;" | grep "${MYSQL_DATABASE}"
+mysql -u "${MYSQL_USER}" --password="${MYSQL_PASSWORD}" -h "${MYSQL_HOST}" < tmp_create.sql
+mysql -u "${MYSQL_USER}" --password="${MYSQL_PASSWORD}" -h "${MYSQL_HOST}" -e "SHOW SCHEMAS;" | grep "${MYSQL_DATABASE}"
 
 rm tmp_create.sql
-
