@@ -8,4 +8,4 @@ RUN pip3 install --upgrade pip && \
 
 EXPOSE 8080
 
-CMD ["gunicorn", "--workers=2", "flaskr:create_app()", "-b", "0.0.0.0:8080"]
+CMD ["./entrypoint.sh"]

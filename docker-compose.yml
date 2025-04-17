@@ -1,20 +1,25 @@
 services:
   mediline:
-    image: mediline:1.0.0
+    image: mediline:latest
     container_name: mediline
 
     privileged: true
     restart: always
 
     environment:
-      - PROCESSES=4
-      - HTTP_TIMEOUT=60
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=example
+      - MYSQL_HOST=mediline-mysql:3306
+      - FLASK_APP=flaskr
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+      - FLASK_RUN_PORT=8080
 
     depends_on:
       - mediline-mysql
 
     ports:
-      - "2021:5000"
+      - "8080:8080"
 
     volumes:
       - "/data/mediline/data:/data/data"
@@ -25,12 +30,15 @@ services:
     image: mysql:8
     container_name: mediline-mysql
     restart: always
-    environment:
-      - MYSQL_ROOT_PASSWORD=example
     ports:
       - '3306:3306'
+    command: --init-file /data/application/init.sql
     volumes:
       - db_data:/var/lib/mysql
+      - ./init.sql:/data/application/init.sql
+    environment:
+      - MYSQL_DATABASE=doctor_patient_system
+      - MYSQL_ROOT_PASSWORD=example
 
 volumes:
   db_data:
