@@ -25,9 +25,12 @@ responses:
       properties:
         message:
           type: string
+        id:
+          type: integer
     examples:
       application/json:
         message: Appointment created successfully
+        id: 1
   400:
     description: Invalid date format
     schema:

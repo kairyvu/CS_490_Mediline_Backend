@@ -51,6 +51,7 @@ def add_appointment(doctor_id, patient_id, treatment, start_date, end_date=None)
     db.session.flush()
     appointment_detail.appointment_details_id = appointment.appointment_id
     db.session.commit()
+    return appointment.appointment_id
 
 def update_appointment(appointment_id, treatment, start_date, status=AppointmentStatus.PENDING, end_date=None):
     appointment_detail = AppointmentDetail.query.get(appointment_id)
