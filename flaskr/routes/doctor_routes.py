@@ -34,3 +34,19 @@ def count_doctor_patients(doctor_id):
 @doctor_bp.route('/<int:doctor_id>/patients-today', methods=['GET'])
 def patients_today(doctor_id):
     return jsonify(doctor_service.todays_patient(doctor_id)), 200
+@doctor_bp.route('/<int:doctor_id>/ratings', methods=['GET'])
+def doctor_ratings(doctor_id):
+    sort_by = request.args.get('sort_by', 'stars')
+    order = request.args.get('order', 'desc')
+    try:
+        return jsonify(doctor_service.doctor_rating_detail(doctor_id, sort_by, order)), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    
+@doctor_bp.route('/<int:doctor_id>/patient/<int:patient_id>/last-completed', methods=['GET'])
+def last_completed_appointment(patient_id, doctor_id):
+    return jsonify(doctor_service.last_completed_appointment(patient_id, doctor_id)), 200
+
+@doctor_bp.route('/<int:doctor_id>/discussions', methods=['GET'])
+def doctor_general_discussions(doctor_id):
+    return jsonify(doctor_service.doctor_general_discussion(doctor_id)), 200
