@@ -47,6 +47,9 @@ def add_appointment(doctor_id, patient_id, treatment, start_date, end_date=None)
         appointment_detail=appointment_detail
     )
     db.session.add(appointment)
+    # Get the newly made appointment's ID
+    db.session.flush()
+    appointment_detail.appointment_details_id = appointment.appointment_id
     db.session.commit()
 
 def update_appointment(appointment_id, treatment, start_date, status=AppointmentStatus.PENDING, end_date=None):
@@ -54,28 +57,33 @@ def update_appointment(appointment_id, treatment, start_date, status=Appointment
     if not appointment_detail:
         raise ValueError("Appointment not found")
     if appointment_detail.status not in [AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED]:
-        raise ValueError("Only appointments with pending or confirmed status can be updated")
-    if not treatment or not start_date:
-        raise ValueError("treatment and start_date are required")
-    if status and status not in [AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED, AppointmentStatus.CANCELLED]:
-        raise ValueError("Invalid status value")
+        raise ValueError("Only appointments with PENDING or CONFIRMED status can be updated")
+    if status and not hasattr(AppointmentStatus, status):
+        raise ValueError(f"Invalid status value: {status}")
     if isinstance(start_date, str):
         try:
             start_date = datetime.fromisoformat(start_date)
         except Exception as e:
             raise ValueError("Invalid start_date format") from e
+        # No end date supplied; check newly submitted start date is before
+        # previously submitted end date
+        if appointment_detail.end_date <= start_date:
+            raise ValueError(f"end_date {appointment_detail.end_date} " +
+                             f"must be after start_date {start_date}")
         
     if end_date and isinstance(end_date, str):
         try:
             end_date = datetime.fromisoformat(end_date)
         except Exception as e:
             raise ValueError("Invalid end_date format") from e
+        if end_date <= start_date:
+            raise ValueError(f"end_date {end_date} " + 
+                             f"must be after start_date {start_date}")
+        else:
+            appointment_detail.end_date = end_date
 
     appointment_detail.treatment = treatment
-    if end_date and end_date <= start_date:
-        raise ValueError("end_date must be after start_date")
     appointment_detail.start_date = start_date
-    appointment_detail.end_date = end_date
     appointment_detail.status = status
     db.session.commit()
 
