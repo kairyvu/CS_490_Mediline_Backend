@@ -31,15 +31,50 @@ responses:
     schema:
       type: array
       items: 
-        $ref: '#/definitions/AppointmentDetail'
-      example:
+        type: object
+        properties:
+          appointment_id:
+            type: integer
+          doctor_id:
+            type: integer
+          doctor_name:
+            type: string
+          end_date:
+            type: string
+            format: date-time
+          fee:
+            type: number
+            format: float
+          patient_id:
+            type: integer
+          patient_name:
+            type: string
+          start_date:
+            type: string
+            format: date-time
+          status:
+            type: string
+            enum:
+              - PENDING
+              - CONFIRMED
+              - CANCELLED
+              - COMPLETED
+          treatment:
+            type: string
+    examples:
+      application/json:
         [
           {
-            "appointment_details_id": 1,
-            "treatment": "string",
-            "start_date": "string",
-            "end_date": "string",
-            "status": "string"
+            "appointment_id": 1,
+            "doctor_id": 2,
+            "doctor_name": "A A",
+            "end_date": "2000-05-29T00:00:00",
+            "fee": 3325,
+            "patient_id": 3,
+            "patient_name": "A A",
+            "start_date": "2000-03-22T12:12:12",
+            "status": "CONFIRMED",
+            "treatment": "GREAT"
           }
         ]
   400:
@@ -51,4 +86,4 @@ responses:
           type: string
     examples:
       application/json:
-        { "error": "user not found" }
+        { "error": "User not found as either patient or doctor" }

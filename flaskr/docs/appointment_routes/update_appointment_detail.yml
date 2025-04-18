@@ -23,10 +23,10 @@ parameters:
         status: 
           type: string
           enum: 
-            - pending
-            - confirmed
-            - cancelled
-            - completed
+            - PENDING
+            - CONFIRMED
+            - CANCELLED
+            - COMPLETED
     description: the appointment to update
 responses:
   200:
