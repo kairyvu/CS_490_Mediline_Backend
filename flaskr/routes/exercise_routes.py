@@ -2,6 +2,8 @@ from flask import Blueprint, jsonify, request
 from flaskr.services import get_exercises, get_all_patient_exercise, add_patient_exercise, update_patient_exercise
 from flasgger import swag_from
 
+from sqlalchemy.exc import IntegrityError   # For exception handling (foreign key constraint failure)
+
 exercise_bp = Blueprint("exercise", __name__)
 
 @exercise_bp.route('/', methods=['GET'])
@@ -42,8 +44,16 @@ def add_exercise(exercise_id):
     if not all([patient_id, doctor_id, reps]):
         return jsonify({"error": "Missing required fields"}), 400
     try:
-        add_patient_exercise(exercise_id=exercise_id, patient_id=patient_id, doctor_id=doctor_id, reps=reps)
-        return jsonify({"message": "Exercise added successfully"}), 201
+        patient_exercise_id = add_patient_exercise(exercise_id=exercise_id, patient_id=patient_id, doctor_id=doctor_id, reps=reps)
+        return jsonify(
+            {
+                "message": "Exercise added successfully",
+                "id": patient_exercise_id
+            }), 201
+    except IntegrityError as e:
+        # Possible integrity error: foreign key failure (i.e. exercise in exercise_bank with `exercise_id`` does not exist)
+        error_msg = ''.join((str(e.args[0]).split(maxsplit=1)[1]).split(',')[1:]).lstrip().strip("'")
+        return jsonify({'error': f'{error_msg}'}), 400
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
 
