@@ -23,6 +23,8 @@ def request_doctor_by_id(doctor_id):
         return jsonify({"error": "No input data provided"}), 400
     
     patient_id = data.get('patient_id')
+    if not patient_id:
+        return jsonify({"error": "patient id is required"}), 400
     try:
         select_doctor(doctor_id, patient_id)
     except ValueError as e:
