@@ -7,6 +7,7 @@ from .prescription_service import get_medications_by_prescription, get_prescript
 from .chat_service import get_current_chat
 from .social_media_service import get_all_posts, get_comments_of_post
 from .auth_service import user_id_credentials
+from .doctor_service import select_doctor
 
 __all__ = ['user_id_credentials',
            'get_exercises', 'get_all_patient_exercise', 'add_patient_exercise', 'update_patient_exercise',
@@ -16,4 +17,5 @@ __all__ = ['user_id_credentials',
            'get_medications_by_prescription', 'get_prescriptions',
            'get_current_chat',
            'get_all_posts', 'get_comments_of_post',
-           'user_id_credentials']
+           'user_id_credentials',
+           'select_doctor']
