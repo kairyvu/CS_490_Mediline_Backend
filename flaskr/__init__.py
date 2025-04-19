@@ -1,10 +1,6 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
 import os
 from dotenv import load_dotenv
-from flaskr.cli import register_commands
-from flaskr.extensions import db
 
     
 load_dotenv()
@@ -19,65 +15,41 @@ def create_app():
 
     connection_string = 'mysql+pymysql://'
     if os.environ.get('FLASK_ENV') == 'development':
+        # When running app on local machine
         connection_string += f'{username}:{password}@{host}:{port}/{database}'
         app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
     else:
+        # Production on gcloud
         from flaskr.extensions import connector
-        #import pymysql
         from pymysql.connections import Connection
         instance_conn_name = os.getenv("INSTANCE_CONNECTION_NAME")
-        def connect_iam_authn():
-            def getconn() -> Connection:
-                conn: Connection = connector.connect(
-                    instance_conn_name,
-                    'pymysql',
-                    user=os.getenv("DB_IAM_USER"),
-                    enable_iam_auth=True,
-                    db=database
-                )
-                return conn
-            app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-                "creator": getconn,
-            }
-        def connect_connector():
-            def getconn() -> Connection:
-                conn: Connection = connector.connect(
-                    instance_conn_name,
-                    'pymysql',
-                    user=username,
-                    password=password,
-                    db=database,
-                    host=host
-                )
-                return conn
-            connect_args = {}
-            # For deployments that connect directly to a Cloud SQL instance without
-            # using the Cloud SQL Proxy, configuring SSL certificates will ensure the
-            # connection is encrypted.
-            if os.environ.get("DB_ROOT_CERT"):
-                connect_args = {
-                    "cafile": os.environ["DB_ROOT_CERT"],
-                    "validate_host": False
-                }
-            app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-                "creator": getconn,
-                "connect_args": connect_args
-            }
-        connect_iam_authn()
+        def getconn() -> Connection:
+            conn: Connection = connector.connect(
+                instance_conn_name,
+                'pymysql',
+                user=os.getenv("DB_IAM_USER"),
+                enable_iam_auth=True,
+                db=database
+            )
+            return conn
+        app.config['SQLALCHEMY_ENGINE_OPTIONS'] = { "creator": getconn }
         app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
 
                                             
-    app.config['SWAGGER'] = {
-        'doc_dir': './docs/' 
-    }
+    app.config['SWAGGER'] = { 'doc_dir': './docs/' }
 
-    db.init_app(app, )
+    from flaskr.extensions import db
+    db.init_app(app)
+
+    from flask_migrate import Migrate
     migrate = Migrate(app, db)
+
     from flaskr.extensions import swag
     swag.init_app(app)
     
     from flaskr.routes import register_routes
     register_routes(app)
+    from flaskr.cli import register_commands
     register_commands(app)
 
     return app
