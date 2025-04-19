@@ -16,7 +16,9 @@ def get_patient_info(user_id):
 @swag_from('../docs/patient_routes/update_patient_info.yml')
 def update_patient_info(user_id):
     data = request.get_json()
+    if not data:
+        return jsonify({"error": "no input data provided"}), 400
     result = patient_service.update_patient(user_id, data)
-    if result:
+    if "error" not in result:
         return jsonify(result), 200
-    return jsonify({"error": "Patient not found"}), 404
+    return jsonify(result), 404
