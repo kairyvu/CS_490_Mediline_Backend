@@ -1,18 +1,20 @@
 from datetime import timedelta
 import random
 from faker import Faker
-from flaskr.models import User, Patient, Doctor, Pharmacy, SuperUser, Post, Comment, Report, PatientReport, RatingSurvey, Invoice, Notification, MedicalRecord, Prescription, PrescriptionMedication, Medication, Inventory, ExerciseBank, PatientExercise, Chat, Message, Appointment, AppointmentDetail
+from flaskr.models import User, Patient, Doctor, Pharmacy, SuperUser, Post, Comment, Report, PatientReport, RatingSurvey, Invoice, Notification, MedicalRecord, Prescription, PrescriptionMedication, Medication, Inventory, ExerciseBank, PatientExercise, Chat, Message, Appointment, AppointmentDetail, Address, City, Country
 import contextlib
 from sqlalchemy import MetaData
 from flaskr.struct import AccountType, ReportType, PaymentStatus, AppointmentStatus, ExerciseStatus, PrescriptionStatus
 from collections import defaultdict
 from flaskr.extensions import db
 from sqlalchemy import text
-
+from .deepseek_integration import generate_cities_for_countries, generate_addresses_for_cities, generate_doctor_profiles
 
 faker = Faker('en_US')
 users = defaultdict(list)
 user_relationship = defaultdict(tuple)
+uniq_user = set()
+uniq_email = set()
 
 def delete_old_data():
     meta = MetaData()
@@ -25,8 +27,14 @@ def delete_old_data():
             con.execute(table.delete())
         trans.commit()
 
-def seed_users():
-    uniq_user = set()
+def generate_email() -> str:
+    email = faker.email()
+    while email in uniq_email:
+        email = faker.email()
+    uniq_email.add(email)
+    return email
+
+def generate_user(account_type: AccountType) -> User:
     username = faker.user_name()
     while username in uniq_user:
         username = faker.user_name()
@@ -34,96 +42,122 @@ def seed_users():
     user = User(
         username=username,
         password=faker.password(),
-        account_type=AccountType.SuperUser
+        account_type=account_type,
+        address_id=faker.random_element(tuple(users["addresses"])) if users["addresses"] else None
     )
     db.session.add(user)
     db.session.flush()
     users["users"].append(user.user_id)
+    return user
+
+def generate_pharmacy(user: User):
+    pharmacy = Pharmacy(
+        user_id=user.user_id,
+        pharmacy_name=faker.company(),
+        phone=faker.basic_phone_number(),
+        email=generate_email(),
+        hours=faker.time_delta(),
+    )
+    db.session.add(pharmacy)
+    users["pharmacies"].append(user.user_id)
+
+def generate_doctor(user: User, doctor_profile: dict):
+    doctor = Doctor(
+        user_id=user.user_id,
+        first_name=doctor_profile["first_name"],
+        last_name=doctor_profile["last_name"],
+        email=generate_email(),
+        phone=faker.basic_phone_number(),
+        specialization=doctor_profile["specialization"],
+        bio=doctor_profile["bio"],
+        fee=faker.random_number(digits=3, fix_len=False),
+        profile_picture=faker.image_url(),
+        dob=faker.date_of_birth(minimum_age=30, maximum_age=50),
+        license_id=faker.uuid4()
+    )
+    db.session.add(doctor)
+    users["doctors"].append(user.user_id)
+
+def generate_patient(user: User, doctor_id=None, pharmacy_id=None):
+    patient = Patient(
+        user_id=user.user_id,
+        first_name=faker.first_name(),
+        last_name=faker.last_name(),
+        email=generate_email(),
+        phone=faker.basic_phone_number(),
+        dob=faker.date_of_birth(minimum_age=18, maximum_age=65),
+        doctor_id=doctor_id,
+        pharmacy_id=pharmacy_id,
+    )
+    db.session.add(patient)
+    db.session.flush()
+
+def seed_addresses():
+    countries = [
+        "United States", "Canada", "Mexico", "United Kingdom", "Germany",
+        "Australia", "India", "China", "Japan",
+        "Brazil", "Korea", "Vietnam"
+    ]
+    
+    for country in countries:
+        ctr = Country(country=country)
+        db.session.add(ctr)
+
+    country_map = {
+        c.country: c.country_id
+        for c in Country.query.all()
+    }
+    
+    cities = generate_cities_for_countries(countries)
+    for country, city_list in cities.items():
+        country_id = country_map[country]
+        address_list = generate_addresses_for_cities(country=country, cities=city_list)
+        for city in city_list:
+            ct = City(city=city, country_id=country_id)
+            db.session.add(ct)
+            db.session.flush()
+            
+            city_id = ct.city_id
+            for address in address_list[city]:
+                address = Address(
+                    address1=address["address1"],
+                    address2=address["address2"],
+                    state=address["state"],
+                    zipcode=address["zipcode"],
+                    city_id=city_id
+                )
+                db.session.add(address)
+                db.session.flush()
+                users["addresses"].append(address.address_id)
+    
+    db.session.commit()
+    print("Addresses done")
+
+def seed_users(pharmacy_count=10, doctor_count=20, patient_count=500):
+    user = generate_user(AccountType.SuperUser)
     super_user = SuperUser(user_id=user.user_id)
     db.session.add(super_user)
+    doctor_profile = generate_doctor_profiles(doctor_count)
 
-    for _ in range(200):
-        username = faker.user_name()
-        while username in uniq_user:
-            username = faker.user_name()
-        uniq_user.add(username)
-        user = User(
-            username=username,
-            password=faker.password(),
-            account_type=faker.random_element([AccountType.Doctor, AccountType.Pharmacy])
-        )
-        db.session.add(user)
-        db.session.flush()
-        users["users"].append(user.user_id)
-        
-        uniq_email = set()
-        email = faker.email()
-        while email in uniq_email:
-            email = faker.email()
-        uniq_email.add(email)
-        if user.account_type == AccountType.Doctor:
-            doctor = Doctor(
-                user_id=user.user_id,
-                first_name=faker.first_name(),
-                last_name=faker.last_name(),
-                email=email,
-                phone=faker.basic_phone_number(),
-                specialization=faker.job(),
-                bio=faker.text(max_nb_chars=300),
-                fee=faker.random_number(digits=3, fix_len=False),
-                profile_picture=faker.image_url(),
-                dob=faker.date_of_birth(minimum_age=30, maximum_age=50),
-                license_id=faker.uuid4()
-            )
-            db.session.add(doctor)
-            users["doctors"].append(user.user_id)
-        else:
-            pharmacy = Pharmacy(
-                user_id=user.user_id,
-                pharmacy_name=faker.company(),
-                phone=faker.basic_phone_number(),
-                email=faker.email(),
-                hours=faker.time_delta(),
-                zipcode=faker.zipcode()
-            )
-            db.session.add(pharmacy)
-            users["pharmacies"].append(user.user_id)
+    for _ in range(pharmacy_count):
+        user = generate_user(AccountType.Pharmacy)
+        generate_pharmacy(user)
+
+    for i in range(doctor_count):
+        user = generate_user(AccountType.Doctor)
+        generate_doctor(user, doctor_profile[i])
     
-    for _ in range(500):
-        username = faker.user_name()
-        while username in uniq_user:
-            username = faker.user_name()
-        uniq_user.add(username)
-        user = User(
-            username=username,
-            password=faker.password(),
-            account_type=AccountType.Patient
-        )
-        db.session.add(user)
-        db.session.flush()
+    for _ in range(patient_count):
+        user = generate_user(AccountType.Patient)
+        
         users["users"].append(user.user_id)
         users["patients"].append(user.user_id)
 
         doctor_id=faker.random_element(tuple(users["doctors"])) if users["doctors"] else None
         pharmacy_id=faker.random_element(tuple(users["pharmacies"])) if users["pharmacies"] else None
         user_relationship[user.user_id] = (doctor_id, pharmacy_id)
-        
-        email = faker.email()
-        while email in uniq_email:
-            email = faker.email()
-        uniq_email.add(email)
-        patient = Patient(
-            user_id=user.user_id,
-            first_name=faker.first_name(),
-            last_name=faker.last_name(),
-            email=email,
-            phone=faker.basic_phone_number(),
-            dob=faker.date_of_birth(minimum_age=18, maximum_age=65),
-            doctor_id=doctor_id,
-            pharmacy_id=pharmacy_id,
-        )
-        db.session.add(patient)
-        db.session.flush()
+
+        generate_patient(user, doctor_id, pharmacy_id)
     
     db.session.commit()
     print("Users done")
@@ -403,6 +437,7 @@ def seed_all():
         db.session.execute(sql)
     db.session.commit()
     faker.unique.clear()
+    seed_addresses()
     seed_users()
     seed_posts()
     seed_reports()
