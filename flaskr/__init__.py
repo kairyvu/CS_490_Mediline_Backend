@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 from flaskr.cli import register_commands
 from flaskr.extensions import db
 
-
     
 load_dotenv()
 
@@ -18,32 +17,50 @@ def create_app():
     port = os.getenv("DB_PORT", "3306")
     database = os.getenv("DB_NAME", "doctor_patient_system")
 
-    connect_args = {}
-    # For deployments that connect directly to a Cloud SQL instance without
-    # using the Cloud SQL Proxy, configuring SSL certificates will ensure the
-    # connection is encrypted.
-    if os.environ.get("DB_ROOT_CERT"):
-        db_root_cert = os.environ["DB_ROOT_CERT"]
-        db_cert = os.environ["DB_CERT"]
-        db_key = os.environ["DB_KEY"]
+    connection_string = f'mysql+pymysql://'
+    if os.environ.get('FLASK_ENV') == 'development':
+        connection_string += '{username}:{password}@{host}:{port}/{database}'
+        app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
+    else:
+        from flaskr.extensions import connector
+        def getconn():
+            conn = connector.connect(
+                os.getenv("INSTANCE_CONNECTION_NAME"),
+                'pymysql',
+                user=username,
+                passowrd=password,
+                db=database
+            )
+            return conn
+        connect_args = {}
+        # For deployments that connect directly to a Cloud SQL instance without
+        # using the Cloud SQL Proxy, configuring SSL certificates will ensure the
+        # connection is encrypted.
+        if os.environ.get("DB_ROOT_CERT"):
+            db_root_cert = os.environ["DB_ROOT_CERT"]
+            db_cert = os.environ["DB_CERT"]
+            db_key = os.environ["DB_KEY"]
 
-        ssl_args = {"ssl_ca": db_root_cert, "ssl_cert": db_cert, "ssl_key": db_key}
-        connect_args = {
-            "ssl": {
-                "ca": db_root_cert,
-                "cert": db_cert,
-                "key": db_key
+            #ssl_args = {"ssl_ca": db_root_cert, "ssl_cert": db_cert, "ssl_key": db_key}
+            connect_args = {
+                "ssl": {
+                    "ca": db_root_cert,
+                    "cert": db_cert,
+                    "key": db_key
+                }
             }
+        app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+            "url": connection_string,
+            "creator": getconn,
+            "connect_args": connect_args
         }
 
-    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = connect_args
-    app.config['SQLALCHEMY_DATABASE_URI'] = \
-        f'mysql+pymysql://{username}:{password}@{host}:{port}/{database}'
+                                            
     app.config['SWAGGER'] = {
         'doc_dir': './docs/' 
     }
 
-    db.init_app(app)
+    db.init_app(app, )
     migrate = Migrate(app, db)
     from flaskr.extensions import swag
     swag.init_app(app)
