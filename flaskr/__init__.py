@@ -25,38 +25,46 @@ def create_app():
         from flaskr.extensions import connector
         #import pymysql
         from pymysql.connections import Connection
-        kwargs = {"db": database}
-        if os.environ.get("DB_IAM_USER"):
-            kwargs.update({
-                "user": os.getenv("DB_IAM_USER"),
-                "enable_iam_auth": True
-            })
-        else:
-            kwargs.update({
-                "user": username,
-                "password": password,
-            })
-        def getconn() -> Connection:
-            conn: Connection = connector.connect(
-                os.getenv("INSTANCE_CONNECTION_NAME"),
-                'pymysql',
-                kwargs
-            )
-            return conn
-        connect_args = {}
-        # For deployments that connect directly to a Cloud SQL instance without
-        # using the Cloud SQL Proxy, configuring SSL certificates will ensure the
-        # connection is encrypted.
-        if os.environ.get("DB_ROOT_CERT"):
-            connect_args = {
-                "cafile": os.environ["DB_ROOT_CERT"],
-                "validate_host": False
+        instance_conn_name = os.getenv("INSTANCE_CONNECTION_NAME")
+        def connect_iam_authn():
+            def getconn() -> Connection:
+                conn: Connection = connector.connect(
+                    instance_conn_name,
+                    'pymysql',
+                    user=os.getenv("DB_IAM_USER"),
+                    enable_iam_auth=True,
+                    db=database
+                )
+                return conn
+            app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+                "creator": getconn,
             }
+        def connect_connector():
+            def getconn() -> Connection:
+                conn: Connection = connector.connect(
+                    instance_conn_name,
+                    'pymysql',
+                    user=username,
+                    password=password,
+                    db=database,
+                    host=host
+                )
+                return conn
+            connect_args = {}
+            # For deployments that connect directly to a Cloud SQL instance without
+            # using the Cloud SQL Proxy, configuring SSL certificates will ensure the
+            # connection is encrypted.
+            if os.environ.get("DB_ROOT_CERT"):
+                connect_args = {
+                    "cafile": os.environ["DB_ROOT_CERT"],
+                    "validate_host": False
+                }
+            app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+                "creator": getconn,
+                "connect_args": connect_args
+            }
+        connect_iam_authn()
         app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
-        app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-            "creator": getconn,
-            "connect_args": connect_args
-        }
 
                                             
     app.config['SWAGGER'] = {
