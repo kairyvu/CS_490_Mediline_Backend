@@ -19,7 +19,7 @@ def create_app():
 
     connection_string = f'mysql+pymysql://'
     if os.environ.get('FLASK_ENV') == 'development':
-        connection_string += '{username}:{password}@{host}:{port}/{database}'
+        connection_string += f'{username}:{password}@{host}:{port}/{database}'
         app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
     else:
         from flaskr.extensions import connector
@@ -28,7 +28,7 @@ def create_app():
                 os.getenv("INSTANCE_CONNECTION_NAME"),
                 'pymysql',
                 user=username,
-                passowrd=password,
+                password=password,
                 db=database
             )
             return conn
