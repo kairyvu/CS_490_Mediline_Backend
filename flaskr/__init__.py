@@ -23,16 +23,24 @@ def create_app():
         app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
     else:
         from flaskr.extensions import connector
-        def getconn():
-            conn = connector.connect(
+        #import pymysql
+        from pymysql.connections import Connection
+        kwargs = {"db": database}
+        if os.environ.get("DB_IAM_USER"):
+            kwargs.update({
+                "user": os.getenv("DB_IAM_USER"),
+                "enable_iam_auth": True
+            })
+        else:
+            kwargs.update({
+                "user": username,
+                "password": password,
+            })
+        def getconn() -> Connection:
+            conn: Connection = connector.connect(
                 os.getenv("INSTANCE_CONNECTION_NAME"),
                 'pymysql',
-                ip_type='private',
-                user=username,
-                password=password,
-                db=database,
-                host=host,
-                port=port
+                kwargs
             )
             return conn
         connect_args = {}
@@ -40,7 +48,6 @@ def create_app():
         # using the Cloud SQL Proxy, configuring SSL certificates will ensure the
         # connection is encrypted.
         if os.environ.get("DB_ROOT_CERT"):
-            print(f'i found connect args: {os.environ["DB_ROOT_CERT"]}')
             connect_args = {
                 "cafile": os.environ["DB_ROOT_CERT"],
                 "validate_host": False
