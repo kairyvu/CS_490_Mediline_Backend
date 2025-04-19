@@ -127,6 +127,7 @@ def seed_addresses():
                     city_id=city_id
                 )
                 db.session.add(address)
+                db.session.flush()
                 users["addresses"].append(address.address_id)
     
     db.session.commit()
