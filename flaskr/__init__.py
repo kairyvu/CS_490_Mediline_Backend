@@ -30,7 +30,9 @@ def create_app():
                 ip_type='private',
                 user=username,
                 password=password,
-                db=database
+                db=database,
+                host=host,
+                port=port
             )
             return conn
         connect_args = {}
@@ -38,17 +40,10 @@ def create_app():
         # using the Cloud SQL Proxy, configuring SSL certificates will ensure the
         # connection is encrypted.
         if os.environ.get("DB_ROOT_CERT"):
-            db_root_cert = os.environ["DB_ROOT_CERT"]
-            db_cert = os.environ["DB_CERT"]
-            db_key = os.environ["DB_KEY"]
-
-            #ssl_args = {"ssl_ca": db_root_cert, "ssl_cert": db_cert, "ssl_key": db_key}
+            print(f'i found connect args: {os.environ["DB_ROOT_CERT"]}')
             connect_args = {
-                "ssl": {
-                    "ca": db_root_cert,
-                    "cert": db_cert,
-                    "key": db_key
-                }
+                "cafile": os.environ["DB_ROOT_CERT"],
+                "validate_host": False
             }
         app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
         app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
