@@ -17,7 +17,7 @@ def create_app():
     port = os.getenv("DB_PORT", "3306")
     database = os.getenv("DB_NAME", "doctor_patient_system")
 
-    connection_string = f'mysql+pymysql://'
+    connection_string = 'mysql+pymysql://'
     if os.environ.get('FLASK_ENV') == 'development':
         connection_string += f'{username}:{password}@{host}:{port}/{database}'
         app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
@@ -27,6 +27,7 @@ def create_app():
             conn = connector.connect(
                 os.getenv("INSTANCE_CONNECTION_NAME"),
                 'pymysql',
+                ip_type='private',
                 user=username,
                 password=password,
                 db=database
@@ -49,8 +50,8 @@ def create_app():
                     "key": db_key
                 }
             }
+        app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
         app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-            "url": connection_string,
             "creator": getconn,
             "connect_args": connect_args
         }
