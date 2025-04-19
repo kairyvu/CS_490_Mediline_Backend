@@ -6,14 +6,19 @@ from dotenv import load_dotenv
 from flaskr.cli import register_commands
 from flaskr.extensions import db
 
+
+    
 load_dotenv()
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
-    username = os.getenv("MYSQL_USER", "root")
-    password = os.getenv("MYSQL_PASSWORD", "")
-    host = os.getenv("MYSQL_HOST", "localhost")
-    app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{username}:{password}@{host}/doctor_patient_system'
+    username = os.getenv("DB_USER") or os.getenv("MYSQL_USER")
+    password = os.getenv("DB_PASS") or os.getenv("MYSQL_PASSWORD")
+    host = os.getenv("DB_HOST") or os.getenv("MYSQL_HOST")
+    port = os.getenv("DB_PORT", "3306")
+    database = os.getenv("DB_NAME", "doctor_patient_system")
+    app.config['SQLALCHEMY_DATABASE_URI'] = \
+        f'mysql+pymysql://{username}:{password}@{host}:{port}/{database}'
     app.config['SWAGGER'] = {
         'doc_dir': './docs/' 
     }
