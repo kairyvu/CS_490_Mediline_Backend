@@ -47,8 +47,12 @@ def create_appointment():
             return jsonify({"error": "end_date must be after start_date"}), 400
 
     try:
-        add_appointment(doctor_id, patient_id, treatment, start_date, end_date)
-        return jsonify({"message": "Appointment created successfully"}), 201
+        appointment_id = add_appointment(doctor_id, patient_id, treatment, start_date, end_date)
+        return jsonify(
+            {
+                "message": "Appointment created successfully",
+                "id": appointment_id
+            }), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 

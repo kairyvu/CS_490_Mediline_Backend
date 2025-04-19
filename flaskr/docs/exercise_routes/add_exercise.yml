@@ -15,8 +15,6 @@ parameters:
           type: integer
         patient_id:
           type: integer
-        exercise_id:
-          type: integer
         reps:
           type: string
         status:
@@ -33,9 +31,12 @@ responses:
       properties:
         message:
           type: string
+        id:
+          type: integer
     examples:
       application/json:
         message: Exercise added successfully
+        id: 1
   400:
     description: Invalid date format
     schema:
