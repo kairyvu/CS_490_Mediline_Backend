@@ -28,7 +28,13 @@ def create_app():
         db_key = os.environ["DB_KEY"]
 
         ssl_args = {"ssl_ca": db_root_cert, "ssl_cert": db_cert, "ssl_key": db_key}
-        connect_args = ssl_args
+        connect_args = {
+            "ssl": {
+                "ca": db_root_cert,
+                "cert": db_cert,
+                "key": db_key
+            }
+        }
 
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = connect_args
     app.config['SQLALCHEMY_DATABASE_URI'] = \
