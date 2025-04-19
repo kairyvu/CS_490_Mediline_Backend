@@ -157,7 +157,7 @@ definitions:
       comments:
         type: array
         items:
-          $ref: '#/definitions/Comments'
+          $ref: '#/definitions/Comment'
   Doctor:
     allOf:
     - $ref: '#/definitions/User'
