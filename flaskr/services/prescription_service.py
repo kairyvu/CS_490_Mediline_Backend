@@ -1,5 +1,8 @@
-from flaskr.models import Prescription, PrescriptionMedication, Doctor, Patient
+from flaskr.models import Prescription, Doctor, Patient
 from flaskr.extensions import db
+from sqlalchemy import func, case
+from flaskr.struct import PrescriptionStatus
+
 
 def get_prescriptions(user_id, sort_by='created_at', order='asc'):
     is_patient = Patient.query.filter_by(user_id=user_id).first() is not None
@@ -37,4 +40,20 @@ def get_medications_by_prescription(prescription_id):
             "medical_instructions": pres_med.medical_instructions
         })
         medications_list.append(med_details)
-    return medications_list    
+    return medications_list
+
+def get_prescription_count_by_pharmacy(pharmacy_id):
+    rows = (
+        db.session.query(
+            Prescription.status,
+            func.count(Prescription.prescription_id)
+        ).filter(Prescription.pharmacy_id == pharmacy_id)
+        .group_by(Prescription.status)
+        .all()
+    )
+    counts = { status: count for status, count in rows }
+    
+    return {
+        'collected_prescription': counts.get(PrescriptionStatus.PAID, 0),
+        'processing_prescription': counts.get(PrescriptionStatus.UNPAID, 0)
+    }

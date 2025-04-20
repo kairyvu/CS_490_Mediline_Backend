@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from flaskr.services import get_medications_by_prescription, get_prescriptions
+from flaskr.services import get_medications_by_prescription, get_prescriptions, get_prescription_count_by_pharmacy
 
 prescription_bp = Blueprint("prescription", __name__)
 @prescription_bp.route('/user/<int:user_id>', methods=['GET'])
@@ -22,3 +22,13 @@ def get_medication_list(prescription_id):
         return jsonify({'error': str(e)}), 404
     except Exception as e:
         return jsonify({'error': 'An error occurred while fetching the medications'}), 500
+
+@prescription_bp.route('/pharmacy/<int:pharmacy_id>/count', methods=['GET'])
+def get_prescription_count(pharmacy_id):
+    try:
+        count = get_prescription_count_by_pharmacy(pharmacy_id)
+        return jsonify(count), 200
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 404
+    except Exception as e:
+        return jsonify({'error': 'An error occurred while fetching the prescription count'}), 500
