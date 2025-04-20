@@ -2,8 +2,7 @@
 ## Script to create database in mysql
 ## Should be in project root and uses .env
 set -ex
-WORK_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-DEV_ENV=${WORK_DIR}/.env
+DEV_ENV=.env
 cat <<-EOF > tmp_create.sql
 DROP SCHEMA IF EXISTS ${MYSQL_DATABASE};
 CREATE SCHEMA ${MYSQL_DATABASE} DEFAULT CHARACTER SET utf8mb4;
@@ -20,7 +19,7 @@ else
     rm tmp_create.sql
     echo "upgrading DB"
     MIGRATIONS=migrations/
-    if [[ ! -d $"MIGRATIONS" ]]; then
+    if [[ ! -d "$MIGRATIONS" ]]; then
         echo "migrations directory not found"
         flask db init
     fi
