@@ -56,26 +56,22 @@ class PrescriptionMedication(db.Model):
     medication_id = db.Column(db.Integer, db.ForeignKey('medication.medication_id'), nullable=False)
     dosage = db.Column(db.String(100), nullable=False)
     medical_instructions = db.Column(db.Text, nullable=False)
-    expiration_date = db.Column(db.DateTime, nullable=False)
     taken_date = db.Column(db.DateTime, nullable=False)
+    duration = db.Column(db.Integer, nullable=False) # In days
 
     prescription = db.relationship('Prescription', backref=db.backref('prescription_medications', lazy=True))
     medication = db.relationship('Medication', backref=db.backref('prescription_medications', lazy=True))
     
     def to_dict(self):
-        duration = None
-        if self.taken_date and self.expiration_date:
-            duration = (self.expiration_date - self.taken_date).days
         return {
             'prescription_medication_id': self.prescription_medication_id,
             'prescription_id': self.prescription_id,
             'medication_id': self.medication_id,
             'dosage': self.dosage,
             'medical_instructions': self.medical_instructions,
-            'expiration_date': self.expiration_date.isoformat() if self.expiration_date else None,
             'taken_date': self.taken_date.isoformat() if self.taken_date else None,
-            'duration': duration,
             'medication_name': self.medication.name if self.medication else None,
+            'duration': self.duration
         }
 
 class Medication(db.Model):
@@ -99,6 +95,16 @@ class Inventory(db.Model):
     pharmacy_id = db.Column(db.Integer, db.ForeignKey('pharmacy.user_id'), nullable=False)
     medication_id = db.Column(db.Integer, db.ForeignKey('medication.medication_id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
+    expiration_date = db.Column(db.DateTime, nullable=False)
 
     pharmacy = db.relationship('Pharmacy', backref=db.backref('inventories', lazy=True))
     medication = db.relationship('Medication', backref=db.backref('inventories', lazy=True))
+
+    def to_dict(self):
+        return {
+            'inventory_id': self.inventory_id,
+            'medication_id': self.medication_id,
+            'quantity': self.quantity,
+            'expiration_date': self.expiration_date.isoformat() if self.expiration_date else None,
+            'medication_name': self.medication.name if self.medication else None
+        }
