@@ -1,3 +1,5 @@
+Fetch a patient's prescriptions
+---
 tags: 
   - prescription
 parameters:

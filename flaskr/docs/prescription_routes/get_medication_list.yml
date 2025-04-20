@@ -1,3 +1,5 @@
+Fetch all medications from a prescription order
+---
 tags: 
   - prescription
 parameters:

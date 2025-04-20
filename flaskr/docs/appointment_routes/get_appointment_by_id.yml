@@ -1,3 +1,5 @@
+Look up appointment by appointment ID
+---
 tags: 
   - appointment
 parameters:

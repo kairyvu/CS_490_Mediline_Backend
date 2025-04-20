@@ -1,3 +1,5 @@
+Get the upcoming appointments for a user, either patient or doctor
+---
 tags: 
   - appointment
 parameters:

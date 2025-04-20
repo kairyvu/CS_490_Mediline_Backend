@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
-  title: 'My title'
-  description: 'My Description'
+  title: 'Group 5 - Mediline REST API'
+  description: 'For CS490. API documentation'
   version: '0.1'
 
 definitions:

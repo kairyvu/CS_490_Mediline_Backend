@@ -1,3 +1,5 @@
+Assign an exercise to a patient given the exercise ID
+---
 tags: 
   - exercise
 parameters:
