@@ -21,6 +21,16 @@ parameters:
           type: string
         phone:
           type: string
+        address1:
+          type: string
+        address2:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        country:
+          type: string
     description: Patient details to update
 responses:
   200:
@@ -33,6 +43,16 @@ responses:
     examples:
       application/json:
         message: Patient updated successfully
+  400:
+    description: Unseccessful patient update
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json: 
+        error: <exception string>
   404:
     description: Patient not found
     schema:
@@ -43,5 +63,13 @@ responses:
     examples:
       application/json: 
         error: Patient not found
-
-
+  504:
+    description: Unseccessful patient update
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json: 
+        error: <exception string>
