@@ -142,7 +142,35 @@ def generate_doctor_profiles(count: int = 20, max_retries: int = 3) -> list[dict
                 {"role":"user",   "content": json.dumps({"count": count})}
             ],
             temperature=0.7,
-            stream=False
+            stream=False,
+            response_format={
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "doctor_profile",
+                    "strict": True,
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "first_name": {
+                                "type": "string",
+                                "description": "A doctor's First Name"
+                            },
+                            "last_name": {
+                                "type": "string",
+                                "description": "A doctor's Last Name"
+                            },
+                            "specialization": {
+                                "type": "string",
+                                "description": "A medical specialty"
+                            },
+                            "bio": {
+                                "type": "string",
+                                "description": "A doctor's bio for an online platform where they advertise their service given their specialization"
+                            }
+                        }
+                    }
+                }
+            }
         )
         choice = resp.choices[0] if resp.choices else None
         if choice and getattr(choice, "error", None):
