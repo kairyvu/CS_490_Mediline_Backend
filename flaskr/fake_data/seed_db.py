@@ -264,6 +264,7 @@ def seed_prescriptions(n=400):
             patient_id=faker.random_element(tuple(users["patients"])),
             doctor_id=faker.random_element(tuple(users["doctors"])),
             amount=faker.random_number(digits=3, fix_len=False),
+            pharmacy_id=faker.random_element(tuple(users["pharmacies"])),
             status=faker.random_element([PrescriptionStatus.PAID, PrescriptionStatus.UNPAID]),
             created_at=faker.date_time_this_year(),
         )
@@ -272,11 +273,16 @@ def seed_prescriptions(n=400):
         users["prescriptions"].append(prescription.prescription_id)
 
         for _ in range(faker.random_int(min=0, max=10)):
+            taken_date = faker.date_time_this_year()
+            expiration_date = taken_date + timedelta(days=random.randint(1, 30))
+
             prescription_medication = PrescriptionMedication(
                 prescription_id=prescription.prescription_id,
                 medication_id=faker.random_element(tuple(users["medications"])),
                 dosage=faker.random_int(min=1, max=10),
                 medical_instructions=faker.text(max_nb_chars=200),
+                taken_date=taken_date,
+                expiration_date=expiration_date,
             )
             db.session.add(prescription_medication)
             db.session.flush()

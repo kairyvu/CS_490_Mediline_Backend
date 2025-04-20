@@ -85,7 +85,6 @@ class Pharmacy(db.Model):
             "phone": self.phone,
             "email": self.email,
             "hours": self.hours,
-            "zipcode": self.user.zipcode
         }
 
 
