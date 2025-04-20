@@ -1,8 +1,7 @@
-from flaskr.models import Prescription, Doctor, Patient, Pharmacy
+from flaskr.models import Prescription, Doctor, Patient, Pharmacy, Inventory, PrescriptionMedication
 from flaskr.extensions import db
-from sqlalchemy import func, case
+from sqlalchemy import func
 from flaskr.struct import PrescriptionStatus
-
 
 def get_prescriptions(user_id, sort_by='created_at', order='asc'):
     is_patient = Patient.query.filter_by(user_id=user_id).first() is not None
@@ -60,3 +59,22 @@ def get_prescription_count_by_pharmacy(pharmacy_id):
         'collected_prescription': counts.get(PrescriptionStatus.PAID, 0),
         'processing_prescription': counts.get(PrescriptionStatus.UNPAID, 0)
     }
+
+def get_pharmacy_medications_inventory(pharmacy_id):
+    inventory = Inventory.query.filter_by(pharmacy_id=pharmacy_id).all()
+    if not inventory:
+        raise ValueError("No medications found in the pharmacy inventory")
+    medications_list = []
+    for item in inventory:
+        medications_list.append(item.to_dict())
+    return medications_list
+
+def get_medications_history_by_patient(patient_id):
+    prescriptions = Prescription.query.filter_by(patient_id=patient_id).all()
+    if not prescriptions:
+        raise ValueError("No prescriptions found for the patient")
+    medications_history = []
+    for prescription in prescriptions:
+        medications = get_medications_by_prescription(prescription.prescription_id)
+        medications_history.append(medications)
+    return medications_history

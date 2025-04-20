@@ -3,7 +3,7 @@ from .exercise_service import get_exercises, get_all_patient_exercise, add_patie
 from .payment_service import get_invoices_by_user
 from .appointment_service import get_upcoming_appointments, add_appointment, update_appointment, get_appointment
 from .report_service import get_patient_report_result, add_patient_report
-from .prescription_service import get_medications_by_prescription, get_prescriptions, get_prescription_count_by_pharmacy
+from .prescription_service import get_medications_by_prescription, get_prescriptions, get_prescription_count_by_pharmacy, get_pharmacy_medications_inventory, get_medications_history_by_patient
 from .chat_service import get_current_chat
 from .social_media_service import get_all_posts, get_comments_of_post
 from .auth_service import user_id_credentials
@@ -13,7 +13,7 @@ __all__ = ['user_id_credentials',
            'get_invoices_by_user',
            'get_upcoming_appointments', 'add_appointment', 'update_appointment', 'get_appointment',
            'get_patient_report_result', 'add_patient_report',
-           'get_medications_by_prescription', 'get_prescriptions', 'get_prescription_count_by_pharmacy',
+           'get_medications_by_prescription', 'get_prescriptions', 'get_prescription_count_by_pharmacy', 'get_pharmacy_medications_inventory', 'get_medications_history_by_patient',
            'get_current_chat',
            'get_all_posts', 'get_comments_of_post',
            'user_id_credentials']
