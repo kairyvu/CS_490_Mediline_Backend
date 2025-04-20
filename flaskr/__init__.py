@@ -49,7 +49,7 @@ def create_app():
     
     from flaskr.routes import register_routes
     register_routes(app)
-    #from flaskr.cli import register_commands
-    #register_commands(app)
+    from flaskr.cli import register_commands
+    register_commands(app)
 
     return app
