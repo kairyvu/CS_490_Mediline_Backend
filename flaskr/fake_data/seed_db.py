@@ -94,9 +94,7 @@ def generate_patient(user: User, doctor_id=None, pharmacy_id=None):
 
 def seed_addresses():
     countries = [
-        "United States", "Canada", "Mexico", "United Kingdom", "Germany",
-        "Australia", "India", "China", "Japan",
-        "Brazil", "Korea", "Vietnam"
+        "United States", "Canada", "China", "United Kingdom",
     ]
     
     for country in countries:
@@ -108,7 +106,7 @@ def seed_addresses():
         for c in Country.query.all()
     }
     
-    cities = generate_cities_for_countries(countries)
+    cities = generate_cities_for_countries(countries, min_count=5, max_count=10)
     for country, city_list in cities.items():
         country_id = country_map[country]
         address_list = generate_addresses_for_cities(country=country, cities=city_list)
@@ -238,6 +236,7 @@ def seed_medications(n=200):
                 medication_id=medication.medication_id,
                 quantity=faker.random_int(min=1, max=10),
                 pharmacy_id=faker.random_element(tuple(users["pharmacies"])),
+                expiration_date=faker.date_time_between(start_date=faker.date_time_this_year(), end_date=faker.date_time_this_year() + timedelta(days=365*2))
             )
             db.session.add(inventory)
             db.session.flush()
@@ -273,16 +272,13 @@ def seed_prescriptions(n=400):
         users["prescriptions"].append(prescription.prescription_id)
 
         for _ in range(faker.random_int(min=0, max=10)):
-            taken_date = faker.date_time_this_year()
-            expiration_date = taken_date + timedelta(days=random.randint(1, 30))
-
             prescription_medication = PrescriptionMedication(
                 prescription_id=prescription.prescription_id,
                 medication_id=faker.random_element(tuple(users["medications"])),
                 dosage=faker.random_int(min=1, max=10),
                 medical_instructions=faker.text(max_nb_chars=200),
-                taken_date=taken_date,
-                expiration_date=expiration_date,
+                taken_date=faker.date_time_this_year(),
+                duration=random.randint(1, 30),
             )
             db.session.add(prescription_medication)
             db.session.flush()
