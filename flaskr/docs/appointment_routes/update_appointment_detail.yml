@@ -1,0 +1,62 @@
+Change appointment details
+---
+tags: 
+  - appointment
+parameters:
+  - name: appointment_id
+    in: path
+    type: integer
+    required: true
+    description: appointment id to update
+  - name: user_details
+    in: body
+    schema:
+      type: object
+      required:
+        - treatment
+        - start_date
+      properties:
+        treatment: 
+          type: string
+        start_date: 
+          type: string
+        end_date: 
+          type: string
+        status: 
+          type: string
+          enum: 
+            - PENDING
+            - CONFIRMED
+            - CANCELLED
+            - COMPLETED
+    description: the appointment to update
+responses:
+  200:
+    description: Successful appointment update
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+    examples:
+      application/json:
+        message: Appointment updated successfully
+  400:
+    description: Unsuccessful appointment update
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          enum:
+          - No input data provided
+          - Appointment not found
+          - Only appointments with pending or confirmed status can be updated
+          - treatment and start_date are required
+          - Invalid status value
+          - Invalid start_date format
+          - Invalid end_date format
+          - end_date must be after start_date
+    examples:
+      application/json: 
+        error: Appointment not found

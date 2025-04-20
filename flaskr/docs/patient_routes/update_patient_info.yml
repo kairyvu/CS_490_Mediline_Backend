@@ -1,0 +1,47 @@
+Update a patient's details
+---
+tags: 
+  - patient
+parameters:
+  - name: user_id
+    in: path
+    type: integer
+    required: true
+    description: Patient id to update
+  - name: patient_details
+    in: body
+    schema:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+    description: Patient details to update
+responses:
+  200:
+    description: Successful patient update
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+    examples:
+      application/json:
+        message: Patient updated successfully
+  404:
+    description: Patient not found
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json: 
+        error: Patient not found
+
+

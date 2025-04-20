@@ -1,0 +1,94 @@
+Get a list of reports filled by a patient
+---
+tags: 
+  - report
+parameters:
+  - name: user_id
+    in: path
+    type: integer
+    required: true
+    description: User ID
+  - name: sort_by
+    in: query
+    type: string
+    enum: 
+    - patient_report_id
+    - report_id
+    - patient_id
+    - doctor_id
+    - height
+    - weight
+    - calories_intake
+    - hours_of_exercise
+    - hours_of_sleep
+    - created_at
+    required: false
+    description: set column to sort by
+  - name: order_by
+    in: query
+    type: string
+    enum: 
+      - asc 
+      - desc
+    required: false
+    description: set ascending or descending order
+responses:
+  200:
+    description: fetch list of reports associated to a user ID
+    schema:
+      type: array
+      items:
+        type: object
+        properties:
+          patient_report_id:
+            type: integer
+          report_id:
+            type: integer
+          patient_id:
+            type: integer
+          doctor_id:
+            type: integer
+          height:
+            type: number
+            format: float
+          weight:
+            type: number
+            format: float
+          calories_intake:
+            type: integer
+          hours_of_exercise:
+            type: integer
+          hours_of_sleep:
+            type: integer
+          created_at:
+            type: string
+            format: date-time
+    examples:
+      application/json:
+        [
+          {
+            "patient_report_id": "3",
+            "report_id": "12",
+            "patient_id": "2",
+            "doctor_id": "4",
+            "height": "48.84",
+            "weight": "84.38",
+            "calories_intake": "488",
+            "hours_of_exercise": "3",
+            "hours_of_sleep": "3",
+            "created_at": "2000-01-01T12:59:59Z",
+          }
+        ]
+  400:
+    description: Failed to fetch data; invalid sort field provided in input
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          enum:
+            - Invalid sort field <sort_by arg>
+    examples:
+      application/json: 
+        error: Invalid sort field <sort_by arg>
+
