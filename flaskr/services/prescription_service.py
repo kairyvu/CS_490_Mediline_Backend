@@ -1,4 +1,4 @@
-from flaskr.models import Prescription, Doctor, Patient
+from flaskr.models import Prescription, Doctor, Patient, Pharmacy
 from flaskr.extensions import db
 from sqlalchemy import func, case
 from flaskr.struct import PrescriptionStatus
@@ -7,15 +7,18 @@ from flaskr.struct import PrescriptionStatus
 def get_prescriptions(user_id, sort_by='created_at', order='asc'):
     is_patient = Patient.query.filter_by(user_id=user_id).first() is not None
     is_doctor = Doctor.query.filter_by(user_id=user_id).first() is not None
+    is_pharmacy = Pharmacy.query.filter_by(user_id=user_id).first() is not None
 
-    if not (is_patient or is_doctor):
-        raise ValueError("User not found as either patient or doctor")
+    if not (is_patient or is_doctor or is_pharmacy):
+        raise ValueError("User not found as either patient, doctor or pharmacy")
 
     query = Prescription.query
     if is_patient:
         query = query.filter(Prescription.patient_id == user_id)
     elif is_doctor:
         query = query.filter(Prescription.doctor_id == user_id)
+    elif is_pharmacy:
+        query = query.filter(Prescription.pharmacy_id == user_id)
 
     if not hasattr(Prescription, sort_by):
         raise ValueError(f"Invalid sort field: {sort_by}")
