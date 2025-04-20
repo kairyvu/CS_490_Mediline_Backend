@@ -17,6 +17,10 @@ if [[ -f "$DEV_ENV" ]]; then
     rm tmp_create.sql
 else
     echo "upgrading DB"
+    MIGRATIONS=migrations/
+    if [[ ! -d $"MIGRATIONS" ]]; then
+        flask db init
+    fi
     flask db migrate
     flask db upgrade
 fi

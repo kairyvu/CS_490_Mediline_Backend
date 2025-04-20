@@ -22,5 +22,8 @@ schema:
 	python -m flask db migrate
 	python -m flask db upgrade
 
+upgrade_models:
+	./create_db.sh
+
 fake:
 	flask seed-db
