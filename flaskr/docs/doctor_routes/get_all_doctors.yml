@@ -1,0 +1,27 @@
+A list of all registered doctors
+---
+tags: 
+  - doctor
+responses:
+  200:
+    description: fetch a list of all doctors
+    schema:
+      type: array
+      items:
+        type: object
+        properties:
+          user_id:
+            type: integer
+          name:
+            type: string
+          specialization:
+            type: string
+    examples:
+      application/json:
+        [
+          {
+            "user_id": "1",
+            "name": "FirstName LastName",
+            "specialization": "SpecializationString",
+          }
+        ]

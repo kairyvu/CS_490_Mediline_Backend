@@ -1,0 +1,77 @@
+A list of comments of a post
+---
+tags: 
+  - social_media
+parameters:
+  - name: post_id
+    in: path
+    type: integer
+    required: true
+    description: post ID
+  - name: sort_by
+    in: query
+    type: string
+    required: false
+    description: set column to sort by
+  - name: order_by
+    in: query
+    type: string
+    enum: 
+      - asc 
+      - desc
+    required: false
+    description: set ascending or descending order
+responses:
+  200:
+    description: fetch list of comments associated to a post ID
+    schema:
+      type: array
+      items:
+        type: object
+        properties:
+          comment_id:
+            type: integer
+          post_id:
+            type: integer
+          user_id:
+            type: integer
+          content:
+            type: string
+          created_at:
+            type: string
+            format: date-time
+          updated_at:
+            type: string
+            format: date-time
+    examples:
+      application/json:
+        [
+          {
+            "comment_id": "1",
+            "post_id": "3",
+            "user_id": "8",
+            "content": "Blah Blah Blah",
+            "created_at": "2000-12-12T12:59:59Z",
+            "updated_at": "2000-12-25T12:59:59Z",
+          }
+        ]
+  404:
+    description: Prescription not found
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json: 
+        error: Prescription not found
+  500:
+    description: Internal server error
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json: 
+        error: An error occurred while fetching the medications
