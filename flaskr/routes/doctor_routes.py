@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
-from flaskr.services import doctor_service
 from flasgger import swag_from
+from flaskr.services import doctor_service, select_doctor
 
 doctor_bp = Blueprint('doctor_bp', __name__, url_prefix='/doctors')
 
@@ -18,4 +18,21 @@ def get_doctor_by_id(doctor_id):
         return jsonify(doctor), 200
     return jsonify({"error": "Doctor not found"}), 404
 
-
+@doctor_bp.route('/<int:doctor_id>/request', methods=['POST'])
+def request_doctor_by_id(doctor_id):
+    # Route to request a doctor as a patient
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No input data provided"}), 400
+    
+    patient_id = data.get('patient_id')
+    if not patient_id:
+        return jsonify({"error": "patient id is required"}), 400
+    try:
+        select_doctor(doctor_id, patient_id)
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+    
+    return jsonify({"message": "Doctor requested successfully"}), 200
