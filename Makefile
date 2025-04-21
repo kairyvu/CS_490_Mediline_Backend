@@ -1,4 +1,4 @@
-.PHONY: install venv clean run schema fake
+.PHONY: install venv clean run schema fake deploy
 
 venv:
 	python -m venv venv
@@ -27,3 +27,6 @@ upgrade_models:
 
 fake:
 	flask seed-db
+
+deploy:
+	./entrypoint.sh
