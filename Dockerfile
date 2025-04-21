@@ -8,4 +8,4 @@ RUN pip3 install --upgrade pip && \
 
 EXPOSE 8080
 
-CMD ["./entrypoint.sh"]
+CMD ["make", "deploy"]
