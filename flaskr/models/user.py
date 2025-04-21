@@ -7,9 +7,13 @@ class User(db.Model):
     user_id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
+    address_id = db.Column(db.Integer, db.ForeignKey('address.address_id'))
+
     account_type = db.Column(db.Enum(AccountType), nullable=False)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+
+    address = db.relationship('Address', backref=db.backref('user', lazy=True))
 
     def to_dict(self):
         return {
@@ -71,7 +75,6 @@ class Pharmacy(db.Model):
     phone = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     hours = db.Column(db.String(80), nullable=False)
-    zipcode = db.Column(db.String(20), nullable=False)
     
     user = db.relationship('User', backref=db.backref('pharmacy', uselist=False))
 
@@ -82,7 +85,6 @@ class Pharmacy(db.Model):
             "phone": self.phone,
             "email": self.email,
             "hours": self.hours,
-            "zipcode": self.zipcode
         }
 
 

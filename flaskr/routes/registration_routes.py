@@ -8,12 +8,19 @@
 """
 from werkzeug.datastructures import ImmutableMultiDict
 from flask import Blueprint, request, make_response, jsonify
-from flaskr.services.register import add_user
+from flaskr.services.registration_service import add_user
+from flasgger import swag_from
+
+from sqlalchemy.exc import IntegrityError
 
 register_bp = Blueprint("register", __name__)
 
 @register_bp.route('/', methods=['POST'])
-def register_route():
+@swag_from('../docs/registration_routes/register.yml')
+def register():
+    # Check data not empty
+    if not request.get_data():
+        return make_response(jsonify(message=f'no data provided'), 400)
     # Coerce json data from request to match http form data in werkzeug
     # This is done to be compatible with add_user
     content_type = request.content_type.split(';')[0]
@@ -25,4 +32,8 @@ def register_route():
             form_data = request.form
         case _:
             return make_response(jsonify(message=f'bad content type: {content_type}'), 400)
-    return add_user(form_data)
+    try:
+        return add_user(form_data)
+    except IntegrityError as e:
+        error_msg = str((str(e.args[0]).split(maxsplit=1))[1]).split(',')[1].strip().strip(')"\\')
+        return make_response(jsonify({'error': f'{error_msg}'}), 400)

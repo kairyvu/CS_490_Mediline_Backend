@@ -1,0 +1,68 @@
+Look up appointment by appointment ID
+---
+tags: 
+  - appointment
+parameters:
+  - name: appointment_id
+    in: path
+    type: integer
+    required: true
+    description: appointment id to look up
+responses:
+  200:
+    description: An appointment details object
+    schema:
+      type: object
+      properties:
+        appointment_id:
+          type: integer
+        doctor_id:
+          type: integer
+        doctor_name:
+          type: string
+        end_date:
+          type: string
+          format: date-time
+        fee:
+          type: number
+          format: float
+        patient_id:
+          type: integer
+        patient_name:
+          type: string
+        start_date:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+            - PENDING
+            - CONFIRMED
+            - CANCELLED
+            - COMPLETED
+        treatment:
+          type: integer
+    example:
+      application/json:
+        {
+          "appointment_id": 1,
+          "doctor_id": 2,
+          "doctor_name": "A A",
+          "end_date": "2000-05-29T00:00:00",
+          "fee": 3325,
+          "patient_id": 3,
+          "patient_name": "A A",
+          "start_date": "2000-03-22T12:12:12",
+          "status": "CONFIRMED",
+          "treatment": "GREAT"
+        }
+  400:
+    description: appointment not found
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    example:
+      application/json:
+        error: Appointment not found

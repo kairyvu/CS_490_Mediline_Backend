@@ -2,6 +2,8 @@ from flaskr.models import ExerciseBank, PatientExercise
 from flaskr.struct import ExerciseStatus
 from flaskr.extensions import db
 
+from sqlalchemy.exc import IntegrityError   # For exception handling (foreign key constraint failure)
+
 def get_exercises(sort_by='exercise_id', order='asc'):
     if not hasattr(ExerciseBank, sort_by):
         raise ValueError(f"Invalid sort field: {sort_by}")
@@ -38,7 +40,13 @@ def add_patient_exercise(exercise_id, patient_id, doctor_id, reps):
         status=ExerciseStatus.IN_PROGRESS
     )
     db.session.add(exercise)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except IntegrityError as e:
+        raise e
+    # Successful commit; return the created entry id
+    return exercise.patient_exercise_id
+    
 
 def update_patient_exercise(exercise_id, status, reps):
     exercise = PatientExercise.query.filter_by(patient_exercise_id=exercise_id).first()

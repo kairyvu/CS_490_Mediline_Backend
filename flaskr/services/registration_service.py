@@ -1,9 +1,10 @@
 from werkzeug.datastructures import ImmutableMultiDict      # For type hints
 from flask import make_response, jsonify, Response
-from flaskr.models import User, Patient, Doctor, Pharmacy
+from flaskr.models import User, Patient, Doctor, Pharmacy, Address, City, Country
 from flaskr.extensions import db
 
 from sqlalchemy.exc import IntegrityError                   # For exception handling: Duplicate user creation (unique usernames and emails)
+from sqlalchemy import select
 
 from .forms import UserRegistrationForm, PtRegForm, DrRegForm, PharmRegForm
 
@@ -12,13 +13,60 @@ def add_user(user_info: ImmutableMultiDict) -> Response:
     # Validate the form data first
     if not user.validate():
         m = list(user.errors.items())
-        return make_response(jsonify({'error': m}), 400)
+        m2 = [{it[0]: it[1][0]} for it in m]
+        return make_response(jsonify({'error': m2}), 400)
     # Form data for user creation passed; create user object and pass to specific user creation
+    country_obj: Country = db.session.scalars(
+        select(Country)
+        .where(Country.country == user.country.data)
+    ).first()
+    if not country_obj:
+        # New country; create entry
+        country_obj = Country(country=user.country.data)
+        db.session.add(country_obj)
+        db.session.flush()
+    country_id = country_obj.country_id
+    
+    city_obj: City = db.session.scalars(
+        select(City)
+        .where(City.country_id == country_id)
+        .where(City.city == user.city.data)
+    ).first()
+    if not city_obj:
+        # New city; create entry
+        city_obj = City(city=user.city.data, country_id=country_id)
+        db.session.add(city_obj)
+        db.session.flush()
+    city_id = city_obj.city_id
+    
+    address_obj: Address = db.session.scalars(
+        select(Address)
+        .where(Address.address1 == user.address1.data)
+        .where(Address.city_id == city_id)
+        .where(Address.state == user.state.data)
+        .where(Address.zipcode == user.zipcode.data)
+    ).first()
+    if not address_obj:
+        # New address; create entry
+        address_obj = Address(
+            address1=user.address1.data,
+            address2=user.address2.data if user.address2.data else '',
+            city_id=city_id,
+            state=user.state.data,
+            zipcode=user.zipcode.data
+        )
+        db.session.add(address_obj)
+        db.session.flush()
+    address_id = address_obj.address_id
     new_user = User(
         username=user.username.data,
         password=user.password.data,
-        account_type=user.account_type.data
+        account_type=user.account_type.data,
+        address_id=address_id
     )
+    #import ipdb
+    #ipdb.set_trace()
+    # Defer the rest of user creation to specific functions per account type
     match user.account_type.data:
         case 'patient':
             return add_patient(user_info, new_user)
@@ -28,7 +76,7 @@ def add_user(user_info: ImmutableMultiDict) -> Response:
             return add_pharmacy(user_info, new_user)
         case _:
             # This should not be reachable; here for completeness
-            return make_response(jsonify({'error':  'unknown account type'}), 400)
+            return make_response(jsonify({'error':  'unknown server error'}), 500)
     
 def add_patient(pt_info: ImmutableMultiDict, user_obj: User) -> Response:
     patient = PtRegForm(pt_info)
@@ -49,7 +97,7 @@ def add_patient(pt_info: ImmutableMultiDict, user_obj: User) -> Response:
     try:
         db.session.commit()
     except IntegrityError as e:
-        return make_response(jsonify({'error': f'{e}'}), 400)
+        raise e
     except Exception as e:
         m = f'unexpected: {e=}, {type(e)=}'
         return make_response(jsonify({'error': m}), 400)
@@ -69,13 +117,14 @@ def add_doctor(dr_info: ImmutableMultiDict, user_obj: User) -> Response:
         phone=doctor.phone.data,
         fee=doctor.fee.data,
         license_id=doctor.license_id.data,
+        specialization=doctor.specialization.data,
         user=user_obj
     )
     db.session.add(new_doctor)
     try:
         db.session.commit()
     except IntegrityError as e:
-        return make_response(jsonify({'error': f'{e}'}), 400)
+        raise e
     except Exception as e:
         m = f'unexpected: {e=}, {type(e)=}'
         return make_response(jsonify({'error': m}), 400)
@@ -93,14 +142,13 @@ def add_pharmacy(pharm_info: ImmutableMultiDict, user_obj: User):
         phone=pharmacy.phone.data,
         email=pharmacy.email.data,
         hours=pharmacy.hours.data,
-        zipcode=pharmacy.zipcode.data,
         user=user_obj
     )
     db.session.add(new_pharmacy)
     try:
         db.session.commit()
     except IntegrityError as e:
-        return make_response(jsonify({'error': f'{e}'}), 400)
+        raise e
     except Exception as e:
         m = f'unexpected: {e=}, {type(e)=}'
         return make_response(jsonify({'error': m}), 400)
