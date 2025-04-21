@@ -1,4 +1,4 @@
-from flaskr.models import Doctor
+from flaskr.models import Doctor, Patient
 from flaskr.extensions import db
 
 def all_doctors():
@@ -37,3 +37,25 @@ def doctor_details(doctor_id):
         "license_id": doctor.license_id,
     }
 
+def select_doctor(doctor_id, patient_id):
+    # Creates relationship between doctor and patient
+    pt: Patient = Patient.query.filter_by(user_id=patient_id).first()
+    if not pt:
+        raise ValueError(f'patient with id {patient_id} not found')
+    
+    dr: Doctor = Doctor.query.filter_by(user_id=doctor_id).first()
+    if not dr: 
+        raise ValueError(f'doctor with id {doctor_id} not found')
+    
+    pt.doctor_id = doctor_id
+    pt.doctor = dr
+    # Don't worry about doctor accepting patient requests yet;
+    # Automatically append pt to doctor's patients list
+    dr.patients.append(pt)
+    db.session.add_all((pt, dr))
+    try:
+        db.session.commit()
+    except Exception as e:
+        raise e
+
+    return
