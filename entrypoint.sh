@@ -5,6 +5,6 @@
 
 #make schema
 make upgrade_models
-make fake
+#make fake
 
 gunicorn --workers=2 'flaskr:create_app()' -b 0.0.0.0:8080
