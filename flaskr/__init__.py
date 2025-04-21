@@ -1,11 +1,10 @@
 from flask import Flask
 import os
 from dotenv import load_dotenv
-
     
 load_dotenv()
 
-def create_app():
+def create_app(test_db_uri: str|None=None):
     app = Flask(__name__, instance_relative_config=True)
 
     database = os.getenv("DB_NAME", "doctor_patient_system")
@@ -34,7 +33,6 @@ def create_app():
             return conn
         app.config['SQLALCHEMY_ENGINE_OPTIONS'] = { "creator": getconn }
         app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
-
                                             
     app.config['SWAGGER'] = { 'doc_dir': './docs/' }
 
@@ -49,6 +47,7 @@ def create_app():
     
     from flaskr.routes import register_routes
     register_routes(app)
+    
     from flaskr.cli import register_commands
     register_commands(app)
 
