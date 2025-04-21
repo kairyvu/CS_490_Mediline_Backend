@@ -9,12 +9,14 @@
 from werkzeug.datastructures import ImmutableMultiDict
 from flask import Blueprint, request, make_response, jsonify
 from flaskr.services.registration_service import add_user
+from flasgger import swag_from
 
 from sqlalchemy.exc import IntegrityError
 
 register_bp = Blueprint("register", __name__)
 
 @register_bp.route('/', methods=['POST'])
+@swag_from('../docs/registration_routes/register.yml')
 def register():
     # Check data not empty
     if not request.get_data():

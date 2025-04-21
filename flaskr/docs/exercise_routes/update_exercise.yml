@@ -1,0 +1,54 @@
+Update the assigned exercise of a patient given the exercise's ID
+---
+tags: 
+  - exercise
+parameters:
+  - name: exercise_id
+    in: path
+    type: integer
+    required: true
+    description: exercise id to update
+  - name: exercise_details
+    in: body
+    schema:
+      type: object
+      required:
+        - reps
+        - status
+      properties:
+        status: 
+          type: string
+          enum:
+          - in_progress
+          - completed
+        reps: 
+          type: string
+    description: the exercise details to update
+responses:
+  200:
+    description: Successful exercise update
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+    examples:
+      application/json:
+        message: exercise updated successfully
+  400:
+    description: Unsuccessful exercise update
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          enum:
+          - No input data provided
+          - status and reps are required
+          - reps is required
+          - status is required
+          - Exercise not found
+          - <exception string>
+    examples:
+      application/json: 
+        error: No input data provided

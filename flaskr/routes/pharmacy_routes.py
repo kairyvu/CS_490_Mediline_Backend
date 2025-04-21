@@ -1,8 +1,10 @@
 from flask import Blueprint, jsonify, request
 from flaskr.services import get_all_pharmacy_patients
+from flasgger import swag_from
 
-pharmacy_bp = Blueprint('pharmacy', __name__, url_prefix='/pharmacy')
-@pharmacy_bp.route('<int:pharmacy_id>/patients', methods=['GET'])
+pharmacy_bp = Blueprint('pharmacy', __name__)
+@pharmacy_bp.route('/<int:pharmacy_id>/patients', methods=['GET'])
+@swag_from('../docs/pharmacy_routes/get_pharmacy_patients.yml')
 def get_pharmacy_patients(pharmacy_id):
     try:
         history = get_all_pharmacy_patients(pharmacy_id=pharmacy_id)
