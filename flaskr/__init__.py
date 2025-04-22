@@ -5,13 +5,16 @@ from dotenv import load_dotenv
     
 load_dotenv()
 
-def create_app():
+def create_app(config_mapping: dict|None=None):
     app = Flask(__name__, instance_relative_config=True)
 
     database = os.getenv("DB_NAME", "doctor_patient_system")
     connection_string = 'mysql+pymysql://'
-    if os.environ.get('FLASK_ENV') == 'development':
+    if config_mapping and config_mapping.get("TESTING"):
+        app.config.from_mapping(config_mapping)
+    elif os.environ.get('FLASK_ENV') == 'development':
         # When running app on local machine
+        print("***IN DEVELOPMENT MODE***")
         username = os.getenv("DB_USER") or os.getenv("MYSQL_USER", "root")
         password = os.getenv("DB_PASS") or os.getenv("MYSQL_PASSWORD", "")
         host = os.getenv("INSTANCE_HOST") or os.getenv("MYSQL_HOST", "localhost")

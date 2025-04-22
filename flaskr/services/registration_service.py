@@ -1,6 +1,7 @@
 from werkzeug.datastructures import ImmutableMultiDict      # For type hints
 from flask import make_response, jsonify, Response
 from flaskr.models import User, Patient, Doctor, Pharmacy, Address, City, Country
+from flaskr.struct import AccountType
 from flaskr.extensions import db
 
 from sqlalchemy.exc import IntegrityError                   # For exception handling: Duplicate user creation (unique usernames and emails)
@@ -58,14 +59,16 @@ def add_user(user_info: ImmutableMultiDict) -> Response:
         db.session.add(address_obj)
         db.session.flush()
     address_id = address_obj.address_id
+    try:
+        new_user_acct_type = AccountType(user.account_type.data)
+    except ValueError:
+        jsonify({'error': f'invalid account type: {user.account_type.data}'})
     new_user = User(
         username=user.username.data,
         password=user.password.data,
-        account_type=user.account_type.data,
+        account_type=new_user_acct_type,
         address_id=address_id
     )
-    #import ipdb
-    #ipdb.set_trace()
     # Defer the rest of user creation to specific functions per account type
     match user.account_type.data:
         case 'patient':
