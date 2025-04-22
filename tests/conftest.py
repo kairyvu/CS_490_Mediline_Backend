@@ -1,141 +1,229 @@
-import os
-from dotenv import load_dotenv
+from datetime import datetime, timedelta
 import pytest
-import sqlalchemy as sa
-
-import subprocess
-
-from flask_sqlalchemy import SQLAlchemy
-
 from flaskr import create_app
-from flaskr.models import User, Doctor, Patient, Pharmacy
+from flaskr.extensions import db
+from flaskr.struct import AccountType, AppointmentStatus
+from flaskr.models import Country, City, Address
+from flaskr.models import User, Patient, Doctor, Pharmacy
+from flaskr.models import Appointment, AppointmentDetail
+from flaskr.models import Chat, Message
 
-load_dotenv()
-
-pytest_plugins = ['pytest-flask-sqlalchemy']
-
-# --------
-# Fixtures
-# --------
+## Unit test fixtures
 @pytest.fixture(scope='module')
-def new_user():
-    user = User(
-        username='test',
-        password='test',
-        account_type='test',
-    )
-    return user
-
-"""
-This plugin assumes that a fixture called _db has been defined in the root conftest file for your tests. 
-The _db fixture should expose access to a valid SQLAlchemy Session object 
-that can interact with your database, for example via the SQLAlchemy initialization 
-class that configures Flask-SQLAlchemy.
-
-The fixtures in this plugin depend on this _db fixture to access your database 
-and create nested transactions to run tests in. 
-You must define this fixture in your conftest.py file for the plugin to work.
-"""
-# Retrieve a database connection string from the shell environment
-try:
-    DB_CONN = os.getenv('TEST_DATABASE_URL')
-except KeyError:
-    raise KeyError('TEST_DATABASE_URL not found. You must export a database ' +
-                   'connection string to the environmental variable ' +
-                   'TEST_DATABASE_URL in order to run tests.')
-else:
-    DB_OPTS = sa.engine.url.make_url(DB_CONN).translate_connect_args()
-
-pytest_plugins = ['pytest-flask-sqlalchemy']
-engine = sa.create_engine(DB_CONN)
-conn = engine.raw_connection()
-#engine = db.get_engine().raw_connection()
-
-@pytest.fixture(scope='session')
-def database(request):
-    '''
-    Create a mysql database for the tests, and drop it when the tests are done.
-    '''
-    """
-    mysql_host = DB_OPTS.get("host")
-    mysql_port = DB_OPTS.get("port")
-    mysql_user = DB_OPTS.get("username")
-    mysql_pw = DB_OPTS.get("password")
-    """
-    mysql_db = DB_OPTS["database"]
-
-    # Create the database in mysql given the connection url
-    '''
-    cnx = db.session.connection()
-    cur = cnx.connection.cursor()
-    cur.execute(f'CREATE SCHEMA {mysql_db}')
-    '''
-    cur = conn.cursor()
-    #cur.executemany()
-    cur.execute(f'DROP SCHEMA IF EXISTS {mysql_db}')
-    cur.execute(f'CREATE SCHEMA {mysql_db}')
-
-    @request.addfinalizer
-    def drop_database():
-        cur = conn.cursor()
-        cur.execute(f'DROP SCHEMA IF EXISTS {mysql_db}')
-
-@pytest.fixture(scope='session')
-def test_client(database):
-    DB_MIGRATIONS = '\
-        python -m flask db init -d test_migrations ; \
-        python -m flask db migrate -d test_migrations ; \
-        python -m flask db upgrade'
-    subprocess.run(
-        DB_MIGRATIONS,
-        shell=True,
-        executable='/bin/bash'
-    )
-    # Set up testing config
-    flask_app = create_app(DB_CONN)
-    flask_app.testing = True
-    flask_app.config.update({
-        "TESTING": True
-    })
-
-    DB_SEED = 'flask seed-db'
-    subprocess.run(
-        DB_SEED,
-        shell=True,
-        executable='/bin/bash'
-    )
-
-    # Create a test client
-    with flask_app.test_client() as test_client:
-        with flask_app.app_context():
-            yield test_client
-
-@pytest.fixture(scope='session')
-def _db(test_client):
-    from flaskr.extensions import db
-    return db
-
-
-"""
-@pytest.fixture(scope='module')
-def init_database(test_client):
-    db.create_all()
-"""
-
-
-
-
-"""
-@pytest.fixture()
 def app():
-    app = create_app()
-    app.config.update({
-        'TESTING': True,
+    app = create_app({
+        "TESTING": True,
+        "SQLALCHEMY_DATABASE_URI": "sqlite:///tests.db"
     })
 
-    yield app
+    with app.app_context():
+        yield app
 
-@pytest.fixture()
-def client(app):
-    return app
-"""
+@pytest.fixture
+def database_session(app):
+    db.create_all()
+    yield db
+    db.drop_all()
+
+## Integration test fixtures
+@pytest.fixture
+def client(app, database_session):
+    yield app.test_client(), database_session
+
+### MODELS FIXTURES
+@pytest.fixture(scope='module')
+def addr1(request):
+    country: Country = Country(country_id=1, country='US')
+    city: City = City(city_id=1, city='NYC', country_id=1)
+    address: Address = Address(
+        address_id=1,
+        address1='123 North St',
+        address2='Apt 2',
+        city_id=1,
+        state='New York',
+        zipcode='11223'
+    )
+    yield address, city, country
+
+@pytest.fixture(scope='module')
+def addr2(request):
+    country: Country = Country(country_id=1, country='US')
+    city: City = City(city_id=1, city='NYC', country_id=1)
+    address: Address = Address(
+        address_id=2,
+        address1='777 20th Ave',
+        city_id=1,
+        state='New York',
+        zipcode='33882'
+    )
+    yield address, city, country
+
+@pytest.fixture(scope='module')
+def addr3(request):
+    country: Country = Country(country_id=1, country='US')
+    city: City = City(city_id=2, city='Albany', country_id=1)
+    address: Address = Address(
+        address_id=3,
+        address1='28 11 Blvd',
+        city_id=2,
+        state='New York',
+        zipcode='33221'
+    )
+    yield address, city, country
+
+@pytest.fixture(scope='module')
+def addr4(request):
+    country: Country = Country(country_id=1, country='US')
+    city: City = City(city_id=3, city='Newark', country_id=1)
+    address: Address = Address(
+        address_id=4,
+        address1='38 88 St',
+        city_id=3,
+        state='New Jersey',
+        zipcode='07030'
+    )
+    yield address, city, country
+
+@pytest.fixture(scope='module')
+def pt1(request, addr1):
+    _dob = datetime.fromisoformat('2000-01-01')
+    addr, _, _ = addr1
+    u1 = User(
+        user_id=1,
+        username='user1',
+        password='password1',
+        account_type=AccountType.Patient,
+        address_id=addr.address_id
+    )
+    pt = Patient(
+        user_id=1,
+        first_name='John',
+        last_name='Smith',
+        dob=_dob,
+        phone='9992223333',
+        email='email@email.com',
+    )
+    yield u1, pt
+
+@pytest.fixture(scope='module')
+def dr1(request, addr2):
+    _dob = datetime.fromisoformat('2000-01-01')
+    addr, _, _ = addr2
+    u2 = User(
+        user_id=2,
+        username='doct1',
+        password='password1',
+        account_type=AccountType.Doctor,
+        address_id=addr.address_id
+    )
+    dr = Doctor(
+        user_id=2,
+        first_name='Jack',
+        last_name='Daniels',
+        dob=_dob,
+        phone='2228381991',
+        email='maile@example.com',
+        bio='Blah Blah Blah',
+        specialization='Neurology',
+        license_id='9f82hslc-982j',
+        fee=200.00
+    )
+    yield u2, dr
+
+@pytest.fixture(scope='module')
+def pharm1(request, addr3):
+    addr, _, _ = addr3
+    u3 = User(
+        user_id=3,
+        username='pharm',
+        password='password1',
+        account_type=AccountType.Pharmacy,
+        address_id=addr.address_id
+    )
+    pharm = Pharmacy(
+        user_id=3,
+        pharmacy_name='Walgreens',
+        phone='281-288-3949',
+        email='walgreens.pharm@gmail.com',
+        hours='10am-5pm'
+    )
+    yield u3, pharm
+
+@pytest.fixture(scope='module')
+def appt1(request, pt1, dr1):
+    _up, _p = pt1
+    _ud, _d = dr1
+    appt = Appointment(
+        appointment_id=1,
+        doctor_id=_d.user_id,
+        patient_id=_p.user_id,
+    )
+    _start = datetime.fromisoformat('2000-01-01T12:00:00')
+    _end = datetime.fromisoformat('2000-05-01T12:00:00')
+    appt_dt = AppointmentDetail(
+        appointment_details_id=appt.appointment_id,
+        treatment='Hyperglycoma',
+        start_date=_start,
+        end_date=_end,
+        status=AppointmentStatus.PENDING
+    )
+    yield pt1, dr1, appt, appt_dt
+
+@pytest.fixture(scope='module')
+def msg1(request):
+    _curr_time = datetime.now().isoformat()
+    _time = datetime.fromisoformat('2001-01-01T12:00:00')
+    _m = Message(
+        message_id=1,
+        chat_id=1,
+        user_id=1,
+        message_content='lakjsoijosdj',
+        time=_curr_time
+    )
+    yield _m
+
+@pytest.fixture(scope='module')
+def chat1(request, appt1, msg1):
+    # A chat involves a list of messages and an appointment
+    # A message involves a user id, message, and timestamp
+    pt, dr, appt, appt_dt = appt1
+    _chat = Chat(
+        chat_id=1,
+        appointment_id=appt.appointment_id,
+        start_date=msg1.time
+    )
+    _chat.messages = [
+        Message(
+            message_id=1,
+            chat_id=1,
+            user_id=1,
+            message_content='lakjsoijosdj',
+            time=datetime.now().isoformat()
+        ),
+        Message(
+            message_id=2,
+            chat_id=1,
+            user_id=1,
+            message_content='lakjsoijosdj',
+            time=(datetime.now().isoformat() + timedelta(0, 30))
+        )
+    ]
+
+@pytest.fixture(scope='session')
+def pt_reg_form1(request):
+    yield {
+        'username': 'username', 
+        'password': 'apoliknsdbvpoiahnwepn',
+        'account_type': 'patient',
+        'address1': '123 St St',
+        'city': 'NYC',
+        'state': 'New York',
+        'zipcode': '01122',
+        'country': 'US',
+        'first_name': 'John',
+        'last_name': 'Smith', 
+        'phone': '1112223333',
+        'email': 'email@email.com',
+        'dob': '2000-01-01'
+    }
+   

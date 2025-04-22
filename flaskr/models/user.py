@@ -19,7 +19,7 @@ class User(db.Model):
         return {
             "user_id": self.user_id,
             "username": self.username,
-            "account_type": self.account_type.name,
+            "account_type": self.account_type.value if isinstance(self.account_type, AccountType) else self.account_type,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None
         }
