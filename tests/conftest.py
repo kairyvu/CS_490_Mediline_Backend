@@ -226,3 +226,4 @@ def pt_reg_form1(request):
         'email': 'email@email.com',
         'dob': '2000-01-01'
     }
+   
