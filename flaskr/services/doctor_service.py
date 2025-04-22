@@ -61,7 +61,13 @@ def todays_patient(doctor_id):
             result.append({
                 "first_name": patient.first_name,
                 "last_name": patient.last_name,
-                "visit_time": detail.start_date.strftime("%I:%M %p") 
+                "visit_time": detail.start_date.strftime("%I:%M %p"),
+                "dob": patient.dob,
+                "treatment": detail.treatment,
+                "statues": detail.status.name,
+                "email": patient.email,
+                "phone_number": patient.phone
+
             })
 
     return result
