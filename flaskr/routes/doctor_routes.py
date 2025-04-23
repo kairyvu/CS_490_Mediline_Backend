@@ -36,7 +36,9 @@ def count_doctor_patients(doctor_id):
 
 @doctor_bp.route('/<int:doctor_id>/patients-today', methods=['GET'])
 def patients_today(doctor_id):
-    return jsonify(doctor_service.todays_patient(doctor_id)), 200
+    date = request.args.get('date')
+    return jsonify(doctor_service.todays_patient(doctor_id, date)), 200
+
 @doctor_bp.route('/<int:doctor_id>/ratings', methods=['GET'])
 def doctor_ratings(doctor_id):
     sort_by = request.args.get('sort_by', 'stars')
