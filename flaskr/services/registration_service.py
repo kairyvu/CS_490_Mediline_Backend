@@ -15,7 +15,10 @@ def add_user(user_info: ImmutableMultiDict) -> Response:
     if not user.validate():
         m = list(user.errors.items())
         m2 = [{it[0]: it[1][0]} for it in m]
-        return make_response(jsonify({'error': m2}), 400)
+        return make_response(jsonify({
+            'error': 'form data is invalid',
+            'details': m2
+        }), 400)
     # Form data for user creation passed; create user object and pass to specific user creation
     country_obj: Country = db.session.scalars(
         select(Country)

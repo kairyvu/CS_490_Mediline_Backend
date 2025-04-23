@@ -9,12 +9,10 @@ def create_app(config_mapping: dict|None=None):
     app = Flask(__name__, instance_relative_config=True)
 
     # Ensures all error responses are returned as JSON
-    
     @app.errorhandler(HTTPException)
     def handle_exception(e):
         """Return JSON instead of HTML for HTTP errors."""
         return jsonify(error=str(e.description)), e.code
-
     
     database = os.getenv("DB_NAME", "doctor_patient_system")
     connection_string = 'mysql+pymysql://'

@@ -29,32 +29,30 @@ def test_register_incomplete(client: FlaskClient, pt_reg_form1):
     assert res.is_json
     res_json = res.json
     assert 'error' in res_json
-    assert isinstance(res_json['error'], list)
-    assert isinstance(res_json['error'][0], dict)
-    assert 'email' in res_json['error'][0]
-    assert res_json['error'][0]['email'] == 'This field is required.'
+    assert isinstance(res_json['details'], list)
+    assert isinstance(res_json['details'][0], dict)
+    assert 'email' in res_json['details'][0]
+    assert res_json['details'][0]['email'] == 'This field is required.'
 
 def test_register_no_data(client: FlaskClient):
     client, db = client
-    res: Response = client.post(
-        '/register/', 
-        headers={
-            'Content-type':'application/json',
-        }
-    )
-    print(res)
-    print(res.text)
-    print(res.history)
+    res: Response = client.post('/register/')
     assert res.is_json
     assert res.status_code == 415
-    #assert b"<h1>Unsupported Media Type</h1>" in res.data
-
+    
 def test_register_no_data_2(client: FlaskClient):
     client, db = client
-    res: Response = client.post('/register/', json={})
-    print(res)
+    res: Response = client.post(
+        '/register/', 
+        headers={ 'Content-type':'application/json', }
+    )
+    assert res.is_json
     assert res.status_code == 400
-    assert b"is a required property" in res.data
+
+def test_register_no_data_3(client: FlaskClient):
+    client, db = client
+    res: Response = client.post('/register/', json={})
+    assert res.status_code == 400
 
 def test_register_bad_acct_type(client: FlaskClient, pt_reg_form1):
     client, db = client
@@ -62,5 +60,11 @@ def test_register_bad_acct_type(client: FlaskClient, pt_reg_form1):
     USER1_CPY['account_type'] = 'pt'
     res: Response = client.post('/register/', json=USER1_CPY)
 
-    print(res.data)
     assert res.status_code == 400
+    assert res.json['error'] == "'pt' is not one of ['patient', 'doctor', 'pharmacy']"
+
+def test_get_register(client: FlaskClient):
+    client, _ = client
+    res = client.get('/register/')
+    assert res.status_code == 405
+    assert res.json['error'] == 'The method is not allowed for the requested URL.'

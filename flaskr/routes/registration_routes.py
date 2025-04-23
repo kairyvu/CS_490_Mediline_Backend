@@ -13,9 +13,6 @@ register_bp = Blueprint("register", __name__)
 @register_bp.route('/', methods=['POST'])
 @swag_from('../docs/registration_routes/register.yml')
 def register():
-    # Check data not empty
-    if not request.get_data():
-        return make_response(jsonify({'error':'no data provided'}), 400)
     content_type = request.content_type.split(';')[0]
     form_data: ImmutableMultiDict|None = None
     if content_type != 'application/json':
@@ -25,8 +22,11 @@ def register():
         # Cast json data from request to werkzeug ImmutableMultiDict
         # This is done to be compatible with add_user
         form_data = ImmutableMultiDict(list(dict(form_json).items()))
-    except ValueError as e:
-        return make_response(jsonify({'error': 'form data is not valid'}), 400)
+    except Exception as e:
+        return make_response(jsonify({
+            'error': 'form data is not valid',
+            'details': str(e)
+        }), 400)
     try:
         return add_user(form_data)
     except IntegrityError as e:
