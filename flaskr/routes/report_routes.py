@@ -1,8 +1,10 @@
 from flask import Blueprint, jsonify, request
 from flaskr.services import get_patient_report_result, add_patient_report
+from flasgger import swag_from
 
 report_bp = Blueprint("report", __name__)
 @report_bp.route('/user/<int:user_id>', methods=['GET'])
+@swag_from('../docs/report_routes/get_report_by_user.yml')
 def get_report_by_user(user_id):
     sort_by = request.args.get('sort_by', 'created_at')
     order = request.args.get('order', 'asc')
@@ -14,6 +16,7 @@ def get_report_by_user(user_id):
         return jsonify({"error": str(e)}), 400
 
 @report_bp.route('/user/<int:user_id>', methods=['POST'])
+@swag_from('../docs/report_routes/add_report.yml')
 def add_report(user_id):
     data = request.get_json()
     if not data:

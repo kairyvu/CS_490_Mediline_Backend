@@ -2,10 +2,12 @@ from datetime import datetime
 from flask import Blueprint, jsonify, request
 from flaskr.services import get_upcoming_appointments, add_appointment, update_appointment, get_appointment
 from flaskr.struct import AppointmentStatus
+from flasgger import swag_from
 
 appointment_bp = Blueprint('appointment', __name__)
 
 @appointment_bp.route('/upcoming/<int:user_id>', methods=['GET'])
+@swag_from('../docs/appointment_routes/get_all_upcoming_appointments.yml')
 def get_all_upcoming_appointments(user_id):
     sort_by = request.args.get('sort_by', 'start_date')
     order = request.args.get('order', 'desc')
@@ -17,6 +19,7 @@ def get_all_upcoming_appointments(user_id):
         return jsonify({"error": str(e)}), 400
 
 @appointment_bp.route('/add', methods=['POST'])
+@swag_from('../docs/appointment_routes/create_appointment.yml')
 def create_appointment():
     data = request.get_json()
     if not data:
@@ -44,12 +47,17 @@ def create_appointment():
             return jsonify({"error": "end_date must be after start_date"}), 400
 
     try:
-        add_appointment(doctor_id, patient_id, treatment, start_date, end_date)
-        return jsonify({"message": "Appointment created successfully"}), 201
+        appointment_id = add_appointment(doctor_id, patient_id, treatment, start_date, end_date)
+        return jsonify(
+            {
+                "message": "Appointment created successfully",
+                "id": appointment_id
+            }), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
 @appointment_bp.route('/update/<int:appointment_id>', methods=['PUT'])
+@swag_from('../docs/appointment_routes/update_appointment_detail.yml')
 def update_appointment_detail(appointment_id):
     data = request.get_json()
     if not data:
@@ -70,6 +78,7 @@ def update_appointment_detail(appointment_id):
         return jsonify({"error": str(e)}), 400
 
 @appointment_bp.route('/<int:appointment_id>', methods=['GET'])
+@swag_from('../docs/appointment_routes/get_appointment_by_id.yml')
 def get_appointment_by_id(appointment_id):
     try:
         appointment = get_appointment(appointment_id)

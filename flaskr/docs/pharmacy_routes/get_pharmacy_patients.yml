@@ -1,0 +1,70 @@
+Get the patients of a pharmacy
+---
+tags: 
+  - pharmacy
+parameters:
+  - name: pharmacy_id
+    description: pharmacy id to look up
+    in: path
+    type: integer
+    required: true
+responses:
+  200:
+    description: A list of a pharmacy's patients
+    schema:
+      type: object
+      properties:
+        new_patients:
+          type: array
+          items:
+            type: object
+            properties:
+              patient_id:
+                type: integer
+              patient_name:
+                type: string
+        other_patients:
+          type: array
+          items:
+            type: object
+            properties:
+              patient_id:
+                type: integer
+              patient_name:
+                type: string
+    examples:
+      application/json:
+        {
+          "new_patients": [
+            {
+              "patient_id": 48,
+              "patient_name": "John Smith"
+            }
+          ],
+          "other_patients": [
+            {
+              "patient_id": 44,
+              "patient_name": "Adam Apple"
+            }
+          ]
+        }
+  404:
+    description:
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json:
+        { "error": "error msg" }
+  500:
+    description: 
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json:
+        { "error": "error msg" }

@@ -173,9 +173,5 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
-migrations/
-
-# runs create schema doctor-patient-system ... in mysql
-db-init.sh
 
 tests
