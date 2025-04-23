@@ -26,13 +26,28 @@ def test_register_incomplete(client: FlaskClient, pt_reg_form1):
 
     res: Response = client.post('/register/', json=USER1_CPY)
     assert res.status_code == 400
-    assert b"&#39;email&#39; is a required property" in res.data
+    assert res.is_json
+    res_json = res.json
+    assert 'error' in res_json
+    assert isinstance(res_json['error'], list)
+    assert isinstance(res_json['error'][0], dict)
+    assert 'email' in res_json['error'][0]
+    assert res_json['error'][0]['email'] == 'This field is required.'
 
 def test_register_no_data(client: FlaskClient):
     client, db = client
-    res: Response = client.post('/register/')
+    res: Response = client.post(
+        '/register/', 
+        headers={
+            'Content-type':'application/json',
+        }
+    )
+    print(res)
+    print(res.text)
+    print(res.history)
+    assert res.is_json
     assert res.status_code == 415
-    assert b"<h1>Unsupported Media Type</h1>" in res.data
+    #assert b"<h1>Unsupported Media Type</h1>" in res.data
 
 def test_register_no_data_2(client: FlaskClient):
     client, db = client

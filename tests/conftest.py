@@ -9,7 +9,7 @@ from flaskr.models import Appointment, AppointmentDetail
 from flaskr.models import Chat, Message
 
 ## Unit test fixtures
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='session')
 def app():
     app = create_app({
         "TESTING": True,
@@ -19,16 +19,17 @@ def app():
     with app.app_context():
         yield app
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def database_session(app):
-    db.create_all()
     yield db
-    db.drop_all()
 
 ## Integration test fixtures
 @pytest.fixture
 def client(app, database_session):
+    database_session.create_all()
     yield app.test_client(), database_session
+    database_session.session.rollback()
+    database_session.drop_all()
 
 ### MODELS FIXTURES
 @pytest.fixture(scope='module')
@@ -172,7 +173,6 @@ def appt1(request, pt1, dr1):
 @pytest.fixture(scope='module')
 def msg1(request):
     _curr_time = datetime.now().isoformat()
-    _time = datetime.fromisoformat('2001-01-01T12:00:00')
     _m = Message(
         message_id=1,
         chat_id=1,
@@ -190,7 +190,7 @@ def chat1(request, appt1, msg1):
     _chat = Chat(
         chat_id=1,
         appointment_id=appt.appointment_id,
-        start_date=msg1.time
+        start_date=datetime.now()
     )
     _chat.messages = [
         Message(
@@ -198,16 +198,18 @@ def chat1(request, appt1, msg1):
             chat_id=1,
             user_id=1,
             message_content='lakjsoijosdj',
-            time=datetime.now().isoformat()
+            time=datetime.now()
         ),
         Message(
             message_id=2,
             chat_id=1,
             user_id=1,
             message_content='lakjsoijosdj',
-            time=(datetime.now().isoformat() + timedelta(0, 30))
+            time=(datetime.now() + timedelta(0, 30))
         )
     ]
+    _chat.appointment = appt
+    yield _chat, appt
 
 @pytest.fixture(scope='session')
 def pt_reg_form1(request):
@@ -227,3 +229,6 @@ def pt_reg_form1(request):
         'dob': '2000-01-01'
     }
    
+@pytest.fixture
+def login_setup(request, pt1):
+    db.drop_all()

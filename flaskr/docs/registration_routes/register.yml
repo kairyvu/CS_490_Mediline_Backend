@@ -7,17 +7,6 @@ parameters:
     in: body
     required: true
     schema: 
-      required:
-      - country
-      - city
-      - address1
-      - state
-      - zipcode
-      - username
-      - password
-      - account_type
-      - email
-      - phone
       properties:
         country:
           type: string
