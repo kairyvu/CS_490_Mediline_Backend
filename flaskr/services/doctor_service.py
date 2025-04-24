@@ -23,19 +23,7 @@ def doctor_details(doctor_id):
     if not doctor:
         return None
 
-    return {
-        "user_id": doctor.user_id,
-        "first_name": doctor.first_name,
-        "last_name": doctor.last_name,
-        "email": doctor.email,
-        "phone": doctor.phone,
-        "specialization": doctor.specialization,
-        "bio": doctor.bio,
-        "fee": doctor.fee,
-        "profile_picture": doctor.profile_picture,
-        "dob": doctor.dob.strftime('%Y-%m-%d') if doctor.dob else None,
-        "license_id": doctor.license_id,
-    }
+    return doctor.to_dict()
 
 def select_doctor(doctor_id, patient_id):
     # Creates relationship between doctor and patient
