@@ -1,19 +1,28 @@
-from flask import Flask
+from werkzeug.exceptions import HTTPException
+from flask import Flask, jsonify
 import os
 from dotenv import load_dotenv
-from flask_cors import CORS
-
     
 load_dotenv()
 
-def create_app():
+def create_app(config_mapping: dict|None=None):
     app = Flask(__name__, instance_relative_config=True)
+    from flask_cors import CORS
     CORS(app, resources={r"/*": {"origins": "*"}})
 
+    # Ensures all error responses are returned as JSON
+    @app.errorhandler(HTTPException)
+    def handle_exception(e):
+        """Return JSON instead of HTML for HTTP errors."""
+        return jsonify(error=str(e.description)), e.code
+    
     database = os.getenv("DB_NAME", "doctor_patient_system")
     connection_string = 'mysql+pymysql://'
-    if os.environ.get('FLASK_ENV') == 'development':
+    if config_mapping and config_mapping.get("TESTING"):
+        app.config.from_mapping(config_mapping)
+    elif os.environ.get('FLASK_ENV') == 'development':
         # When running app on local machine
+        print("***IN DEVELOPMENT MODE***")
         username = os.getenv("DB_USER") or os.getenv("MYSQL_USER", "root")
         password = os.getenv("DB_PASS") or os.getenv("MYSQL_PASSWORD", "")
         host = os.getenv("INSTANCE_HOST") or os.getenv("MYSQL_HOST", "localhost")
@@ -36,7 +45,6 @@ def create_app():
             return conn
         app.config['SQLALCHEMY_ENGINE_OPTIONS'] = { "creator": getconn }
         app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
-
                                             
     app.config['SWAGGER'] = { 'doc_dir': './docs/' }
 
@@ -51,6 +59,7 @@ def create_app():
     
     from flaskr.routes import register_routes
     register_routes(app)
+    
     from flaskr.cli import register_commands
     register_commands(app)
 

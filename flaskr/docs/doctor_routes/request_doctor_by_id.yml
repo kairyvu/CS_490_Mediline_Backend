@@ -30,7 +30,7 @@ responses:
       application/json:
         message: Doctor requested successfully
   400:
-    description: user not found
+    description: Doctor or patient not found
     schema:
       type: object
       properties:
