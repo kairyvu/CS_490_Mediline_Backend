@@ -1,13 +1,21 @@
+import os
+
 from werkzeug.exceptions import HTTPException
 from flask import Flask, jsonify
-import os
+from flask_cors import CORS
+from flask_migrate import Migrate
+
+from flaskr.extensions import db, swag
+from flaskr.routes import register_routes
+from flaskr.cli import register_commands
+
 from dotenv import load_dotenv
     
 load_dotenv()
 
 def create_app(config_mapping: dict|None=None):
     app = Flask(__name__, instance_relative_config=True)
-    from flask_cors import CORS
+    
     CORS(app, resources={r"/*": {"origins": "*"}})
 
     # Ensures all error responses are returned as JSON
@@ -48,19 +56,18 @@ def create_app(config_mapping: dict|None=None):
                                             
     app.config['SWAGGER'] = { 'doc_dir': './docs/' }
 
-    from flaskr.extensions import db
     db.init_app(app)
 
-    from flask_migrate import Migrate
+    
     migrate = Migrate(app, db)
 
-    from flaskr.extensions import swag
+    
     swag.init_app(app)
     
-    from flaskr.routes import register_routes
+    
     register_routes(app)
     
-    from flaskr.cli import register_commands
+    
     register_commands(app)
 
     return app
