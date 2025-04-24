@@ -19,6 +19,7 @@ def get_doctor_by_id(doctor_id):
     return jsonify({"error": "Doctor not found"}), 404
 
 @doctor_bp.route('/<int:doctor_id>/request', methods=['POST'])
+@swag_from('../docs/doctor_routes/request_doctor_by_id.yml')
 def request_doctor_by_id(doctor_id):
     # Route to request a doctor as a patient
     data = request.get_json()

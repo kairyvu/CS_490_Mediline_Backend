@@ -2,11 +2,12 @@ from datetime import datetime, timedelta
 import pytest
 from flaskr import create_app
 from flaskr.extensions import db
-from flaskr.struct import AccountType, AppointmentStatus
+from flaskr.struct import AccountType, AppointmentStatus, ExerciseStatus
 from flaskr.models import Country, City, Address
 from flaskr.models import User, Patient, Doctor, Pharmacy
 from flaskr.models import Appointment, AppointmentDetail
 from flaskr.models import Chat, Message
+from flaskr.models import ExerciseBank, PatientExercise
 
 ## Unit test fixtures
 @pytest.fixture(scope='session')
@@ -211,6 +212,50 @@ def chat1(request, appt1, msg1):
     _chat.appointment = appt
     yield _chat, appt
 
+@pytest.fixture(scope='module')
+def ex1(request):
+    _ex = ExerciseBank(
+        exercise_id=1,
+        type_of_exercise='Callisthenic',
+        description='Push-ups'
+    )
+    yield _ex
+
+@pytest.fixture(scope='module')
+def ex2(request):
+    _ex = ExerciseBank(
+        exercise_id=2,
+        type_of_exercise='Cardio',
+        description='Pull-ups'
+    )
+    yield _ex
+
+@pytest.fixture(scope='module')
+def ex3(request):
+    _ex = ExerciseBank(
+        exercise_id=3,
+        type_of_exercise='HIT',
+        description='Boxing'
+    )
+    yield _ex
+
+@pytest.fixture(scope='module')
+def pt_ex1(request, ex1, pt1, dr1):
+    u1, u1_pt = pt1
+    u2, u2_dr = dr1
+    _pt_ex = PatientExercise(
+        patient_exercise_id=1,
+        exercise_id=ex1.exercise_id,
+        patient_id=u1.user_id,
+        doctor_id=u2.user_id,
+        reps='3-5',
+        status=ExerciseStatus.IN_PROGRESS,
+    )
+    _pt_ex.exercise = ex1
+    _pt_ex.patient = u1_pt
+    _pt_ex.doctor = u2_dr
+    yield _pt_ex, pt1, dr1, ex1 
+
 @pytest.fixture(scope='session')
 def pt_reg_form1(request):
     yield {
@@ -229,6 +274,3 @@ def pt_reg_form1(request):
         'dob': '2000-01-01'
     }
    
-@pytest.fixture
-def login_setup(request, pt1):
-    db.drop_all()

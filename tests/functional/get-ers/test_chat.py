@@ -43,5 +43,3 @@ def test_get_current_chat(database_session, chat1):
     } <= set(res['messages'][0])
     db.session.rollback()
     db.metadata.drop_all(db.engine)
-
-
