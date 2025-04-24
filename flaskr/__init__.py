@@ -1,12 +1,14 @@
 from flask import Flask
 import os
 from dotenv import load_dotenv
+from flask_cors import CORS
 
     
 load_dotenv()
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
+    CORS(app, resources={r"/*": {"origins": "*"}})
 
     database = os.getenv("DB_NAME", "doctor_patient_system")
     connection_string = 'mysql+pymysql://'
