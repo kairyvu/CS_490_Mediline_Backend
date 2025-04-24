@@ -7,6 +7,8 @@ load_dotenv()
 
 def create_app(config_mapping: dict|None=None):
     app = Flask(__name__, instance_relative_config=True)
+    from flask_cors import CORS
+    CORS(app, resources={r"/*": {"origins": "*"}})
 
     # Ensures all error responses are returned as JSON
     @app.errorhandler(HTTPException)
