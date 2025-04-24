@@ -1,0 +1,23 @@
+A count of a doctor's patients
+---
+tags: 
+  - doctor
+parameters:
+  - name: doctor_id
+    in: path
+    type: integer
+    required: true
+    description: doctor ID
+responses:
+  200:
+    description: the number of patients under a doctor's care
+    schema:
+      type: object
+      properties:
+        total_patients:
+          type: integer
+    examples:
+      application/json:
+        {
+          "total_patients": 1
+        }

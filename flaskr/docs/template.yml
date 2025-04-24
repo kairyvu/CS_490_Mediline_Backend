@@ -215,6 +215,10 @@ definitions:
           type: array
           items:
             $ref: '#/definitions/PatientReport'
+        rating_surveys:
+          type: array
+          items:
+            $ref: '#/definitions/RatingSurvey'
   Patient:
     allOf:
     - $ref: '#/definitions/User'
@@ -261,6 +265,10 @@ definitions:
           type: array
           items:
             $ref: '#/definitions/PatientReport'
+        rating_surveys:
+          type: array
+          items:
+            $ref: '#/definitions/RatingSurvey'
   Pharmacy:
     allOf:
     - $ref: '#/definitions/User'
@@ -572,3 +580,25 @@ definitions:
         $ref: '#/definitions/Post'
       user:
         $ref: '#/definitions/User'
+  RatingSurvey:
+    type: object
+    required:
+    - survey_id
+    - patient_id
+    - doctor_id
+    - stars
+    properties:
+      survey_id:
+        type: integer
+      patient_id:
+        type: integer
+      doctor_id:
+        type: integer
+      comment:
+        type: string
+      stars:
+        type: integer
+      patient:
+        $ref: '#/definitions/Patient'
+      doctor:
+        $ref: '#/definitions/Doctor'

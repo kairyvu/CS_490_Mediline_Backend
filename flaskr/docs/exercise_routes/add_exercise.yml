@@ -12,6 +12,7 @@ parameters:
     in: body
     required: true
     schema: 
+      type: object
       properties:
         doctor_id:
           type: integer
