@@ -1,0 +1,40 @@
+Request a doctor given their id
+---
+tags: 
+  - doctor
+parameters:
+  - name: doctor_id
+    in: path
+    type: integer
+    required: true
+    description: Doctor ID
+  - name: patient_id
+    in: body
+    required: true
+    schema: 
+      type: object
+      properties:
+        patient_id:
+          type: integer
+    description: Patient ID
+responses:
+  200:
+    description: Requested a doctor successfully
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+    examples:
+      application/json:
+        message: Doctor requested successfully
+  400:
+    description: user not found
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json: 
+        error: <exception string>
