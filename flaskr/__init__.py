@@ -57,17 +57,10 @@ def create_app(config_mapping: dict|None=None):
     app.config['SWAGGER'] = { 'doc_dir': './docs/' }
 
     db.init_app(app)
-
-    
     migrate = Migrate(app, db)
-
-    
     swag.init_app(app)
     
-    
     register_routes(app)
-    
-    
     register_commands(app)
 
     return app
