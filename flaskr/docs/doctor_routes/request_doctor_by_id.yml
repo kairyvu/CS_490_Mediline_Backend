@@ -1,4 +1,5 @@
-Request a doctor by ID
+Request a doctor given their id
+NOTE - This automatically assigns a patient to a doctor; doctor does not have ability to accept patients (yet)
 ---
 tags: 
   - doctor
@@ -12,13 +13,14 @@ parameters:
     in: body
     required: true
     schema: 
+      type: object
       properties:
         patient_id:
           type: integer
     description: Patient ID
 responses:
   200:
-    description: Request doctor successfully
+    description: Requested a doctor successfully
     schema:
       type: object
       properties:

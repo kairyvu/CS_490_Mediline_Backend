@@ -1,0 +1,23 @@
+A count of a doctor's upcoming appointments
+---
+tags: 
+  - doctor
+parameters:
+  - name: doctor_id
+    in: path
+    type: integer
+    required: true
+    description: doctor ID
+responses:
+  200:
+    description: the number of upcoming appointments for a doctor
+    schema:
+      type: object
+      properties:
+        upcoming_appointments_count:
+          type: integer
+    examples:
+      application/json:
+        {
+          "upcoming_appointments_count": 1
+        }
