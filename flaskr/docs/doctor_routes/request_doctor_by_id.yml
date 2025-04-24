@@ -1,4 +1,5 @@
 Request a doctor given their id
+NOTE - This automatically assigns a patient to a doctor; doctor does not have ability to accept patients (yet)
 ---
 tags: 
   - doctor
