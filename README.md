@@ -26,5 +26,5 @@
 2) from CLI run <br />
 `$ celery -A make_celery worker --loglevel INFO`
 
-Test the sample route by POSTing json to localhost:8080/pharmacy/add with schema {"a": <int>, "b": <int>}, <br />
+Test the sample route by POSTing json to localhost:8080/pharmacy/add with schema {"a": `<int>`, "b": `<int>`}, <br />
 then get result at localhost:8080/pharmacy/result/<id>, where <id> is in the response from the POST
