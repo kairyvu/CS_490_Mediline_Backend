@@ -1,0 +1,59 @@
+A list of patient appointments today
+---
+tags: 
+  - doctor
+parameters:
+  - name: doctor_id
+    in: path
+    type: integer
+    required: true
+    description: doctor ID
+  - name: date
+    in: query
+    type: string
+    required: false
+    description: date of appointment
+responses:
+  200:
+    description: the list of appointments today for a doctor
+    schema:
+      type: array
+      items:
+        type: object
+        properties:
+          first_name:
+            type: string
+          last_name:
+            type: string
+          visit_time:
+            type: string
+            format: date-time
+          dob:
+            type: string
+          treatment:
+            type: string
+          status:
+            type: string
+            enum:
+              - PENDING
+              - CONFIRMED
+              - CANCELLED
+              - COMPLETED
+          email:
+            type: string
+          phone_number:
+            type: string
+    examples:
+      application/json:
+        [
+          {
+            "first_name": "fname",
+            "last_name": "lname",
+            "visit_time": "2000-01-01",
+            "dob": "2000-01-01",
+            "treatment": "Conultation",
+            "status": "PENDING",
+            "email": "email@email.com",
+            "phone_number": "1112223333",
+          }
+        ]

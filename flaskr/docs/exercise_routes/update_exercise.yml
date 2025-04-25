@@ -12,9 +12,6 @@ parameters:
     in: body
     schema:
       type: object
-      required:
-        - reps
-        - status
       properties:
         status: 
           type: string

@@ -12,9 +12,6 @@ parameters:
     in: body
     schema:
       type: object
-      required:
-        - treatment
-        - start_date
       properties:
         treatment: 
           type: string

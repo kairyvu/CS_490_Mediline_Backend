@@ -24,19 +24,7 @@ def doctor_details(doctor_id):
     if not doctor:
         return None
 
-    return {
-        "user_id": doctor.user_id,
-        "first_name": doctor.first_name,
-        "last_name": doctor.last_name,
-        "email": doctor.email,
-        "phone": doctor.phone,
-        "specialization": doctor.specialization,
-        "bio": doctor.bio,
-        "fee": doctor.fee,
-        "profile_picture": doctor.profile_picture,
-        "dob": doctor.dob.strftime('%Y-%m-%d') if doctor.dob else None,
-        "license_id": doctor.license_id,
-    }
+    return doctor.to_dict()
 
 def total_patients(doctor_id):
     return Patient.query.filter_by(doctor_id=doctor_id).count()
@@ -51,7 +39,7 @@ def doctor_patients_count(doctor_id):
     return (patients_count)
 def todays_patient(doctor_id, date):
     try:
-        query_date = datetime.strptime(date, '%Y-%m-%d').date() if date else date.today()
+        query_date = datetime.strptime(date, '%Y-%m-%d').date() if date else datetime.today()
     except ValueError:
         return {"error": "Invalid date format. Use YYYY-MM-DD."}
     appointments = Appointment.query.filter_by(doctor_id=doctor_id).join(AppointmentDetail).filter(db.func.date(AppointmentDetail.start_date) == query_date).all()
@@ -67,15 +55,14 @@ def todays_patient(doctor_id, date):
                 "visit_time": detail.start_date.strftime("%I:%M %p"),
                 "dob": patient.dob,
                 "treatment": detail.treatment,
-                "statues": detail.status.name,
+                "status": detail.status.name,
                 "email": patient.email,
                 "phone_number": patient.phone
-
             })
-
     return result
+
 def doctor_rating_detail(doctor_id, sort_by='stars', order='desc'):
-    query  = RatingSurvey.query.filter_by(doctor_id =doctor_id)
+    query  = RatingSurvey.query.filter_by(doctor_id=doctor_id)
 
     column = getattr(RatingSurvey, sort_by)
     if order == 'desc':
@@ -106,9 +93,13 @@ def doctor_rating_detail(doctor_id, sort_by='stars', order='desc'):
         "ratings": rating_detail
     }
 
-
 def last_completed_appointment(patient_id, doctor_id):
-    appointment = Appointment.query.filter_by(patient_id=patient_id, doctor_id=doctor_id).join(AppointmentDetail).filter(AppointmentDetail.status == 'completed').order_by(AppointmentDetail.end_date.desc()).first()
+    appointment = Appointment.query \
+        .filter_by(patient_id=patient_id, doctor_id=doctor_id) \
+        .join(AppointmentDetail) \
+        .filter(AppointmentDetail.status == 'completed') \
+        .order_by(AppointmentDetail.end_date.desc()) \
+        .first()
     if not appointment:
         return {"message": "No Comleted Appointment Found"}
     patient = Patient.query.filter_by(user_id= patient_id).first()
@@ -119,13 +110,14 @@ def last_completed_appointment(patient_id, doctor_id):
         "appintment_id": appointment.appointment_id,
         "end_date": str(appointment.appointment_detail.end_date),
         "patient_info":{
-            "dob" : patient.dob,
+            "dob": patient.dob,
             "first_name": patient.first_name,
             "last_name": patient.last_name,
             "age": age,
             "phone": patient.phone
         }
     }
+
 def doctor_general_discussion(doctor_id):
     doctor = Doctor.query.filter_by(user_id=doctor_id).first()
     appointments = Appointment.query.filter_by(doctor_id=doctor_id).all()
@@ -149,9 +141,8 @@ def doctor_general_discussion(doctor_id):
                 "message": msg.message_content,
                 "timestamp": msg.time.strftime("%Y-%m-%d %I:%M %p")
             })
-
-
     return result
+
 def select_doctor(doctor_id, patient_id):
     # Creates relationship between doctor and patient
     pt: Patient = Patient.query.filter_by(user_id=patient_id).first()

@@ -1,0 +1,23 @@
+A count of a doctor's pending appointments
+---
+tags: 
+  - doctor
+parameters:
+  - name: doctor_id
+    in: path
+    type: integer
+    required: true
+    description: doctor ID
+responses:
+  200:
+    description: the number of pending appointments for a doctor
+    schema:
+      type: object
+      properties:
+        pending_appointments_count:
+          type: integer
+    examples:
+      application/json:
+        {
+          "pending_appointments_count": 1
+        }

@@ -1,0 +1,54 @@
+A doctor's last completed appointment
+---
+tags: 
+  - doctor
+parameters:
+  - name: doctor_id
+    in: path
+    type: integer
+    required: true
+    description: doctor ID
+  - name: patient_id
+    in: path
+    type: integer
+    required: true
+    description: patient ID
+responses:
+  200:
+    description: the object containing a doctor's last appointment
+    schema:
+      type: object
+      properties:
+        appintment_id:
+          type: integer
+        end_date:
+          type: string
+          format: date-time
+        patient_info:
+          type: object
+          properties:
+            dob:
+              type: string
+              format: date-time
+            first_name:
+              type: string
+            last_name:
+              type: string
+            age:
+              type: string
+              format: date
+            phone:
+              type: string
+    examples:
+      application/json:
+        {
+          "appintment_id": 1,
+          "end_date": "2000-01-01",
+          "patient_info":{
+            "dob": "2000-02-02",
+            "first_name": "John",
+            "last_name": "Smith",
+            "age": "23",
+            "phone": "1112223333",
+          }
+        }
