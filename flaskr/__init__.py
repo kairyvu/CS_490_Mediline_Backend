@@ -39,9 +39,13 @@ def create_app(config_mapping: dict|None=None):
         app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
 
         # Trying celery
+        queue_user = os.getenv("RABBITMQ_USER")
+        queue_pass = os.getenv("RABBITMQ_PASS")
+        queue_vhost = os.getenv("RABBITMQ_VHOST")
+        b_url = f"amqp://{queue_user}:{queue_pass}@localhost:5672/{queue_vhost}"
         app.config.from_mapping(
             CELERY=dict(
-                broker_url="amqp://abc:abc@localhost:5672/test_vhost",
+                broker_url=b_url,
                 result_backend="rpc://",
                 task_ignore_result=True
             )

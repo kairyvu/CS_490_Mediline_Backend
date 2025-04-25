@@ -17,8 +17,11 @@ def get_pharmacy_patients(pharmacy_id):
     except Exception as e:
         return jsonify({'error': 'An error occurred while fetching the medications history'}), 500
 
+
+
 @pharmacy_bp.route('/add', methods=['POST'])
 def start_add():
+    """Code snippet from [here](https://flask.palletsprojects.com/en/stable/patterns/celery/#calling-tasks)"""
     a = request.json.get('a')
     b = request.json.get('b')
     res = add_together.delay(a, b)
