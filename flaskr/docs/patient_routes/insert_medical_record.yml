@@ -1,0 +1,59 @@
+Insert a new medical record for a patient
+---
+tags:
+  - patient
+parameters:
+  - name: patient_id
+    in: path
+    type: integer
+    required: true
+    description: ID of the patient to add the medical record for
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        description:
+          type: string
+    description: Medical record details
+responses:
+  201:
+    description: Record created successfully
+    schema:
+      type: object
+      properties:
+        record_id:
+          type: integer
+        patient_name:
+          type: string
+        description:
+          type: string
+        created_at:
+          type: string
+    examples:
+      application/json:
+        record_id: 5
+        patient_name: firstname lastname
+        description: Medical Description
+        created_at: "2025-04-15 07:30 PM"
+  400:
+    description: Missing description field
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json:
+        error: Description is required
+  404:
+    description: Patient not found
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json:
+        error: Patient not found

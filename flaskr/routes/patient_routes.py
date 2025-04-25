@@ -37,6 +37,7 @@ def update_patient_info(user_id):
     return jsonify(result), 404
 
 @patient_bp.route('/<int:patient_id>/medical_history', methods=['GET'])
+@swag_from('../docs/patient_routes/medical_history.yml')
 def medical_history(patient_id):
     result = patient_service.patient_medical_history(patient_id)
     if not result:
@@ -44,6 +45,7 @@ def medical_history(patient_id):
     return jsonify(result), 200
 
 @patient_bp.route('/<int:patient_id>/medical_history', methods=['POST'])
+@swag_from('../docs/patient_routes/insert_medical_record.yml')
 def insert_medical_record(patient_id):
     data = request.get_json()
     if not data:
@@ -51,10 +53,10 @@ def insert_medical_record(patient_id):
     
     description = data.get("description")
     if not description:
-        return jsonify({"error": "Description is required"})
+        return jsonify({"error": "Description is required"}), 400
     result = patient_service.create_medical_record(patient_id, description)
     if result is None:
-        return jsonify({"error": "Patient not found"}), 400
+        return jsonify({"error": "Patient not found"}), 404
     
     return jsonify(result), 201
     
