@@ -23,5 +23,6 @@
 
 ### TO USE CELERY
 1) ensure python virtual env is used
-2) from CLI run <br \>
+2) from CLI run
+<br \>
 `$ celery -A make_celery worker --loglevel INFO`
