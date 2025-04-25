@@ -35,3 +35,26 @@ def update_patient_info(user_id):
     if "error" not in result:
         return jsonify(result), 200
     return jsonify(result), 404
+
+@patient_bp.route('/<int:patient_id>/medical_history', methods=['GET'])
+def medical_history(patient_id):
+    result = patient_service.patient_medical_history(patient_id)
+    if not result:
+        return jsonify({"error": "Patient not Found"}), 404
+    return jsonify(result), 200
+
+@patient_bp.route('/<int:patient_id>/medical_history', methods=['POST'])
+def insert_medical_record(patient_id):
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "no input data provided"}), 400
+    
+    description = data.get("description")
+    if not description:
+        return jsonify({"error": "Description is required"})
+    result = patient_service.create_medical_record(patient_id, description)
+    if result is None:
+        return jsonify({"error": "Patient not found"}), 400
+    
+    return jsonify(result), 201
+    

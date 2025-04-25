@@ -55,3 +55,5 @@ def last_completed_appointment(patient_id, doctor_id):
 @doctor_bp.route('/<int:doctor_id>/discussions', methods=['GET'])
 def doctor_general_discussions(doctor_id):
     return jsonify(doctor_service.doctor_general_discussion(doctor_id)), 200
+
+

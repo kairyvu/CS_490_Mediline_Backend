@@ -1,8 +1,10 @@
 from werkzeug.datastructures import ImmutableMultiDict
 from sqlalchemy import select, update
 from flaskr.models import Patient, Doctor, Pharmacy, User, Address, City, Country
+from flaskr.models import MedicalRecord
 from flaskr.extensions import db
 from .forms import UserRegistrationForm
+from datetime import datetime
 
 from sqlalchemy.exc import OperationalError, IntegrityError
 
@@ -189,3 +191,42 @@ def update_patient(user_id, updates: dict) -> dict:
     except IntegrityError as e:
         raise e
     return {"message": "Patient updated successfully"}
+
+def patient_medical_history(patient_id):
+    patient = Patient.query.filter_by(user_id = patient_id).first()
+    if not patient:
+        return None
+    
+    records = MedicalRecord.query.filter_by(patient_id = patient_id).order_by(MedicalRecord.created_at.desc()).all()
+
+    return{
+        "patient_name": f"{patient.first_name} {patient.last_name}",
+        "medical_record":[
+            {
+                "record_id": r.medical_record_id,
+                "description": r.description,
+                "creadted_at": r.created_at.strftime("%Y-%m-%d %I:%M %p")
+            }
+            for r in records
+        ]
+    }
+
+def create_medical_record(patient_id, description):
+    patient =Patient.query.filter_by(user_id = patient_id).first()
+    if not patient:
+        return None
+    
+    record = MedicalRecord(
+        patient_id = patient_id,
+        description = description,
+        created_at = datetime.now()
+    )
+
+    db.session.add(record)
+    db.session.commit()
+    return{
+        "record_id": record.medical_record_id,
+        "patient_name": f"{patient.first_name} {patient.last_name}",
+        "description": record.description,
+        "created_at": record.created_at.strftime("%Y-%m-%d %I:%M %p")
+    }
