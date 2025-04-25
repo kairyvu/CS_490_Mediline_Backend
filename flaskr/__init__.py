@@ -5,7 +5,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_migrate import Migrate
 
-from flaskr.extensions import db, swag
+from flaskr.extensions import db, swag, celery_init_app
 from flaskr.routes import register_routes
 from flaskr.cli import register_commands
 
@@ -37,6 +37,15 @@ def create_app(config_mapping: dict|None=None):
         port = os.getenv("DB_PORT", "3306")
         connection_string += f'{username}:{password}@{host}:{port}/{database}'
         app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
+
+        # Trying celery
+        app.config.from_mapping(
+            CELERY=dict(
+                broker_url="amqp://abc:abc@localhost:5672/test_vhost",
+                result_backend="rpc://",
+                task_ignore_result=True
+            )
+        )
     else:
         # Production on gcloud
         from flaskr.extensions import connector
@@ -59,6 +68,7 @@ def create_app(config_mapping: dict|None=None):
     db.init_app(app)
     migrate = Migrate(app, db)
     swag.init_app(app)
+    celery_init_app(app)
     
     register_routes(app)
     register_commands(app)

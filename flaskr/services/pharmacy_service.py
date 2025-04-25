@@ -1,7 +1,9 @@
-from flaskr.models import Prescription, Patient
-from flaskr.extensions import db
 from datetime import datetime, timedelta
 from sqlalchemy import func
+from celery import shared_task
+
+from flaskr.models import Prescription, Patient
+from flaskr.extensions import db
 
 def get_all_pharmacy_patients(pharmacy_id, new_request_time=datetime.now() - timedelta(hours=24)):
     rows = (
@@ -32,3 +34,8 @@ def get_all_pharmacy_patients(pharmacy_id, new_request_time=datetime.now() - tim
         'new_patients':   new_patients,
         'other_patients': other_patients
     }
+
+### PHARMACY TASKS
+@shared_task(ignore_result=False)
+def add_together(a: int, b: int) -> int:
+    return a + b
