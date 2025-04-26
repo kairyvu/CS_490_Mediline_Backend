@@ -13,6 +13,7 @@ def get_chat(appointment_id):
         return jsonify({"error": str(e)}), 400
     
 
+## TODO: Documentation
 @chat_bp.route('/appointment/<int:appointment_id>', methods=['PUT'])
 def put_message(appointment_id):
     data = request.get_json()
