@@ -1,11 +1,12 @@
-#from flask import current_app
-from celery import current_app
-from celery.result import AsyncResult
-from flaskr.models import Prescription, Patient, PrescriptionMedication, Medication
-from flaskr.struct import PrescriptionStatus
-from flaskr.extensions import db
 from datetime import datetime, timedelta
 from sqlalchemy import func
+
+from celery import current_app
+from celery.result import AsyncResult
+
+from flaskr.struct import PrescriptionStatus
+from flaskr.models import Prescription, Patient, PrescriptionMedication, Medication
+from flaskr.extensions import db
 
 def get_all_pharmacy_patients(pharmacy_id, new_request_time=datetime.now() - timedelta(hours=24)):
     rows = (

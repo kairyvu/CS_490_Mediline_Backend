@@ -1,3 +1,4 @@
+
 from kombu.exceptions import OperationalError as MQOpErr
 from flask import Blueprint, jsonify, request
 from flaskr.services import get_all_pharmacy_patients, add_pt_rx
@@ -57,4 +58,3 @@ def post_patient_prescription(pharmacy_id):
             'message': 'prescription submitted successfully'
         }), 201
     return jsonify({'error': 'failed to send prescription'}), 500
-    
