@@ -6,7 +6,6 @@ from .report_service import get_patient_report_result, add_patient_report
 from .prescription_service import get_medications_by_prescription, get_prescriptions, get_prescription_count_by_pharmacy, get_pharmacy_medications_inventory, get_medications_history_by_patient
 from .chat_service import get_current_chat
 from .social_media_service import get_all_posts, get_comments_of_post
-from .auth_service import user_id_credentials
 from .doctor_service import select_doctor
 from .pharmacy_service import get_all_pharmacy_patients
 
