@@ -56,5 +56,5 @@ def post_patient_prescription(pharmacy_id):
     if res == 'PENDING':
         return jsonify({
             'message': 'prescription submitted successfully'
-        }), 201
+        }), 202         # 202 to indicate async operation
     return jsonify({'error': 'failed to send prescription'}), 500

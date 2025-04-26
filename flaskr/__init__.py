@@ -67,6 +67,7 @@ def create_app(config_mapping: dict|None=None):
         )
     else:
         # Production on gcloud
+        # TODO: celery integration
         from flaskr.extensions import connector
         from pymysql.connections import Connection
         instance_conn_name = os.getenv("INSTANCE_CONNECTION_NAME")
@@ -87,7 +88,6 @@ def create_app(config_mapping: dict|None=None):
     db.init_app(app)
     migrate = Migrate(app, db)
     swag.init_app(app)
-    celery_init_app(app)
     
     register_routes(app)
     register_commands(app)

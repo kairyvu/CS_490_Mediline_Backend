@@ -1,7 +1,5 @@
 import os
-
-from werkzeug.exceptions import abort
-from flask import Flask, make_response, jsonify
+from flask import Flask
 
 from flask_sqlalchemy import SQLAlchemy
 from flasgger import Swagger
