@@ -1,9 +1,8 @@
-from celery.result import AsyncResult
-from flask import Blueprint, jsonify, request, Response
-from flaskr.services import get_all_pharmacy_patients
-from flaskr.services.pharmacy_service import add_together
-from flasgger import swag_from
 
+from kombu.exceptions import OperationalError as MQOpErr
+from flask import Blueprint, jsonify, request
+from flaskr.services import get_all_pharmacy_patients, add_pt_rx
+from flasgger import swag_from
 
 pharmacy_bp = Blueprint('pharmacy', __name__)
 @pharmacy_bp.route('/<int:pharmacy_id>/patients', methods=['GET'])
@@ -17,21 +16,45 @@ def get_pharmacy_patients(pharmacy_id):
     except Exception as e:
         return jsonify({'error': 'An error occurred while fetching the medications history'}), 500
 
+## TODO: Documentation (i'm lazy)
+@pharmacy_bp.route('/<int:pharmacy_id>', methods=['POST'])
+def post_patient_prescription(pharmacy_id):
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No input data provided"}), 400
+    
+    med_schema = {'dosage', 'instructions', 'medication_id'}
+    patient_id = data.get('patient_id')
+    doctor_id = data.get('doctor_id')
+    medications = data.get('medications')
 
-
-@pharmacy_bp.route('/add', methods=['POST'])
-def start_add():
-    """Code snippet from [here](https://flask.palletsprojects.com/en/stable/patterns/celery/#calling-tasks)"""
-    a = request.json.get('a')
-    b = request.json.get('b')
-    res = add_together.delay(a, b)
-    return jsonify({'result_id': res.id})
-
-@pharmacy_bp.route('/result/<id>', methods=['GET'])
-def task_result(id: str):
-    res = AsyncResult(id)
-    return jsonify({
-        'ready': res.ready(),
-        'successful': res.successful(),
-        'value': res.result if res.ready() else None
-    })
+    # perform validation
+    if not all([patient_id, doctor_id, medications]):
+        return jsonify(error='missing required fields'), 400
+    if len(medications) == 0:
+        return jsonify(error='no medications in prescription'), 400
+    if not all([isinstance(med, dict) for med in medications]):
+        return jsonify(error='medications must be json objects'), 400
+    for med in medications:
+        schema_diff = set(med) - med_schema
+        if schema_diff:
+            return jsonify({
+                'error': "schema doesn't conform",
+                'invalid': list(schema_diff)
+            }), 400
+        if not all([attr in med_schema for attr in med]):
+            return jsonify({
+                'error': f'medication {med} has missing attributes'
+            }), 400
+    try:
+        res = add_pt_rx(pharmacy_id, patient_id, doctor_id, medications)
+    except MQOpErr as e:
+        return jsonify({'error': 'failed to send prescription'}), 500
+    except Exception as e:
+        print(type(e))
+        return jsonify({'error': f'{str(e)}'}), 500
+    if res == 'PENDING':
+        return jsonify({
+            'message': 'prescription submitted successfully'
+        }), 201
+    return jsonify({'error': 'failed to send prescription'}), 500

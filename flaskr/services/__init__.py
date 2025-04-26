@@ -8,7 +8,7 @@ from .chat_service import get_current_chat
 from .social_media_service import get_all_posts, get_comments_of_post
 from .auth_service import user_id_credentials
 from .doctor_service import select_doctor
-from .pharmacy_service import get_all_pharmacy_patients
+from .pharmacy_service import get_all_pharmacy_patients, add_pt_rx
 
 
 __all__ = ['user_id_credentials',
