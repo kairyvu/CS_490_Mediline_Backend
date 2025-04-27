@@ -42,7 +42,7 @@ def add_pt_rx(pharmacy_id, patient_id, doctor_id, medications):
     # TODO: detect duplicates
     try:
         res: AsyncResult = current_app.send_task(
-                'celery_utils.tasks.process_rx', 
+                'app.pharmacy.tasks.process_rx', 
                 args=(pharmacy_id, patient_id, doctor_id, medications),
                 queue='prescription_queue'
             )
