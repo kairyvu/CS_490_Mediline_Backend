@@ -1,5 +1,5 @@
 import pytest
-from flaskr.services.chat_service import get_current_chat
+from flaskr.services import get_current_chat
 from flaskr.models import User, Patient, Doctor, Appointment, Chat, Message
 
 def test_get_current_chat_not_found(database_session): 

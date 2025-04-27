@@ -1,5 +1,5 @@
 import pytest
-from flaskr.services.doctor_service import all_doctors, doctor_details, todays_patient
+from flaskr.services import all_doctors, doctor_details, todays_patient
 from flaskr.models import User, Doctor
 
 def test_all_doctors_table_not_exist(database_session):

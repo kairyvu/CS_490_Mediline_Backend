@@ -1,5 +1,5 @@
 import pytest
-from flaskr.services.appointment_service import get_appointment, get_upcoming_appointments
+from flaskr.services import get_appointment, get_upcoming_appointments
 from flaskr.models import User, Patient, Doctor, Appointment, AppointmentDetail
 
 def test_get_upcoming_appt_not_found(database_session):
