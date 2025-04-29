@@ -1,12 +1,15 @@
+#from datetime 
+from werkzeug.security import generate_password_hash, check_password_hash
 from flaskr.extensions import db
 from flaskr.struct import AccountType
+
 
 class User(db.Model):
     __tablename__ = 'user'
     
     user_id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(128), nullable=False)
+    password = db.Column(db.String(512), nullable=False)
     address_id = db.Column(db.Integer, db.ForeignKey('address.address_id'))
 
     account_type = db.Column(db.Enum(AccountType), nullable=False)
@@ -14,6 +17,28 @@ class User(db.Model):
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 
     address = db.relationship('Address', backref=db.backref('user', lazy=True))
+
+    def __init__(self, username, password, account_type, address_id):
+        self.username = username
+        self.password = generate_password_hash(password)
+        self.account_type = account_type \
+            if isinstance(account_type, AccountType) \
+            else AccountType(account_type)
+        self.address_id = address_id
+
+    @classmethod
+    def authenticate(cls, **kwargs):
+        username = kwargs.get('username')
+        password = kwargs.get('password')
+
+        if not (username and password):
+            return None
+        
+        user = cls.query.filter_by(username=username).first()
+        if not (user and check_password_hash(user.password, password)):
+            return None
+        
+        return user
 
     def to_dict(self):
         return {

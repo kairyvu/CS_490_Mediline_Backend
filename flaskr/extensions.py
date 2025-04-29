@@ -1,6 +1,4 @@
 import os
-from werkzeug.exceptions import abort
-from flask import make_response, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flasgger import Swagger
 from google.cloud.sql.connector import Connector, IPTypes

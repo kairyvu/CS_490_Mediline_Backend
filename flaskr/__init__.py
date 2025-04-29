@@ -54,6 +54,7 @@ def create_app(config_mapping: dict|None=None):
         app.config['SQLALCHEMY_ENGINE_OPTIONS'] = { "creator": getconn }
         app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
                                             
+    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'super-secret-key')
     app.config['SWAGGER'] = { 'doc_dir': './docs/' }
 
     db.init_app(app)

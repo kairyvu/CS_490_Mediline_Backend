@@ -14,7 +14,10 @@ def login():
     if not username or not password:
         return jsonify({"error": "Username and password are required"}), 400
 
-    user_info = user_id_credentials(username, password)
-    if user_info:
-        return jsonify(user_info), 200
-    return jsonify({"error": "Invalid credentials"}), 401
+    user_token = user_id_credentials(username, password)
+    if user_token:
+        return jsonify(user_token), 200
+    return jsonify({
+            "error": "Invalid credentials",
+            "authenticated": False
+        }), 401
