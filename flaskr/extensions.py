@@ -71,5 +71,5 @@ def handle_create_something(json):
     return json
 
 @task_success.connect
-def handle_task_success(sender=None, result=None, **kwargs):
-    kombu_mgr.emit('foo', data=result, namespace='/test')
+def handle_prescription_success(sender=None, result=None, **kwargs):
+    kombu_mgr.emit('new_rx', data=result, namespace='/test')

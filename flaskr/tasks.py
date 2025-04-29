@@ -49,5 +49,10 @@ def send_rx(pharmacy_id, patient_id, doctor_id, medications):
         db.session.commit()
     except Exception as e:
         raise e
-    return new_rx.prescription_id
-    
+    return {
+        'prescription_id': new_rx.prescription_id,
+        'patient_id': patient_id,
+        'doctor_id': doctor_id,
+        'pharmacy_id': pharmacy_id,
+        'medications': medications
+    }
