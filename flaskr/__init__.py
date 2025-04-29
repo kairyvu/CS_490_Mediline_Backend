@@ -10,13 +10,20 @@ from flaskr.routes import register_routes
 from flaskr.cli import register_commands
 
 from dotenv import load_dotenv
-
     
 load_dotenv()
 
 def create_app(config_mapping: dict|None=None):
     app = Flask(__name__, instance_relative_config=True)
+    
+    CORS(app, resources={r"/*": {"origins": "*"}})
 
+    # Ensures all error responses are returned as JSON
+    @app.errorhandler(HTTPException)
+    def handle_exception(e):
+        """Return JSON instead of HTML for HTTP errors."""
+        return jsonify(error=str(e.description)), e.code
+    
     database = os.getenv("DB_NAME", "doctor_patient_system")
     connection_string = 'mysql+pymysql://'
     if config_mapping and config_mapping.get("TESTING"):

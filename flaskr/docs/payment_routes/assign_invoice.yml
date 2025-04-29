@@ -3,21 +3,25 @@ Assign a new invoice for an appointment
 tags:
   - payment
 parameters:
-  - name: doctor_id
-    in: path
+  - in: body
+    name: body
     required: true
-    type: integer
-    description: ID of the doctor
-  - name: appointment_id
-    in: path
-    required: true
-    type: integer
-    description: ID of the appointment
-  - name: patient_id
-    in: path
-    required: true
-    type: integer
-    description: ID of the patient
+    schema:
+      type: object
+      required:
+        - doctor_id
+        - appointment_id
+        - patient_id
+      properties:
+        doctor_id:
+          type: integer
+          description: ID of the doctor
+        appointment_id:
+          type: integer
+          description: ID of the appointment
+        patient_id:
+          type: integer
+          description: ID of the patient
 responses:
   200:
     description: Invoice assigned successfully
@@ -54,3 +58,14 @@ responses:
     examples:
       application/json:
         error: appointment not found
+
+  400:
+    description: Missing required parameters
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json:
+        error: Missing Doctor ID
