@@ -2,10 +2,14 @@ import os
 from flask import Flask
 
 from flask_sqlalchemy import SQLAlchemy
+from flask_socketio import SocketIO, emit
 from flasgger import Swagger
 
+from socketio import KombuManager
 from celery import Celery, Task
+from celery.signals import task_success, task_postrun, after_task_publish
 from google.cloud.sql.connector import Connector, IPTypes
+
 
 def celery_init_app(app: Flask) -> Celery:
     class FlaskTask(Task):
@@ -28,3 +32,47 @@ swag = Swagger(
     ),
     parse=True
 )
+
+## SocketIO stuff
+kombu_mgr = KombuManager(
+    'amqp://abc:abc@localhost:5672/test_vhost',
+    queue_options={
+        'queue': 'prescription_queue',
+        'routing_key': 'prescription_queue'
+    }
+)
+sio = SocketIO(
+    ping_timeout=60,
+    cors_allowed_origins='*',
+    always_connect=True, 
+    namespaces='*',
+    logger=True,
+    client_manager=kombu_mgr
+)
+@sio.event(namespace='/test')
+def connect(sid):
+    print(f'connected: {sid}')
+    emit('connected', {'sid': sid})
+
+@sio.event(namespace='/test')
+def disconnect(reason):
+    print('disconnect ', reason)
+
+@sio.on('foo', namespace='/test')
+def handle_foo(sid, data):
+    print(f'recieved from {sid}: {data}')
+    return data, sid
+
+@sio.on('create_something', namespace='/test')
+def handle_create_something(json):
+    print(f'data: {json}')
+    emit('foo', json)
+    return json
+
+@task_success.connect
+def handle_task_success(sender=None, result=None, **kwargs):
+    kombu_mgr.emit('foo', data=result, namespace='/test')
+"""
+    message_queue='amqp://abc:abc@localhost:5672/test_vhost',
+    channel='prescription_queue',
+"""
