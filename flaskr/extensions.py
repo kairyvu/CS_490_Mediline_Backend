@@ -7,7 +7,7 @@ from flasgger import Swagger
 
 from socketio import KombuManager
 from celery import Celery, Task
-from celery.signals import task_success, task_postrun, after_task_publish
+from celery.signals import task_success
 from google.cloud.sql.connector import Connector, IPTypes
 
 
@@ -34,6 +34,7 @@ swag = Swagger(
 )
 
 ## SocketIO stuff
+# TODO: replace with environment variables
 kombu_mgr = KombuManager(
     'amqp://abc:abc@localhost:5672/test_vhost',
     queue_options={
@@ -72,7 +73,3 @@ def handle_create_something(json):
 @task_success.connect
 def handle_task_success(sender=None, result=None, **kwargs):
     kombu_mgr.emit('foo', data=result, namespace='/test')
-"""
-    message_queue='amqp://abc:abc@localhost:5672/test_vhost',
-    channel='prescription_queue',
-"""

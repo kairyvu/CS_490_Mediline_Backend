@@ -36,23 +36,6 @@ def create_app(config_mapping: dict|None=None):
         host = os.getenv("INSTANCE_HOST") or os.getenv("MYSQL_HOST", "localhost")
         port = os.getenv("DB_PORT", "3306")
         connection_string += f'{username}:{password}@{host}:{port}/{database}'
-        """
-        queue_user = os.getenv("RABBITMQ_USER")
-        queue_pass = os.getenv("RABBITMQ_PASS")
-        queue_vhost = os.getenv("RABBITMQ_VHOST")
-        b_url = f'amqp://{queue_user}:{queue_pass}@localhost:5672/{queue_vhost}'
-        app.config.from_mapping(
-            CELERY=dict(
-                broker_url=b_url,
-                result_backend='rpc://',
-            )
-        )
-        task_routes={
-            'celery_utils.tasks.process_rx': {
-                'queue': 'prescription_queue'
-            }
-        }
-        """
         app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
 
         # Trying celery
@@ -66,7 +49,7 @@ def create_app(config_mapping: dict|None=None):
                 result_backend="rpc://",
                 task_ignore_result=True,
                 task_routes={
-                    'flaskr.celery_utils.tasks.*': {'queue': 'prescription_queue'}
+                    'flaskr.tasks.*': {'queue': 'prescription_queue'}
                 }
             )
         )

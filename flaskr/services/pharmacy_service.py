@@ -7,7 +7,7 @@ from celery.result import AsyncResult
 from flaskr.struct import PrescriptionStatus
 from flaskr.models import Prescription, Patient, PrescriptionMedication, Medication
 from flaskr.extensions import db
-from flaskr.celery_utils.tasks import send_rx, my_task
+from flaskr.tasks import send_rx, my_task
 
 
 def get_all_pharmacy_patients(pharmacy_id, new_request_time=datetime.now() - timedelta(hours=24)):
