@@ -39,10 +39,14 @@ def doctor_patients_count(doctor_id):
     return (patients_count)
 def todays_patient(doctor_id, date):
     try:
-        query_date = datetime.strptime(date, '%Y-%m-%d').date() if date else datetime.today()
+        query_date = datetime.strptime(date, '%Y-%m-%d').date() if date else datetime.today().date()
     except ValueError:
         return {"error": "Invalid date format. Use YYYY-MM-DD."}
-    appointments = Appointment.query.filter_by(doctor_id=doctor_id).join(AppointmentDetail).filter(db.func.date(AppointmentDetail.start_date) == query_date).all()
+    appointments = Appointment.query \
+        .filter_by(doctor_id=doctor_id) \
+        .join(AppointmentDetail) \
+        .filter(db.func.date(AppointmentDetail.start_date) == query_date) \
+        .all()
     result = []
     for app in appointments:
         patient = Patient.query.filter_by(user_id=app.patient_id).first()
