@@ -72,7 +72,7 @@ responses:
           type: string
     examples:
       application/json: 
-        error: Patient not found
+        error: Doctor not found
   504:
     description: Unseccessful patient update
     schema:
