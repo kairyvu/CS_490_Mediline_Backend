@@ -16,8 +16,8 @@ def get_pharmacy_patients(pharmacy_id):
     except Exception as e:
         return jsonify({'error': 'An error occurred while fetching the medications history'}), 500
 
-## TODO: Documentation (i'm lazy)
 @pharmacy_bp.route('/<int:pharmacy_id>', methods=['POST'])
+@swag_from('../docs/pharmacy_routes/post_patient_prescription.yml')
 def post_patient_prescription(pharmacy_id):
     data = request.get_json()
     if not data:
@@ -25,29 +25,30 @@ def post_patient_prescription(pharmacy_id):
     
     med_schema = {'dosage', 'instructions', 'medication_id'}
     patient_id = data.get('patient_id')
-    doctor_id = data.get('doctor_id')
-    medications = data.get('medications')
+    #doctor_id = data.get('doctor_id')
+    #medications = data.get('medications')
 
     # perform validation
-    if not all([patient_id, doctor_id, medications]):
-        return jsonify(error='missing required fields'), 400
-    if len(medications) == 0:
-        return jsonify(error='no medications in prescription'), 400
-    if not all([isinstance(med, dict) for med in medications]):
-        return jsonify(error='medications must be json objects'), 400
-    for med in medications:
-        schema_diff = set(med) - med_schema
-        if schema_diff:
-            return jsonify({
-                'error': "schema doesn't conform",
-                'invalid': list(schema_diff)
-            }), 400
-        if not all([attr in med_schema for attr in med]):
-            return jsonify({
-                'error': f'medication {med} has missing attributes'
-            }), 400
+    #if not all([patient_id, doctor_id, medications]):
+    #    return jsonify(error='missing required fields'), 400
+    #if len(medications) == 0:
+    #    return jsonify(error='no medications in prescription'), 400
+    #if not all([isinstance(med, dict) for med in medications]):
+    #    return jsonify(error='medications must be json objects'), 400
+    #for med in medications:
+    #    schema_diff = set(med) - med_schema
+    #    if schema_diff:
+    #        return jsonify({
+    #            'error': "schema doesn't conform",
+    #            'invalid': list(schema_diff)
+    #        }), 400
+    #    if not all([attr in med_schema for attr in med]):
+    #        return jsonify({
+    #            'error': f'medication {med} has missing attributes'
+    #        }), 400
     try:
-        res = add_pt_rx(pharmacy_id, patient_id, doctor_id, medications)
+        #res = add_pt_rx(pharmacy_id, patient_id, doctor_id, medications)
+        res = add_pt_rx(pharmacy_id, patient_id)
     except MQOpErr as e:
         return jsonify({'error': 'failed to send prescription'}), 500
     except Exception as e:
@@ -56,5 +57,5 @@ def post_patient_prescription(pharmacy_id):
     if res == 'PENDING':
         return jsonify({
             'message': 'prescription submitted successfully'
-        }), 201
+        }), 202
     return jsonify({'error': 'failed to send prescription'}), 500

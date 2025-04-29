@@ -1,0 +1,50 @@
+Send prescription request
+---
+tags: 
+  - pharmacy
+parameters:
+  - name: pharmacy_id
+    in: path
+    required: true
+    description: pharmacy id
+  - name: Prescription details
+    in: body
+    required: true
+    description: prescription details
+    schema: 
+      properties:
+        patient_id:
+          type: integer
+responses:
+  201:
+    description: Created an appointment successfully
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+        id:
+          type: integer
+    examples:
+      application/json:
+        message: Appointment created successfully
+        id: 1
+  400:
+    description: Invalid date format
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          enum:
+          - "No input data provided"
+          - "doctor_id, patient_id, treatment, and start_date are required."
+          - "Invalid start_date format: <exception message>"
+          - "Invalid end_date format: <exception message>"
+          - "end_date must be after start_date"
+          - "doctor_id, patient_id, treatment, and start_date are required"
+          - "User not found as either patient or doctor"
+          - "Invalid sort field: <query argument>"
+    examples:
+      application/json: 
+        error: end_date must be after start_date

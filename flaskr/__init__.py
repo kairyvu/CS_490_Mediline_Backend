@@ -5,7 +5,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_migrate import Migrate
 
-from flaskr.extensions import db, swag, celery_init_app
+from flaskr.extensions import db, swag, celery_init_app, sio
 from flaskr.routes import register_routes
 from flaskr.cli import register_commands
 
@@ -36,6 +36,7 @@ def create_app(config_mapping: dict|None=None):
         host = os.getenv("INSTANCE_HOST") or os.getenv("MYSQL_HOST", "localhost")
         port = os.getenv("DB_PORT", "3306")
         connection_string += f'{username}:{password}@{host}:{port}/{database}'
+        """
         queue_user = os.getenv("RABBITMQ_USER")
         queue_pass = os.getenv("RABBITMQ_PASS")
         queue_vhost = os.getenv("RABBITMQ_VHOST")
@@ -44,13 +45,14 @@ def create_app(config_mapping: dict|None=None):
             CELERY=dict(
                 broker_url=b_url,
                 result_backend='rpc://',
-                task_routes={
-                    'celery_utils.tasks.process_rx': {
-                        'queue': 'prescription_queue'
-                    }
-                }
             )
         )
+        task_routes={
+            'celery_utils.tasks.process_rx': {
+                'queue': 'prescription_queue'
+            }
+        }
+        """
         app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
 
         # Trying celery
@@ -62,7 +64,10 @@ def create_app(config_mapping: dict|None=None):
             CELERY=dict(
                 broker_url=b_url,
                 result_backend="rpc://",
-                task_ignore_result=True
+                task_ignore_result=True,
+                task_routes={
+                    'flaskr.celery_utils.tasks.*': {'queue': 'prescription_queue'}
+                }
             )
         )
     else:
@@ -87,11 +92,11 @@ def create_app(config_mapping: dict|None=None):
     db.init_app(app)
     migrate = Migrate(app, db)
     swag.init_app(app)
-    celery_init_app(app)
     
     register_routes(app)
     register_commands(app)
 
     celery_init_app(app)
+    sio.init_app(app)
 
     return app

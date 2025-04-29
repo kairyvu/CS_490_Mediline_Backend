@@ -7,6 +7,8 @@ from celery.result import AsyncResult
 from flaskr.struct import PrescriptionStatus
 from flaskr.models import Prescription, Patient, PrescriptionMedication, Medication
 from flaskr.extensions import db
+from flaskr.celery_utils.tasks import send_rx, my_task
+
 
 def get_all_pharmacy_patients(pharmacy_id, new_request_time=datetime.now() - timedelta(hours=24)):
     rows = (
@@ -38,14 +40,23 @@ def get_all_pharmacy_patients(pharmacy_id, new_request_time=datetime.now() - tim
         'other_patients': other_patients
     }
 
-def add_pt_rx(pharmacy_id, patient_id, doctor_id, medications):
+def add_pt_rx(pharmacy_id, patient_id, doctor_id=None, medications=None):
     # TODO: detect duplicates
     try:
+        #res: AsyncResult = send_rx.apply_async(args=[pharmacy_id, patient_id, doctor_id, medications])
+        res: AsyncResult = my_task.apply_async(args=[str(pharmacy_id), str(patient_id)])
+        """
         res: AsyncResult = current_app.send_task(
                 'celery_utils.tasks.process_rx', 
                 args=(pharmacy_id, patient_id, doctor_id, medications),
                 queue='prescription_queue'
             )
+        res = current_app.send_task(
+            'flaskr.celery_utils.tasks.my_task',
+            args=['hello', 'world'],
+            queue='prescription_queue'
+        )
+        """
     except Exception as e:
         raise e
     return res.status
