@@ -18,6 +18,6 @@ def login():
     if user_token:
         return jsonify(user_token), 200
     return jsonify({
-            "error": "Invalid credentials",
-            "authenticated": False
-        }), 401
+        "error": "Invalid credentials",
+        "authenticated": False
+    }), 401
