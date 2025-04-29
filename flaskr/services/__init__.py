@@ -13,7 +13,7 @@ from .chat_service import get_current_chat, add_message
 from .social_media_service import get_all_posts, get_comments_of_post
 from .doctor_service import all_doctors, doctor_details, total_patients, upcoming_appointments_count, pending_appointments_count, doctor_patients_count, todays_patient, doctor_rating_detail, last_completed_appointment, doctor_general_discussion, select_doctor
 from .pharmacy_service import get_all_pharmacy_patients
-from .patient_service import get_patient_info, update_patient
+from .patient_service import patient_info, update_patient
 from .registration_service import add_user
 
 __all__ = [
@@ -28,7 +28,7 @@ __all__ = [
     'get_all_posts', 'get_comments_of_post',
     'all_doctors', 'doctor_details', 'total_patients', 'upcoming_appointments_count', 'pending_appointments_count', 'doctor_patients_count', 'todays_patient', 'doctor_rating_detail', 'last_completed_appointment', 'doctor_general_discussion', 'select_doctor',
     'get_all_pharmacy_patients',
-    'get_patient_info', 'update_patient',
+    'patient_info', 'update_patient',
     'add_user'
 ]
 
@@ -49,14 +49,17 @@ def token_required(f):
 
         try:
             token = auth_headers[1]
-            data = jwt.decode(token, current_app.config['SECRET_KEY'])
-            user = User.query.filter_by(username=data['sub']).first()
+            print(f'token: {token}')
+            data = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+            print(f'data: {data}')
+            user: User = User.query.filter_by(user_id=data['user_id']).first()
+            print(f'user: {user.to_dict()}')
             if not user:
                 raise RuntimeError('User not found')
             return f(user, *args, **kwargs)
         except jwt.ExpiredSignatureError:
             return jsonify(expired_msg), 401
         except (jwt.InvalidTokenError, Exception) as e:
-            print(e)
+            print(f'exception thrown message: {e}')
             return jsonify(invalid_msg), 401
     return _verify

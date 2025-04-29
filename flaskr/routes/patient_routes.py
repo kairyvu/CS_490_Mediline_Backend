@@ -1,15 +1,29 @@
 from flask import Blueprint, jsonify, request
-from flaskr.services import get_patient_info, update_patient
+from flaskr.models import User
+from flaskr.services import patient_info, update_patient, token_required
 from flasgger import swag_from
 
 from sqlalchemy.exc import OperationalError, IntegrityError
 
 patient_bp = Blueprint('patient_bp', __name__, url_prefix='/patients')
 
+@patient_bp.route('/info', methods=['GET'])
+@swag_from('../docs/patient_routes/get_patient_info_authenticated.yml')
+@token_required
+def get_patient_info_authenticated(user: User):
+    if user.account_type.name != 'Patient':
+        return jsonify({"message": "user not patient"}), 400
+    user_id = user.user_id
+    print(f'user_id: {user_id}')
+    result = patient_info(user_id)
+    if result:
+        return jsonify(result), 200
+    return jsonify({"error": "Patient not found"}), 404
+
 @patient_bp.route('/<int:user_id>/info', methods=['GET'])
 @swag_from('../docs/patient_routes/get_patient_info.yml')
 def get_patient_info(user_id):
-    result = get_patient_info(user_id)
+    result = patient_info(user_id)
     if result:
         return jsonify(result), 200
     return jsonify({"error": "Patient not found"}), 404

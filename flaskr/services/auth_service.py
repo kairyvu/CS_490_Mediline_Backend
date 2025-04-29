@@ -11,8 +11,8 @@ def user_id_credentials(username, password):
     if user:
         token = jwt.encode({
             'sub': user.username,
-            'iat': str(datetime.now(tz=timezone.utc)),
-            'exp': str(datetime.now(tz=timezone.utc) + timedelta(minutes=30)),
+            'iat': datetime.now(tz=timezone.utc),
+            'exp': datetime.now(tz=timezone.utc) + timedelta(minutes=30),
             'user_id': user.user_id,
             'account_type': user.account_type.value
         }, current_app.config['SECRET_KEY'])
