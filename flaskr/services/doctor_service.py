@@ -1,6 +1,14 @@
-from flaskr.models import Doctor, Patient, Appointment, AppointmentDetail, RatingSurvey, Chat, Message
+from flaskr.models import Doctor, Patient, Appointment, AppointmentDetail, RatingSurvey, Chat, Message, User, City, Country, Address
 from flaskr.extensions import db
 from datetime import date, datetime
+from flaskr.struct import AppointmentStatus
+from .forms import DrRegForm
+from datetime import datetime
+from flask import jsonify
+from sqlalchemy import select, update
+from werkzeug.datastructures import ImmutableMultiDict
+from sqlalchemy.exc import OperationalError, IntegrityError
+
 
 def all_doctors():
     doctors = Doctor.query.with_entities(
@@ -165,3 +173,162 @@ def select_doctor(doctor_id, patient_id):
         raise e
 
     return
+
+def new_appointments_request(doctor_id):
+    appointments = (Appointment.query
+        .filter_by(doctor_id=doctor_id)
+        .join(AppointmentDetail, AppointmentDetail.appointment_details_id == Appointment.appointment_id)
+        .filter(AppointmentDetail.status == AppointmentStatus.PENDING)
+        .order_by(Appointment.created_at.desc())
+        .all()
+    )
+
+    result = []
+    for app in appointments:
+        detail = app.appointment_detail
+        result.append({
+            "appointment_id": app.appointment_id,
+            "patient_id": app.patient_id,
+            "created_at": app.created_at.strftime("%Y-%m-%d %I:%M %p"),
+            "status": detail.status.name,
+            "visit_time": detail.start_date.strftime("%Y-%m-%d %I:%M %p")
+        })
+
+    return result
+
+def update_doctor(user_id, updates: dict) -> dict:
+    doctor: User = db.session.scalar(
+        select(User)
+        .where(User.user_id == user_id)
+    )
+    if not doctor.doctor:
+        return {"error": "Doctor not found"}
+    
+    address_attr = {'address1', 'address2', 'state', 'zipcode'}
+    doctor_attr = {'first_name', 'last_name', 'email', 'phone', 'dob', 'specialization', 'fee', 'license_id', 'profile_picture', 'email'}
+
+    invalid_attrs = set(updates) - (doctor_attr 
+                                    | address_attr 
+                                    | {'city', 'country'})
+    if len(invalid_attrs) != 0: 
+        return {
+            "message": "no updates performed",
+            "invalid_attributes": list(invalid_attrs)
+        }
+
+    curr_doctor_info = doctor.doctor.to_dict()
+    curr_addr_info = doctor.address.to_dict()
+    curr_city = db.session.scalar( 
+        select(City)
+        .where(City.city_id == doctor.address.city.city_id)
+    )
+    curr_country = db.session.scalar(
+        select(Country)
+        .where(Country.country_id == curr_city.country_id)
+    )
+    _city = {'city': updates.get('city') or curr_city.city}
+    _country = {'country': updates.get('country') or curr_country.country}
+
+    doctor_info_updates = {
+        attr: 
+            updates.get(attr) 
+            or curr_doctor_info[attr] 
+            for attr in doctor_attr
+    }
+    addr_info_updates = {
+        attr: 
+            updates.get(attr) 
+            or curr_addr_info[attr] 
+            for attr in address_attr
+    }
+    _updates = doctor_info_updates | addr_info_updates | _city | _country
+    _updates.update({
+        'username': doctor.username,
+        'password': doctor.password,
+        'account_type': 'doctor'
+    })
+
+    city_diff = curr_city.city != _city['city']
+    country_diff = curr_country.country != _country['country']
+    addr_diff = not all([ 
+        addr_info_new == curr_addr_info[k] 
+        for k, addr_info_new in addr_info_updates.items()
+    ])
+    doctor_diff = not all([ 
+        doctor_info_new == curr_doctor_info[k] 
+        for k, doctor_info_new in doctor_info_updates.items()
+    ])
+    if (not city_diff and 
+        not country_diff and 
+        not addr_diff and  
+        not doctor_diff):
+        return {"message": "no updates performed"}
+
+    updates_form = ImmutableMultiDict(list(_updates.items()))
+    updates_check = DrRegForm(updates_form)
+    if not updates_check.validate():
+        m = list(updates_check.errors.items())
+        m2 = [{it[0]: it[1][0]} for it in m]
+        raise ValueError(m2)
+    
+    existing_email = db.session.scalar(
+        select(Doctor)
+        .where(Doctor.email == doctor_info_updates['email'])
+        .where(Doctor.user_id != user_id)
+    )
+
+    if existing_email:
+        return {"error": "Email already exists for another user"}
+
+    new_country_id = 0
+    if (country_diff):
+        new_country_id = db.session.scalar(
+            select(Country.country_id)
+            .where(Country.country == _country['country'])
+        )
+        if not new_country_id:
+            new_country = Country(country=_country['country'])
+            db.session.add(new_country)
+            db.session.flush()
+            new_country_id = new_country.country_id
+    new_city_id = 0
+    if (city_diff):
+        new_city_id = db.session.scalar(
+            select(City.city_id)
+            .where(City.city == _city['city'])
+        )
+        if not new_city_id:
+            new_city = City(
+                city=_city['city'],
+                country_id=new_country_id or curr_city.country_id
+            )
+            db.session.add(new_city)
+            db.session.flush()
+            new_city_id = new_city.city_id
+    if (addr_diff):
+        new_addr = Address(
+            address1=updates.get('address1') or curr_addr_info['address1'], 
+            address2=updates.get('address2') or curr_addr_info['address2'],
+            city_id=new_city_id or curr_addr_info['city_id'],
+            state=updates.get('state') or curr_addr_info['state'],
+            zipcode=updates.get('zipcode') or curr_addr_info['zipcode']
+        )
+        db.session.add(new_addr)
+        db.session.flush()
+        doctor.address_id = new_addr.address_id
+        db.session.flush()
+    if (doctor_diff):
+        try:
+            db.session.execute(
+                update(Doctor)
+                .where(Doctor.user_id == user_id)
+                .values(doctor_info_updates)
+            )
+        except OperationalError as e:
+            raise e
+
+    try:
+        db.session.commit()
+    except IntegrityError as e:
+        raise e
+    return {"message": "Doctor updated successfully"}

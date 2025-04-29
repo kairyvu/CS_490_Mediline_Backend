@@ -1,0 +1,66 @@
+Create a new comment for a post
+---
+tags:
+  - social_media
+parameters:
+  - name: user_id
+    in: path
+    required: true
+    type: integer
+    description: ID of the user creating the comment
+  - name: post_id
+    in: path
+    required: true
+    type: integer
+    description: ID of the post to comment on
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      required:
+        - content
+      properties:
+        content:
+          type: string
+    description: Comment details
+responses:
+  201:
+    description: Comment created successfully
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+        comment:
+          type: object
+          properties:
+            comment_id:
+              type: integer
+            post_id:
+              type: integer
+            user_id:
+              type: integer
+            content:
+              type: string
+            created_at:
+              type: string
+            updated_at:
+              type: string
+    examples:
+      application/json:
+        message: Comment created successfully
+        comment:
+          comment_id: 1
+          post_id: 1
+          user_id: 1
+          content: "Great"
+          created_at: ""
+          updated_at: ""
+  400:
+    description: Missing required fields
+    schema:
+      type: object
+      properties:
+        error:
+          type: string

@@ -59,4 +59,22 @@ def insert_medical_record(patient_id):
         return jsonify({"error": "Patient not found"}), 404
     
     return jsonify(result), 201
+
+@patient_bp.route('/<int:patient_id>/pharmacy', methods=['PUT'])
+@swag_from('../docs/patient_routes/update_primary_pharmacy.yml')
+def update_primary_pharmacy(patient_id):
+    data = request.get_json()
+    pharmacy_id = data.get("pharmacy_id")
+    if not pharmacy_id:
+        return jsonify({"error": "Pharmacy ID is required"}), 400
+
+    result = patient_service.update_primary_pharmacy(patient_id, pharmacy_id)
+    if result == "Patient not found":
+        return jsonify({"error": "Patient not found"}), 404
+    elif result == "Pharmacy not found":
+        return jsonify({"error": "Pharmacy not found"}), 404
+    else:
+        return jsonify(result), 200
+    
+
     

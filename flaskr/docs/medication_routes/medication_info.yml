@@ -1,0 +1,59 @@
+Get medication information
+---
+tags:
+  - medication
+parameters:
+  - name: medication_id
+    in: path
+    required: true
+    type: integer
+    description: ID of the medication
+responses:
+  200:
+    description: Medication information retrieved successfully
+    schema:
+      type: object
+      properties:
+        medication_id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        inventories:
+          type: array
+          items:
+            type: object
+            properties:
+              inventory_id:
+                type: integer
+              pharmacy_id:
+                type: integer
+              quantity:
+                type: integer
+              expiration_date:
+                type: string
+    examples:
+      application/json:
+        medication_id: 1
+        name: "medication name"
+        description: "mediction description"
+        inventories:
+          - inventory_id: 1
+            pharmacy_id: 138
+            quantity: 5
+            expiration_date: "2027-05-23"
+          - inventory_id: 2
+            pharmacy_id: 53
+            quantity: 10
+            expiration_date: "2030-09-22"
+  404:
+    description: Medication not found
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json:
+        error: Medication not found

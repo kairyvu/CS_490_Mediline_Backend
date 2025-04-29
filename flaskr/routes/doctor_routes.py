@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from flasgger import swag_from
 from flaskr.services import doctor_service, select_doctor
+from sqlalchemy.exc import OperationalError, IntegrityError
 
 doctor_bp = Blueprint('doctor_bp', __name__, url_prefix='/doctors')
 
@@ -81,4 +82,30 @@ def last_completed_appointment(patient_id, doctor_id):
 def doctor_general_discussions(doctor_id):
     return jsonify(doctor_service.doctor_general_discussion(doctor_id)), 200
 
+@doctor_bp.route('/<int:doctor_id>/appointment_requests', methods=['GET'])
+@swag_from('../docs/doctor_routes/new_appointment_requests.yml')
+def new_appointment_requests(doctor_id):
+    appointments = doctor_service.new_appointments_request(doctor_id)
+    return jsonify(appointments), 200
 
+
+@doctor_bp.route('/<int:user_id>', methods=['PUT'])
+def update_doctor_info(user_id):
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "no input data provided"}), 400
+    try:
+        result = doctor_service.update_doctor(user_id, data)
+    except ValueError as e:
+        return jsonify({
+            "error": "invalid fields",
+            "fields": e.args[0]}), 400
+    except OperationalError as e:
+        error_msg = (str(e).split(' ', 1)[1]).partition('\n')[0].split(' ', 1)[1]
+        return jsonify({"error": error_msg}), 504
+    except IntegrityError as e:
+        error_msg = str((str(e.args[0]).split(maxsplit=1))[1]).split(',')[1].strip().strip(')"\\')
+        return jsonify({"error", error_msg}), 400
+    if "error" not in result:
+        return jsonify(result), 200
+    return jsonify(result), 404

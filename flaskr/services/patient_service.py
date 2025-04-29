@@ -5,6 +5,7 @@ from flaskr.models import MedicalRecord
 from flaskr.extensions import db
 from .forms import UserRegistrationForm
 from datetime import datetime
+from flask import jsonify
 
 from sqlalchemy.exc import OperationalError, IntegrityError
 
@@ -147,7 +148,7 @@ def update_patient(user_id, updates: dict) -> dict:
             new_country = Country(country=_country['country'])
             db.session.add(new_country)
             db.session.flush()
-        new_country_id = new_country.country_id
+            new_country_id = new_country.country_id
     new_city_id = 0
     if (city_diff):
         new_city_id = db.session.scalar(
@@ -161,7 +162,7 @@ def update_patient(user_id, updates: dict) -> dict:
             )
             db.session.add(new_city)
             db.session.flush()
-        new_city_id = new_city.city_id
+            new_city_id = new_city.city_id
     if (addr_diff):
         # Insert on address difference because other patients 
         # may have same address
@@ -229,4 +230,20 @@ def create_medical_record(patient_id, description):
         "patient_name": f"{patient.first_name} {patient.last_name}",
         "description": record.description,
         "created_at": record.created_at.strftime("%Y-%m-%d %I:%M %p")
+    }
+
+def update_primary_pharmacy(patient_id, pharmacy_id):
+    patient = Patient.query.filter_by(user_id=patient_id).first()
+    if not patient:
+        return "Patient not found"
+    pharmacy = Pharmacy.query.filter_by(user_id = pharmacy_id).first()
+    if not pharmacy:
+        return "Pharmacy not found"
+    patient.pharmacy_id = pharmacy_id
+    db.session.commit()
+
+    return {
+        "message": "Primary pharmacy updated successfully",
+        "patient_id": patient_id,
+        "new_pharmacy_id": pharmacy_id
     }
