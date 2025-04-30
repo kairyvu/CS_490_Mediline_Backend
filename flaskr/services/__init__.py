@@ -1,6 +1,6 @@
 from functools import wraps
 import jwt
-from flask import request, current_app, jsonify
+from flask import request, Response, current_app, jsonify
 from flaskr.models import User
 
 from .auth_service import user_id_credentials
@@ -45,21 +45,26 @@ def token_required(f):
         }
         auth_headers = request.headers.get('Authorization', '').split()
         if len(auth_headers) != 2:
-            return jsonify(invalid_msg)
+            return jsonify(invalid_msg), 401
 
         try:
             token = auth_headers[1]
-            print(f'token: {token}')
             data = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
-            print(f'data: {data}')
             user: User = User.query.filter_by(user_id=data['user_id']).first()
-            print(f'user: {user.to_dict()}')
             if not user:
                 raise RuntimeError('User not found')
-            return f(user, *args, **kwargs)
+            return f((user.user_id, user), *args, **kwargs)
         except jwt.ExpiredSignatureError:
             return jsonify(expired_msg), 401
         except (jwt.InvalidTokenError, Exception) as e:
             print(f'exception thrown message: {e}')
             return jsonify(invalid_msg), 401
     return _verify
+
+# AUTHORIZATION EXCEPTION RESPONSES
+def USER_NOT_AUTHORIZED(uid: int|None=None) -> Response:
+    if uid:
+        return jsonify({
+            'error': f'User with id {uid} does not have permission to this resource'
+        }), 401
+    return jsonify({'error': 'User does not have permission to this resource'}), 401
