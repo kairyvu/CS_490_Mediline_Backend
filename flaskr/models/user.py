@@ -48,6 +48,7 @@ class Doctor(db.Model):
     fee = db.Column(db.Float, nullable=False)
     profile_picture = db.Column(db.String(120), nullable=True)
     dob = db.Column(db.Date, nullable=False)
+    accepting_patients = db.Column(db.Boolean, default=True)
     license_id = db.Column(db.String(80), unique=True, nullable=False)
     
     user = db.relationship('User', backref=db.backref('doctor', uselist=False))
