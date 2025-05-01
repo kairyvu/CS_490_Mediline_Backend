@@ -1,8 +1,9 @@
 from datetime import datetime
+from flask_jwt_extended.exceptions import NoAuthorizationError
 from flaskr.extensions import db
 from flaskr.struct import AppointmentStatus
 from flaskr.models.appointment import Appointment, AppointmentDetail
-from flaskr.models import Patient, Doctor
+from flaskr.models import User, Patient, Doctor
 
 def get_upcoming_appointments(user_id, sort_by='start_date', order='desc'):
     is_patient = Patient.query.filter_by(user_id=user_id).first() is not None
@@ -53,10 +54,19 @@ def add_appointment(doctor_id, patient_id, treatment, start_date, end_date=None)
     db.session.commit()
     return appointment.appointment_id
 
-def update_appointment(appointment_id, treatment, start_date, status=AppointmentStatus.PENDING, end_date=None):
+def update_appointment(appointment_id, treatment, start_date, 
+                       status=AppointmentStatus.PENDING, end_date=None, 
+                       requesting_user: User|None=None):
+    if not requesting_user:
+        raise NoAuthorizationError
     appointment_detail = AppointmentDetail.query.get(appointment_id)
     if not appointment_detail:
         raise ValueError("Appointment not found")
+    _appt_dr = appointment_detail.appointment.doctor_id
+    _appt_pt = appointment_detail.appointment.patient_id
+    if (requesting_user.user_id not in {_appt_dr, _appt_pt}
+        and requesting_user.account_type.name != 'SuperUser'):
+        raise NoAuthorizationError
     if appointment_detail.status not in [AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED]:
         raise ValueError("Only appointments with PENDING or CONFIRMED status can be updated")
     if status and not hasattr(AppointmentStatus, status):
@@ -87,6 +97,7 @@ def update_appointment(appointment_id, treatment, start_date, status=Appointment
     appointment_detail.start_date = start_date
     appointment_detail.status = status
     db.session.commit()
+    return
 
 def get_appointment(appointment_id):
     appointment_detail = AppointmentDetail.query.get(appointment_id)

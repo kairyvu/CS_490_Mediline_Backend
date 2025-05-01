@@ -1,13 +1,7 @@
-Get info of a patient given their ID
+Get patient info when logged in as patient
 ---
 tags: 
   - patient
-parameters:
-  - name: user_id
-    in: path
-    type: integer
-    required: true
-    description: Patient ID
 responses:
   200:
     description: Get all patient info

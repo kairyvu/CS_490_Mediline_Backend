@@ -1,5 +1,8 @@
-from flaskr.services import get_comments_of_post, get_all_posts, delete_post, delete_comment, update_comment, update_post, create_comment, create_post
+
 from flask import Blueprint, jsonify, request
+from flask_jwt_extended import jwt_required, current_user
+from flaskr.models import User
+from flaskr.services import get_comments_of_post, get_all_posts, delete_post, delete_comment, update_comment, update_post, create_comment, create_post, USER_NOT_AUTHORIZED
 from flasgger import swag_from
 
 social_media_bp = Blueprint('social_media', __name__)

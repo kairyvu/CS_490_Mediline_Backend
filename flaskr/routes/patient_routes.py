@@ -1,22 +1,71 @@
 from flask import Blueprint, jsonify, request
-from flaskr.services import get_patient_info, update_patient, patient_medical_history, create_medical_record, update_primary_pharmacy
+from flask_jwt_extended import jwt_required, current_user
+from flaskr.models import User
+from flaskr.services import patient_info, get_patient_info, update_patient, patient_medical_history, create_medical_record, update_primary_pharmacy, token_required, USER_NOT_AUTHORIZED
 from flasgger import swag_from
 
 from sqlalchemy.exc import OperationalError, IntegrityError
 
 patient_bp = Blueprint('patient_bp', __name__)
 
+@patient_bp.route('/info', methods=['GET'])
+@jwt_required()
+@swag_from('../docs/patient_routes/get_patient_info_self_authenticated.yml')
+def get_patient_info_self_authenticated():
+    user_id = current_user.user_id
+    result = patient_info(user_id)
+    if result:
+        return jsonify(result), 200
+    return jsonify({"error": "Patient not found"}), 404
+
 @patient_bp.route('/<int:user_id>/info', methods=['GET'])
-@swag_from('../docs/patient_routes/get_patient_info.yml')
-def get_patient_info(user_id):
-    result = get_patient_info(user_id)
+@jwt_required()
+@swag_from('../docs/patient_routes/get_patient_info_other_authenticated.yml')
+def get_patient_info_other_authenticated(user_id):
+    _user: User = current_user
+    _user_id = _user.user_id
+    assert isinstance(_user, User)
+    print(_user.account_type.name)
+    print(set(p.user_id for p in _user.doctor.patients))
+    match _user.account_type.name:
+        case 'SuperUser' | 'Patient' if _user_id == user_id:
+            pass
+        case 'Patient' if _user_id != user_id:
+            return USER_NOT_AUTHORIZED(_user_id)
+        case 'Doctor':
+            if user_id not in set(
+                [p.user_id for p in _user.doctor.patients]):
+                return USER_NOT_AUTHORIZED(_user_id)
+            else:
+                pass
+        case 'Pharmacy':
+            if user_id not in set(
+                [p.user_id for p in _user.pharmacy.patients]):
+                return USER_NOT_AUTHORIZED(_user_id)
+            else:
+                pass
+        case _:
+            return USER_NOT_AUTHORIZED()
+    result = patient_info(user_id)
     if result:
         return jsonify(result), 200
     return jsonify({"error": "Patient not found"}), 404
 
 @patient_bp.route('/<int:user_id>', methods=['PUT'])
+@jwt_required()
 @swag_from('../docs/patient_routes/update_patient_info.yml')
 def update_patient_info(user_id):
+    _user: User = current_user
+    _user_id = _user.user_id
+    match _user.account_type.name:
+        case 'SuperUser' | 'Patient' if _user_id == user_id:
+            pass
+        case 'Patient' if _user_id != user_id:
+            print('here')
+            return USER_NOT_AUTHORIZED(_user_id)
+        case _:
+            print('here..?')
+            return USER_NOT_AUTHORIZED(_user_id)
     data = request.get_json()
     if not data:
         return jsonify({"error": "no input data provided"}), 400

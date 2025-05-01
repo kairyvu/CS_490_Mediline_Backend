@@ -9,7 +9,7 @@ from flask import jsonify
 
 from sqlalchemy.exc import OperationalError, IntegrityError
 
-def get_patient_info(user_id):
+def patient_info(user_id):
     patient = Patient.query.filter_by(user_id=user_id).first()
     if not patient:
         return None

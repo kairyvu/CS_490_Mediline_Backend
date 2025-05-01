@@ -1,13 +1,15 @@
-from flaskr.models import Doctor, Patient, Appointment, AppointmentDetail, RatingSurvey, Chat, Message, User, City, Country, Address
-from flaskr.extensions import db
 from datetime import date, datetime
-from flaskr.struct import AppointmentStatus
-from .forms import DrRegForm
-from datetime import datetime
+from werkzeug.datastructures import ImmutableMultiDict
 from flask import jsonify
 from sqlalchemy import select, update
-from werkzeug.datastructures import ImmutableMultiDict
+
 from sqlalchemy.exc import OperationalError, IntegrityError
+from flaskr.models import User, Doctor, Patient, Appointment, AppointmentDetail, RatingSurvey, Chat, Message, City, Country, Address
+from flaskr.extensions import db
+from flaskr.struct import AppointmentStatus
+
+from .forms import DrRegForm
+
 
 
 def all_doctors():
@@ -113,7 +115,7 @@ def last_completed_appointment(patient_id, doctor_id):
         .order_by(AppointmentDetail.end_date.desc()) \
         .first()
     if not appointment:
-        return {"message": "No Comleted Appointment Found"}
+        return {"message": "No Completed Appointment Found"}
     patient = Patient.query.filter_by(user_id= patient_id).first()
     today = date.today()
     age = today.year - patient.dob.year
@@ -155,8 +157,14 @@ def doctor_general_discussion(doctor_id):
             })
     return result
 
-def select_doctor(doctor_id, patient_id):
+def select_doctor(doctor_id, patient_id, requesting_user: User|None=None):
     # Creates relationship between doctor and patient
+    # The doctor does not need to manually go through each patient and accept 
+    # them so long as they are accepting new patients
+    from flaskr.services import UnauthorizedError
+    if (requesting_user
+        and requesting_user.account_type.name not in {'Patient', 'SuperUser'}):
+        raise UnauthorizedError
     pt: Patient = Patient.query.filter_by(user_id=patient_id).first()
     if not pt:
         raise ValueError(f'patient with id {patient_id} not found')
@@ -164,10 +172,13 @@ def select_doctor(doctor_id, patient_id):
     dr: Doctor = Doctor.query.filter_by(user_id=doctor_id).first()
     if not dr: 
         raise ValueError(f'doctor with id {doctor_id} not found')
+    if not dr.accepting_patients:
+        raise ValueError(f'doctor is not accepting patients')
     
+    if pt.doctor_id and pt.doctor_id == doctor_id:
+        raise ValueError(f'patient already has this doctor')
     pt.doctor_id = doctor_id
     pt.doctor = dr
-    # Don't worry about doctor accepting patient requests yet;
     # Automatically append pt to doctor's patients list
     dr.patients.append(pt)
     db.session.add_all((pt, dr))

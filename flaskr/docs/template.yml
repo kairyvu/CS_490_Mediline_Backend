@@ -3,7 +3,15 @@ info:
   title: 'Group 5 - Mediline REST API'
   description: 'For CS490. API documentation'
   version: '0.1'
-
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+    description: >-
+      JWT Authorization header using the Bearer scheme. Example: "Authorization: Bearer {token}"
+security:
+  - Bearer: []
 definitions:
   Appointment:
     type: object
