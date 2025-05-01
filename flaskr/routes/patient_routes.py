@@ -8,7 +8,7 @@ patient_bp = Blueprint('patient_bp', __name__, url_prefix='/patients')
 
 @patient_bp.route('/<int:user_id>/info', methods=['GET'])
 @swag_from('../docs/patient_routes/get_patient_info.yml')
-def get_patient_info(user_id):
+def _get_patient_info(user_id):
     result = get_patient_info(user_id)
     if result:
         return jsonify(result), 200
