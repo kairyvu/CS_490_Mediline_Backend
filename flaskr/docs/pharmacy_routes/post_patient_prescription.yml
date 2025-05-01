@@ -1,0 +1,68 @@
+Send prescription request
+---
+tags: 
+  - pharmacy
+parameters:
+  - name: pharmacy_id
+    in: path
+    required: true
+    description: pharmacy id
+  - name: Prescription details
+    in: body
+    required: true
+    description: prescription details
+    schema: 
+      properties:
+        patient_id:
+          type: integer
+        doctor_id:
+          type: integer
+        medications:
+          type: array
+          items:
+            type: object
+            properties:
+              dosage:
+                type: string
+              instructions:
+                type: string
+              medication_id:
+                type: integer
+responses:
+  202:
+    description: Created an appointment successfully
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+    examples:
+      application/json:
+        message: prescription submitted successfully
+  400:
+    description: Validation error
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          enum:
+          - "No input data provided"
+          - "missing required fields"
+          - "no medications in prescription"
+          - "medications must be json objects"
+          - "medication <medication> has missing attributes"
+    examples:
+      application/json: 
+        error: end_date must be after start_date
+  500:
+    description: Server error with RabbitMQ
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json: 
+        error: failed to send prescription
+

@@ -5,7 +5,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_migrate import Migrate
 
-from flaskr.extensions import db, swag, jwt
+from flaskr.extensions import db, swag, jwt, celery_init_app, sio
 from flaskr.models import User
 from flaskr.routes import register_routes
 from flaskr.cli import register_commands
@@ -39,8 +39,25 @@ def create_app(config_mapping: dict|None=None):
         port = os.getenv("DB_PORT", "3306")
         connection_string += f'{username}:{password}@{host}:{port}/{database}'
         app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
+
+        # Trying celery
+        queue_user = os.getenv("RABBITMQ_USER")
+        queue_pass = os.getenv("RABBITMQ_PASS")
+        queue_vhost = os.getenv("RABBITMQ_VHOST")
+        b_url = f"amqp://{queue_user}:{queue_pass}@localhost:5672/{queue_vhost}"
+        app.config.from_mapping(
+            CELERY=dict(
+                broker_url=b_url,
+                result_backend="rpc://",
+                task_ignore_result=True,
+                task_routes={
+                    'flaskr.tasks.*': {'queue': 'prescription_queue'}
+                }
+            )
+        )
     else:
         # Production on gcloud
+        # TODO: celery integration
         from flaskr.extensions import connector
         from pymysql.connections import Connection
         instance_conn_name = os.getenv("INSTANCE_CONNECTION_NAME")
@@ -79,5 +96,8 @@ def create_app(config_mapping: dict|None=None):
     
     register_routes(app)
     register_commands(app)
+
+    celery_init_app(app)
+    sio.init_app(app)
 
     return app

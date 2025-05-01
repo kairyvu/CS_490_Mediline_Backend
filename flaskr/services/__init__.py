@@ -13,7 +13,7 @@ from .prescription_service import get_medications_by_prescription, get_prescript
 from .chat_service import get_current_chat, add_message
 from .social_media_service import get_all_posts, get_comments_of_post
 from .doctor_service import all_doctors, doctor_details, total_patients, upcoming_appointments_count, pending_appointments_count, doctor_patients_count, todays_patient, doctor_rating_detail, last_completed_appointment, doctor_general_discussion, select_doctor
-from .pharmacy_service import get_all_pharmacy_patients
+from .pharmacy_service import get_all_pharmacy_patients, add_pt_rx
 from .patient_service import patient_info, update_patient
 from .registration_service import add_user
 
@@ -48,7 +48,6 @@ def token_required(f):
         auth_headers = request.headers.get('Authorization', '').split()
         if len(auth_headers) != 2:
             return jsonify(invalid_msg), 401
-
         try:
             token = auth_headers[1]
             data = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
