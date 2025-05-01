@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from flaskr.services import get_current_chat, chat_service
+from flaskr.services import get_current_chat, add_message
 from flasgger import swag_from
 
 chat_bp = Blueprint('chat', __name__)
@@ -13,6 +13,7 @@ def get_chat(appointment_id):
         return jsonify({"error": str(e)}), 400
     
 
+## TODO: Documentation
 @chat_bp.route('/appointment/<int:appointment_id>', methods=['PUT'])
 def put_message(appointment_id):
     data = request.get_json()
@@ -23,7 +24,7 @@ def put_message(appointment_id):
     if not user_id or not message_content or not appointment_id:
         return jsonify({"error": "user id and message and appointment id are required"}), 400
 
-    result = chat_service.add_message(appointment_id, user_id, message_content)
+    result = add_message(appointment_id, user_id, message_content)
     if result is None:
         return jsonify({"error": "Invalid appointment id"}), 404
 

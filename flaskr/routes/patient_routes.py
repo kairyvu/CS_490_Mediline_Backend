@@ -1,15 +1,15 @@
 from flask import Blueprint, jsonify, request
-from flaskr.services import patient_service
+from flaskr.services import get_patient_info, update_patient, patient_medical_history, create_medical_record, update_primary_pharmacy
 from flasgger import swag_from
 
 from sqlalchemy.exc import OperationalError, IntegrityError
 
-patient_bp = Blueprint('patient_bp', __name__, url_prefix='/patients')
+patient_bp = Blueprint('patient_bp', __name__)
 
 @patient_bp.route('/<int:user_id>/info', methods=['GET'])
 @swag_from('../docs/patient_routes/get_patient_info.yml')
 def get_patient_info(user_id):
-    result = patient_service.get_patient_info(user_id)
+    result = get_patient_info(user_id)
     if result:
         return jsonify(result), 200
     return jsonify({"error": "Patient not found"}), 404
@@ -21,7 +21,7 @@ def update_patient_info(user_id):
     if not data:
         return jsonify({"error": "no input data provided"}), 400
     try:
-        result = patient_service.update_patient(user_id, data)
+        result = update_patient(user_id, data)
     except ValueError as e:
         return jsonify({
             "error": "invalid fields",
@@ -39,7 +39,7 @@ def update_patient_info(user_id):
 @patient_bp.route('/<int:patient_id>/medical_history', methods=['GET'])
 @swag_from('../docs/patient_routes/medical_history.yml')
 def medical_history(patient_id):
-    result = patient_service.patient_medical_history(patient_id)
+    result = patient_medical_history(patient_id)
     if not result:
         return jsonify({"error": "Patient not Found"}), 404
     return jsonify(result), 200
@@ -54,7 +54,7 @@ def insert_medical_record(patient_id):
     description = data.get("description")
     if not description:
         return jsonify({"error": "Description is required"}), 400
-    result = patient_service.create_medical_record(patient_id, description)
+    result = create_medical_record(patient_id, description)
     if result is None:
         return jsonify({"error": "Patient not found"}), 404
     
@@ -62,13 +62,13 @@ def insert_medical_record(patient_id):
 
 @patient_bp.route('/<int:patient_id>/pharmacy', methods=['PUT'])
 @swag_from('../docs/patient_routes/update_primary_pharmacy.yml')
-def update_primary_pharmacy(patient_id):
+def primary_pharmacy(patient_id):
     data = request.get_json()
     pharmacy_id = data.get("pharmacy_id")
     if not pharmacy_id:
         return jsonify({"error": "Pharmacy ID is required"}), 400
 
-    result = patient_service.update_primary_pharmacy(patient_id, pharmacy_id)
+    result = update_primary_pharmacy(patient_id, pharmacy_id)
     if result == "Patient not found":
         return jsonify({"error": "Patient not found"}), 404
     elif result == "Pharmacy not found":

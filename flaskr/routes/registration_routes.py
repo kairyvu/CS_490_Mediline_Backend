@@ -3,7 +3,7 @@
 """
 from werkzeug.datastructures import ImmutableMultiDict
 from flask import Blueprint, request, make_response, jsonify
-from flaskr.services.registration_service import add_user
+from flaskr.services import add_user
 from flasgger import swag_from
 
 from sqlalchemy.exc import IntegrityError

@@ -256,6 +256,41 @@ def pt_ex1(request, ex1, pt1, dr1):
     _pt_ex.doctor = u2_dr
     yield _pt_ex, pt1, dr1, ex1 
 
+@pytest.fixture(scope='module')
+def pt_ex2(request, ex2, pt1, dr1):
+    u1, u1_pt = pt1
+    u2, u2_dr = dr1
+    _pt_ex = PatientExercise(
+        patient_exercise_id=2,
+        exercise_id=ex2.exercise_id,
+        patient_id=u1.user_id,
+        doctor_id=u2.user_id,
+        reps='4-10',
+        status=ExerciseStatus.IN_PROGRESS,
+    )
+    _pt_ex.exercise = ex2
+    _pt_ex.patient = u1_pt
+    _pt_ex.doctor = u2_dr
+    yield _pt_ex, pt1, dr1, ex2 
+
+@pytest.fixture(scope='module')
+def pt_ex3(request, ex3, pt1, dr1):
+    u1, u1_pt = pt1
+    u2, u2_dr = dr1
+    _pt_ex = PatientExercise(
+        patient_exercise_id=3,
+        exercise_id=ex3.exercise_id,
+        patient_id=u1.user_id,
+        doctor_id=u2.user_id,
+        reps='30min',
+        status=ExerciseStatus.IN_PROGRESS,
+    )
+    _pt_ex.exercise = ex3
+    _pt_ex.patient = u1_pt
+    _pt_ex.doctor = u2_dr
+    yield _pt_ex, pt1, dr1, ex3 
+
+
 @pytest.fixture(scope='session')
 def pt_reg_form1(request):
     yield {
