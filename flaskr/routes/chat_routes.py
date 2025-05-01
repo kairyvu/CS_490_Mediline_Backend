@@ -1,16 +1,21 @@
 from flask import Blueprint, jsonify, request
-from flaskr.services import get_current_chat, chat_service
+from flask_jwt_extended import jwt_required, current_user
+from flaskr.services import get_current_chat, chat_service, USER_NOT_AUTHORIZED, UnauthorizedError
 from flasgger import swag_from
 
 chat_bp = Blueprint('chat', __name__)
+
 @chat_bp.route('/<int:appointment_id>', methods=['GET'])
+@jwt_required()
 @swag_from('../docs/chat_routes/get_chat.yml')
 def get_chat(appointment_id):
     try:
-        chat = get_current_chat(appointment_id)
+        chat = get_current_chat(appointment_id, requesting_user=current_user)
         return jsonify(chat), 200
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
+    except UnauthorizedError as e:
+        return USER_NOT_AUTHORIZED(current_user.user_id)
     
 
 ## TODO: Documentation

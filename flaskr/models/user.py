@@ -1,4 +1,3 @@
-#from datetime 
 from werkzeug.security import generate_password_hash, check_password_hash
 from flaskr.extensions import db
 from flaskr.struct import AccountType

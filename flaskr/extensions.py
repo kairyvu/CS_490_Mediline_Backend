@@ -1,5 +1,6 @@
 import os
 from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import JWTManager
 from flasgger import Swagger
 from google.cloud.sql.connector import Connector, IPTypes
 
@@ -12,3 +13,4 @@ swag = Swagger(
     ),
     parse=True
 )
+jwt = JWTManager()

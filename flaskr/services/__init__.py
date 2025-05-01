@@ -1,6 +1,7 @@
 from functools import wraps
 import jwt
 from flask import request, Response, current_app, jsonify
+from flask_jwt_extended.exceptions import JWTExtendedException
 from flaskr.models import User
 
 from .auth_service import user_id_credentials
@@ -32,6 +33,7 @@ __all__ = [
     'add_user'
 ]
 
+# Depreciated
 def token_required(f):
     @wraps(f)
     def _verify(*args, **kwargs):
@@ -62,6 +64,8 @@ def token_required(f):
     return _verify
 
 # AUTHORIZATION EXCEPTION RESPONSES
+class UnauthorizedError(JWTExtendedException):
+    pass
 def USER_NOT_AUTHORIZED(uid: int|None=None) -> Response:
     if uid:
         return jsonify({
