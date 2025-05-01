@@ -1,0 +1,64 @@
+A doctor's average rating and list of ratings by patients
+---
+tags: 
+  - doctor
+parameters:
+  - name: doctor_id
+    in: path
+    type: integer
+    required: true
+    description: doctor ID
+  - name: sort_by
+    in: query
+    type: string
+    enum: 
+      - survey_id
+      - patient_id
+      - doctor_id
+      - comment
+      - stars
+    required: false
+    description: set column to sort by
+  - name: order_by
+    in: query
+    type: string
+    enum: 
+      - asc 
+      - desc
+    required: false
+    description: set ascending or descending order
+responses:
+  200:
+    description: the object containing a doctor's average rating and list of ratings
+    schema:
+      type: object
+      properties:
+        average_rating:
+          type: float
+        ratings:
+          type: array
+          items:
+            type: object
+            properties:
+              patient_id:
+                type: integer
+              patient_name:
+                type: string
+              stars:
+                type: integer
+              comment:
+                type: string
+    examples:
+      application/json:
+        {
+          "average_rating": "8.55",
+          "ratings": [
+            {
+              "patient_id": "1",
+              "patient_name": "John Smith",
+              "stars": 10,
+              "comment": "Great"
+            }
+          ]
+        }
+

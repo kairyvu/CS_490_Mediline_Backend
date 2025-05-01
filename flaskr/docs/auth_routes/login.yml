@@ -5,10 +5,8 @@ tags:
 parameters:
   - name: Appointment
     in: body
+    required: true
     schema: 
-      required:
-      - username
-      - password
       properties:
         username:
           type: string

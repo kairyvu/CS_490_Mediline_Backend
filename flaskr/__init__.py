@@ -1,19 +1,36 @@
-from flask import Flask
 import os
-from dotenv import load_dotenv
-from flask_cors import CORS
 
+from werkzeug.exceptions import HTTPException
+from flask import Flask, jsonify
+from flask_cors import CORS
+from flask_migrate import Migrate
+
+from flaskr.extensions import db, swag
+from flaskr.routes import register_routes
+from flaskr.cli import register_commands
+
+from dotenv import load_dotenv
     
 load_dotenv()
 
-def create_app():
+def create_app(config_mapping: dict|None=None):
     app = Flask(__name__, instance_relative_config=True)
+    
     CORS(app, resources={r"/*": {"origins": "*"}})
 
+    # Ensures all error responses are returned as JSON
+    @app.errorhandler(HTTPException)
+    def handle_exception(e):
+        """Return JSON instead of HTML for HTTP errors."""
+        return jsonify(error=str(e.description)), e.code
+    
     database = os.getenv("DB_NAME", "doctor_patient_system")
     connection_string = 'mysql+pymysql://'
-    if os.environ.get('FLASK_ENV') == 'development':
+    if config_mapping and config_mapping.get("TESTING"):
+        app.config.from_mapping(config_mapping)
+    elif os.environ.get('FLASK_ENV') == 'development':
         # When running app on local machine
+        print("***IN DEVELOPMENT MODE***")
         username = os.getenv("DB_USER") or os.getenv("MYSQL_USER", "root")
         password = os.getenv("DB_PASS") or os.getenv("MYSQL_PASSWORD", "")
         host = os.getenv("INSTANCE_HOST") or os.getenv("MYSQL_HOST", "localhost")
@@ -36,22 +53,14 @@ def create_app():
             return conn
         app.config['SQLALCHEMY_ENGINE_OPTIONS'] = { "creator": getconn }
         app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
-
                                             
     app.config['SWAGGER'] = { 'doc_dir': './docs/' }
 
-    from flaskr.extensions import db
     db.init_app(app)
-
-    from flask_migrate import Migrate
     migrate = Migrate(app, db)
-
-    from flaskr.extensions import swag
     swag.init_app(app)
     
-    from flaskr.routes import register_routes
     register_routes(app)
-    from flaskr.cli import register_commands
     register_commands(app)
 
     return app

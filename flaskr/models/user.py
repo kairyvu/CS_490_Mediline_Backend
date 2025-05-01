@@ -19,7 +19,7 @@ class User(db.Model):
         return {
             "user_id": self.user_id,
             "username": self.username,
-            "account_type": self.account_type.name,
+            "account_type": self.account_type.value if isinstance(self.account_type, AccountType) else self.account_type,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None
         }
@@ -48,6 +48,7 @@ class Doctor(db.Model):
     fee = db.Column(db.Float, nullable=False)
     profile_picture = db.Column(db.String(120), nullable=True)
     dob = db.Column(db.Date, nullable=False)
+    accepting_patients = db.Column(db.Boolean, default=True)
     license_id = db.Column(db.String(80), unique=True, nullable=False)
     
     user = db.relationship('User', backref=db.backref('doctor', uselist=False))

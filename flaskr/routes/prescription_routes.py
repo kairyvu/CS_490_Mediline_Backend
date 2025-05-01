@@ -26,6 +26,7 @@ def get_medication_list(prescription_id):
     except Exception as e:
         return jsonify({'error': 'An error occurred while fetching the medications'}), 500
 
+## TODO: Documentation
 @prescription_bp.route('/pharmacy/<int:pharmacy_id>/count', methods=['GET'])
 def get_prescription_count(pharmacy_id):
     try:
@@ -36,6 +37,7 @@ def get_prescription_count(pharmacy_id):
     except Exception as e:
         return jsonify({'error': 'An error occurred while fetching the prescription count'}), 500
 
+## TODO: Documentation
 @prescription_bp.route('/pharmacy/<int:pharmacy_id>/inventory', methods=['GET'])
 def get_pharmacy_inventory(pharmacy_id):
     try:
@@ -46,6 +48,7 @@ def get_pharmacy_inventory(pharmacy_id):
     except Exception as e:
         return jsonify({'error': 'An error occurred while fetching the pharmacy inventory'}), 500
     
+## TODO: Documentation
 @prescription_bp.route('/patient/<int:patient_id>/history', methods=['GET'])
 def get_medications_history(patient_id):
     try:

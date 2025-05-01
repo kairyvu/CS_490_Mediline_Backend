@@ -1,0 +1,36 @@
+A list of a doctor's chat history from all appointments
+---
+tags: 
+  - doctor
+parameters:
+  - name: doctor_id
+    in: path
+    type: integer
+    required: true
+    description: doctor ID
+responses:
+  200:
+    description: the list of doctor chat
+    schema:
+      type: array
+      items:
+        type: object
+        properties:
+          chat_id:
+            type: integer
+          sender_name:
+            type: string
+          message:
+            type: string
+          timestamp:
+            type: string
+    examples:
+      application/json:
+        [
+          {
+            "chat_id": "1",
+            "sender_name": "John Smith",
+            "message": "message content",
+            "timestamp": "2000-03-03",
+          }
+        ]

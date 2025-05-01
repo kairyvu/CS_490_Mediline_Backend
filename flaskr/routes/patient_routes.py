@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from flaskr.services import patient_service
+from flaskr.services import get_patient_info, update_patient
 from flasgger import swag_from
 
 from sqlalchemy.exc import OperationalError, IntegrityError
@@ -9,7 +9,7 @@ patient_bp = Blueprint('patient_bp', __name__, url_prefix='/patients')
 @patient_bp.route('/<int:user_id>/info', methods=['GET'])
 @swag_from('../docs/patient_routes/get_patient_info.yml')
 def get_patient_info(user_id):
-    result = patient_service.get_patient_info(user_id)
+    result = get_patient_info(user_id)
     if result:
         return jsonify(result), 200
     return jsonify({"error": "Patient not found"}), 404
@@ -21,7 +21,7 @@ def update_patient_info(user_id):
     if not data:
         return jsonify({"error": "no input data provided"}), 400
     try:
-        result = patient_service.update_patient(user_id, data)
+        result = update_patient(user_id, data)
     except ValueError as e:
         return jsonify({
             "error": "invalid fields",
