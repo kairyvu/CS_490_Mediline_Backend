@@ -1,5 +1,6 @@
 import pytest
 from flaskr.services import user_id_credentials
+from flaskr.models import User, Patient
 
 def test_table_not_exist():
     with pytest.raises(Exception):
@@ -15,7 +16,6 @@ def test_user_not_exist(database_session):
     db.metadata.drop_all(db.engine)
 
 def test_user_authenticate(database_session, pt1):
-    from flaskr.models import User, Patient
     db = database_session
     db.metadata.create_all(db.engine, [
         User.__table__,

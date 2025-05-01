@@ -1,7 +1,8 @@
 import os
-from flask import Flask
 
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import JWTManager
 from flask_socketio import SocketIO, emit
 from flasgger import Swagger
 
@@ -32,6 +33,8 @@ swag = Swagger(
     ),
     parse=True
 )
+
+jwt = JWTManager()
 
 ## SocketIO stuff
 # TODO: replace with environment variables

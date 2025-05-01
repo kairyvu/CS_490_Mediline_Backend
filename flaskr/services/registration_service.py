@@ -67,10 +67,10 @@ def add_user(user_info: ImmutableMultiDict) -> Response:
     except ValueError:
         jsonify({'error': f'invalid account type: {user.account_type.data}'})
     new_user = User(
-        username=user.username.data,
-        password=user.password.data,
-        account_type=new_user_acct_type,
-        address_id=address_id
+        user.username.data,
+        user.password.data,
+        new_user_acct_type,
+        address_id
     )
     # Defer the rest of user creation to specific functions per account type
     match user.account_type.data:

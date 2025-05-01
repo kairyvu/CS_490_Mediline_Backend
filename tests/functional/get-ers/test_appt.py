@@ -1,8 +1,8 @@
 import pytest
-from flaskr.services.appointment_service import get_appointment, get_upcoming_appointments
+from flaskr.services import get_appointment, get_upcoming_appointments
+from flaskr.models import User, Patient, Doctor, Appointment, AppointmentDetail
 
 def test_get_upcoming_appt_not_found(database_session):
-    from flaskr.models import User, Patient, Doctor
     db = database_session
     db.metadata.create_all(db.engine, [
         User.__table__,
@@ -14,7 +14,6 @@ def test_get_upcoming_appt_not_found(database_session):
     db.metadata.drop_all(db.engine)
 
 def test_get_upcoming_appt(database_session, appt1):
-    from flaskr.models import User, Patient, Doctor, Appointment, AppointmentDetail
     db = database_session
     db.metadata.create_all(db.engine, [
         User.__table__,
@@ -41,7 +40,6 @@ def test_get_upcoming_appt(database_session, appt1):
     db.metadata.drop_all(db.engine)
 
 def test_get_appt_not_found(database_session):
-    from flaskr.models import AppointmentDetail
     db = database_session
     db.metadata.create_all(db.engine, [
         AppointmentDetail.__table__
@@ -51,7 +49,6 @@ def test_get_appt_not_found(database_session):
     db.metadata.drop_all(db.engine)
 
 def test_get_appt(database_session, appt1):
-    from flaskr.models import User, Patient, Doctor, Appointment, AppointmentDetail
     db = database_session
     db.metadata.create_all(db.engine, [
         User.__table__,

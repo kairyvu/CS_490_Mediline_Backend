@@ -1,6 +1,7 @@
-from flaskr.models import Doctor, Patient, Appointment, AppointmentDetail, RatingSurvey, Chat, Message
-from flaskr.extensions import db
 from datetime import date, datetime
+from flaskr.models import User, Doctor, Patient, Appointment, AppointmentDetail, RatingSurvey, Chat, Message
+from flaskr.extensions import db
+
 
 def all_doctors():
     doctors = Doctor.query.with_entities(
@@ -39,10 +40,14 @@ def doctor_patients_count(doctor_id):
     return (patients_count)
 def todays_patient(doctor_id, date):
     try:
-        query_date = datetime.strptime(date, '%Y-%m-%d').date() if date else datetime.today()
+        query_date = datetime.strptime(date, '%Y-%m-%d').date() if date else datetime.today().date()
     except ValueError:
         return {"error": "Invalid date format. Use YYYY-MM-DD."}
-    appointments = Appointment.query.filter_by(doctor_id=doctor_id).join(AppointmentDetail).filter(db.func.date(AppointmentDetail.start_date) == query_date).all()
+    appointments = Appointment.query \
+        .filter_by(doctor_id=doctor_id) \
+        .join(AppointmentDetail) \
+        .filter(db.func.date(AppointmentDetail.start_date) == query_date) \
+        .all()
     result = []
     for app in appointments:
         patient = Patient.query.filter_by(user_id=app.patient_id).first()
@@ -101,7 +106,7 @@ def last_completed_appointment(patient_id, doctor_id):
         .order_by(AppointmentDetail.end_date.desc()) \
         .first()
     if not appointment:
-        return {"message": "No Comleted Appointment Found"}
+        return {"message": "No Completed Appointment Found"}
     patient = Patient.query.filter_by(user_id= patient_id).first()
     today = date.today()
     age = today.year - patient.dob.year
@@ -143,8 +148,14 @@ def doctor_general_discussion(doctor_id):
             })
     return result
 
-def select_doctor(doctor_id, patient_id):
+def select_doctor(doctor_id, patient_id, requesting_user: User|None=None):
     # Creates relationship between doctor and patient
+    # The doctor does not need to manually go through each patient and accept 
+    # them so long as they are accepting new patients
+    from flaskr.services import UnauthorizedError
+    if (requesting_user
+        and requesting_user.account_type.name not in {'Patient', 'SuperUser'}):
+        raise UnauthorizedError
     pt: Patient = Patient.query.filter_by(user_id=patient_id).first()
     if not pt:
         raise ValueError(f'patient with id {patient_id} not found')
@@ -152,10 +163,13 @@ def select_doctor(doctor_id, patient_id):
     dr: Doctor = Doctor.query.filter_by(user_id=doctor_id).first()
     if not dr: 
         raise ValueError(f'doctor with id {doctor_id} not found')
+    if not dr.accepting_patients:
+        raise ValueError(f'doctor is not accepting patients')
     
+    if pt.doctor_id and pt.doctor_id == doctor_id:
+        raise ValueError(f'patient already has this doctor')
     pt.doctor_id = doctor_id
     pt.doctor = dr
-    # Don't worry about doctor accepting patient requests yet;
     # Automatically append pt to doctor's patients list
     dr.patients.append(pt)
     db.session.add_all((pt, dr))
