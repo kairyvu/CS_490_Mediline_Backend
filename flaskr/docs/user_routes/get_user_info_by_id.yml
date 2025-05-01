@@ -10,7 +10,7 @@ parameters:
     description: User ID (patient, doctor, or pharmacy)
 responses:
   200:
-    description: Get all patient info
+    description: Get all user info
     schema:
       type: object
       properties:
