@@ -3,6 +3,8 @@ from flaskr.extensions import db
 from datetime import datetime, timedelta
 from sqlalchemy import func
 
+from flaskr.models.user import Pharmacy
+
 def get_all_pharmacy_patients(pharmacy_id, new_request_time=datetime.now() - timedelta(hours=24)):
     rows = (
         db.session.query(
@@ -32,3 +34,10 @@ def get_all_pharmacy_patients(pharmacy_id, new_request_time=datetime.now() - tim
         'new_patients':   new_patients,
         'other_patients': other_patients
     }
+
+def get_pharmacy_info(pharmacy_id):
+    pharmacy = Pharmacy.query.filter_by(user_id=pharmacy_id).first()
+    if not pharmacy:
+        return None
+
+    return pharmacy.to_dict()

@@ -10,14 +10,6 @@ def get_all_doctors():
     doctors = all_doctors()
     return jsonify(doctors), 200
 
-@doctor_bp.route('/<int:doctor_id>', methods=['GET'])
-@swag_from('../docs/doctor_routes/get_doctor_by_id.yml')
-def get_doctor_by_id(doctor_id):
-    doctor = doctor_details(doctor_id)
-    if doctor:
-        return jsonify(doctor), 200
-    return jsonify({"error": "Doctor not found"}), 404
-
 @doctor_bp.route('/<int:doctor_id>/request', methods=['POST'])
 @swag_from('../docs/doctor_routes/request_doctor_by_id.yml')
 def request_doctor_by_id(doctor_id):

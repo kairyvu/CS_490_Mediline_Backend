@@ -6,14 +6,6 @@ from sqlalchemy.exc import OperationalError, IntegrityError
 
 patient_bp = Blueprint('patient_bp', __name__, url_prefix='/patients')
 
-@patient_bp.route('/<int:user_id>/info', methods=['GET'])
-@swag_from('../docs/patient_routes/get_patient_info.yml')
-def _get_patient_info(user_id):
-    result = get_patient_info(user_id)
-    if result:
-        return jsonify(result), 200
-    return jsonify({"error": "Patient not found"}), 404
-
 @patient_bp.route('/<int:user_id>', methods=['PUT'])
 @swag_from('../docs/patient_routes/update_patient_info.yml')
 def update_patient_info(user_id):
