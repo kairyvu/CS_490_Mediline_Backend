@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from flaskr.services import all_doctors, doctor_details, total_patients, upcoming_appointments_count, pending_appointments_count, doctor_patients_count, todays_patient, doctor_rating_detail, last_completed_appointment, doctor_general_discussion, select_doctor 
 from flasgger import swag_from
 
-doctor_bp = Blueprint('doctor_bp', __name__, url_prefix='/doctors')
+doctor_bp = Blueprint('doctor_bp', __name__)
 
 @doctor_bp.route('/', methods=['GET'])
 @swag_from('../docs/doctor_routes/get_all_doctors.yml')
