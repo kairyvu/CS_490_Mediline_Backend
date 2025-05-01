@@ -192,20 +192,21 @@ def seed_posts(n=1000):
     print("Posts done")
 
 def seed_reports(n=1000):
-    for _ in range(n):
+    for _, member in ReportType.__members__.items():
         report = Report(
-            type=faker.random_element([ReportType.DAILY, ReportType.WEEKLY, ReportType.MONTHLY]),
-            created_at=faker.date_time_this_year(),
+            type=member,
         )
         db.session.add(report)
         db.session.flush()
         users["reports"].append(report.report_id)
+
+    for _ in range(n):
         patient_id=faker.random_element(tuple(users["patients"]))
         doctor_id=user_relationship[patient_id][0]
 
         for _ in range(faker.random_int(min=0, max=5)):
             patient_report = PatientReport(
-                report_id=report.report_id,
+                report_id=faker.random_element(tuple(users["reports"])),
                 patient_id=patient_id,
                 doctor_id=doctor_id,
                 height=faker.random_number(digits=3, fix_len=False),
