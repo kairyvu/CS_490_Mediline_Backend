@@ -6,7 +6,6 @@ class Report(db.Model):
 
     report_id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.Enum(ReportType), nullable=False)
-    created_at = db.Column(db.DateTime, server_default=db.func.now())
     
 class PatientReport(db.Model):
     __tablename__ = 'patient_report'
