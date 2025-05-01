@@ -54,7 +54,7 @@ class Doctor(db.Model):
     user = db.relationship('User', backref=db.backref('doctor', uselist=False))
 
     def to_dict(self):
-        return {
+        rtn = {
             "user_id": self.user_id,
             "first_name": self.first_name,
             "last_name": self.last_name,
@@ -67,7 +67,8 @@ class Doctor(db.Model):
             "dob": self.dob.isoformat() if self.dob else None,
             "license_id": self.license_id
         }
-    
+        rtn.update(self.user.address.to_dict())
+        return rtn
 class Pharmacy(db.Model):
     __tablename__ = 'pharmacy'
     
@@ -80,14 +81,15 @@ class Pharmacy(db.Model):
     user = db.relationship('User', backref=db.backref('pharmacy', uselist=False))
 
     def to_dict(self):
-        return {
+        rtn = {
             "user_id": self.user_id,
             "pharmacy_name": self.pharmacy_name,
             "phone": self.phone,
             "email": self.email,
             "hours": self.hours,
         }
-
+        rtn.update(self.user.address.to_dict())
+        return rtn
 
 class Patient(db.Model):
     __tablename__ = 'patient'
