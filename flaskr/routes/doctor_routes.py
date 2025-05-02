@@ -3,7 +3,7 @@ from flask_jwt_extended import jwt_required, current_user
 from flaskr.services import all_doctors, doctor_details, total_patients, \
     upcoming_appointments_count, pending_appointments_count, \
     doctor_patients_count, todays_patient, doctor_rating_detail, \
-    last_completed_appointment, doctor_general_discussion, select_doctor, \
+    last_completed_appointment, doctor_general_discussion, select_doctor, assign_survey,\
     USER_NOT_AUTHORIZED, UnauthorizedError
 from flasgger import swag_from
 from flaskr.services import select_doctor, all_doctors, doctor_details, total_patients, upcoming_appointments_count,\
@@ -162,3 +162,22 @@ def update_doctor_info(user_id):
         return jsonify(result), 200
     return jsonify(result), 404
 ### ---END PROTECTED ROUTES---
+
+@doctor_bp.route('/survey/<int:doctor_id>', methods=['POST'])
+@swag_from('../docs/doctor_routes/assign_survey_rating.yml')
+def assign_survey_rating(doctor_id):
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No input data provided"}), 400
+   
+    patient_id = data.get('patient_id')
+    stars = data.get('stars')
+    comment = data.get('comment')
+
+    if not patient_id or not stars:
+        return jsonify({"error":"patient id and stars are required"})
+    result = assign_survey(doctor_id, patient_id, stars, comment)
+
+    if "error" in result:
+        return jsonify(result), 400
+    return jsonify(result), 201

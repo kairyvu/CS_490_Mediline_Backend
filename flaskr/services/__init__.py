@@ -12,7 +12,9 @@ from .report_service import get_patient_report_result, add_patient_report
 from .prescription_service import get_medications_by_prescription, get_prescriptions, get_prescription_count_by_pharmacy, get_pharmacy_medications_inventory, get_medications_history_by_patient
 from .chat_service import get_current_chat, add_message
 from .social_media_service import get_all_posts, get_comments_of_post, delete_comment, delete_post, update_comment, update_post, create_comment, create_post
-from .doctor_service import all_doctors, doctor_details, total_patients, upcoming_appointments_count, pending_appointments_count, doctor_patients_count, todays_patient, doctor_rating_detail, last_completed_appointment, doctor_general_discussion, select_doctor, new_appointments_request, update_doctor
+from .doctor_service import all_doctors, doctor_details, total_patients, upcoming_appointments_count, pending_appointments_count,\
+      doctor_patients_count, todays_patient, doctor_rating_detail, last_completed_appointment, doctor_general_discussion, select_doctor,\
+          new_appointments_request, update_doctor, assign_survey
 from .pharmacy_service import get_all_pharmacy_patients, add_pt_rx, get_pharmacy_info
 from .patient_service import patient_info, patient_info, update_patient, patient_medical_history, create_medical_record, update_primary_pharmacy
 from .registration_service import add_user
@@ -33,7 +35,7 @@ __all__ = [
     'all_doctors', 'doctor_details', 'total_patients', 'upcoming_appointments_count', 'pending_appointments_count', 'doctor_patients_count', 'todays_patient', 'doctor_rating_detail', 'last_completed_appointment', 'doctor_general_discussion', 'select_doctor',
     'get_all_pharmacy_patients', 'get_pharmacy_info', 'add_pt_rx',
     'patient_info', 'update_patient','patient_medical_history', 'create_medical_record', 'update_primary_pharmacy',
-    'add_user',
+    'add_user', 'new_appointments_request', 'update_doctor', 'assign_survey',
     'medication_info',
     'get_user_info_by_id'
 ]

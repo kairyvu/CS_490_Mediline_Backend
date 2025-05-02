@@ -347,3 +347,25 @@ def update_doctor(user_id, updates: dict) -> dict:
     except IntegrityError as e:
         raise e
     return {"message": "Doctor updated successfully"}
+
+def assign_survey(doctor_id, patient_id, stars, comment=None):
+    if stars < 1 or stars > 5:
+        return {"error": "Rating must be between 1 and 5"}
+    new_survvey = RatingSurvey(
+        doctor_id = doctor_id,
+        patient_id = patient_id,
+        stars= stars,
+        comment=comment
+    )
+
+    db.session.add(new_survvey)
+    db.session.commit()
+
+    return {
+        "message": "Survey Assigned successfully",
+        "survey_id": new_survvey.survey_id,
+        "doctor_id": doctor_id,
+        "patient_id": patient_id,
+        "stars": stars,
+        "comment": comment
+    }
