@@ -366,6 +366,7 @@ def seed_exercises():
     print("Exercises done")
 
 def seed_appointments(n=300):
+    treatments = ("Consultation", "Examination", "Diagnosis", "Prescription", "Referral", "Vaccination", "Counseling", "Screening", "Imaging", "Therapy")
     for _ in range(n):
         patient_id = faker.random_element(tuple(users["patients"]))
         doctor_id = user_relationship[patient_id][0]
@@ -394,7 +395,7 @@ def seed_appointments(n=300):
         )
         appointment_detail = AppointmentDetail(
             appointment_details_id=appointment.appointment_id,
-            treatment=faker.word(),
+            treatment=faker.random_element(treatments),
             start_date=start_date,
             end_date=end_date,
             status=status,
