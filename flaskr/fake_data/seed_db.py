@@ -37,7 +37,7 @@ def generate_email() -> str:
 def generate_user(account_type: AccountType) -> User:
     username = faker.user_name()
     while username in uniq_user:
-        username = faker.user_name()
+        username = generate_email()
     uniq_user.add(username)
     user = User(
         username=username,
@@ -55,7 +55,7 @@ def generate_pharmacy(user: User):
         user_id=user.user_id,
         pharmacy_name=faker.company(),
         phone=faker.basic_phone_number(),
-        email=generate_email(),
+        email=user.email,
         hours=faker.time_delta(),
     )
     db.session.add(pharmacy)
@@ -66,7 +66,7 @@ def generate_doctor(user: User, doctor_profile: dict):
         user_id=user.user_id,
         first_name=doctor_profile["first_name"],
         last_name=doctor_profile["last_name"],
-        email=generate_email(),
+        email=user.email,
         phone=faker.basic_phone_number(),
         specialization=doctor_profile["specialization"],
         bio=doctor_profile["bio"],
@@ -83,7 +83,7 @@ def generate_patient(user: User, doctor_id=None, pharmacy_id=None):
         user_id=user.user_id,
         first_name=faker.first_name(),
         last_name=faker.last_name(),
-        email=generate_email(),
+        email=user.email,
         phone=faker.basic_phone_number(),
         dob=faker.date_of_birth(minimum_age=18, maximum_age=65),
         doctor_id=doctor_id,
