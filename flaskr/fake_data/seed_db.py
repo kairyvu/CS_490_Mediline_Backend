@@ -8,7 +8,7 @@ from flaskr.struct import AccountType, ReportType, PaymentStatus, AppointmentSta
 from collections import defaultdict
 from flaskr.extensions import db
 from sqlalchemy import text
-from .deepseek_integration import generate_cities_for_countries, generate_addresses_for_cities, generate_doctor_profiles, generate_exercises
+from .deepseek_integration import generate_cities_for_countries, generate_addresses_for_cities, generate_doctor_profiles, generate_exercises, generate_medications, generate_social_media_posts
 
 faker = Faker('en_US')
 users = defaultdict(list)
@@ -160,15 +160,16 @@ def seed_users(pharmacy_count=10, doctor_count=20, patient_count=500):
     db.session.commit()
     print("Users done")
 
-def seed_posts(n=1000):
-    for _ in range(n):
+def seed_posts(n=80):
+    posts = generate_social_media_posts(n)
+    for post in posts:
         created_at = faker.date_time_this_year()
         updated_at = created_at + timedelta(minutes=random.randint(0, 300))
         post = Post(
             user_id=faker.random_element(tuple(users["users"])),
-            title=faker.sentence(),
-            content=faker.text(max_nb_chars=500),
-            created_at=faker.date_time_this_year(),
+            title=post["title"],
+            content=post["content"],
+            created_at=created_at,
             updated_at=updated_at,
         )
         db.session.add(post)
@@ -176,14 +177,14 @@ def seed_posts(n=1000):
         users["posts"].append(post.post_id)
 
         for _ in range(faker.random_int(min=0, max=5)):
-            created_at = faker.date_time_this_year()
-            updated_at = created_at + timedelta(minutes=random.randint(0, 300))
+            comment_created_at = created_at + timedelta(minutes=random.randint(0, 300))
+            comment_updated_at = comment_created_at + timedelta(minutes=random.randint(0, 10))
             comment = Comment(
                 post_id=post.post_id,
                 user_id=faker.random_element(tuple(users["users"])),
                 content=faker.text(max_nb_chars=200),
-                created_at=created_at,
-                updated_at=updated_at,
+                created_at=comment_created_at,
+                updated_at=comment_updated_at,
             )
             db.session.add(comment)
             db.session.flush()
@@ -223,20 +224,21 @@ def seed_reports(n=1000):
     print("Reports done")
 
 def seed_medications(n=200):
-    for _ in range(n):
+    medications = generate_medications()
+    for medication in medications:
         medication = Medication(
-            name=faker.text(max_nb_chars=50),
-            description=faker.text(max_nb_chars=200),
+            name=medication["name"],
+            description=medication["description"],
         )
         db.session.add(medication)
         db.session.flush()
         users["medications"].append(medication.medication_id)
 
-        for _ in range(faker.random_int(min=0, max=10)):
+        for pharmacy_id in users["pharmacies"]:
             inventory = Inventory(
                 medication_id=medication.medication_id,
-                quantity=faker.random_int(min=1, max=10),
-                pharmacy_id=faker.random_element(tuple(users["pharmacies"])),
+                quantity=faker.random_int(min=1000, max=100000),
+                pharmacy_id=pharmacy_id,
                 expiration_date=faker.date_time_between(start_date=faker.date_time_this_year(), end_date=faker.date_time_this_year() + timedelta(days=365*2))
             )
             db.session.add(inventory)
@@ -340,11 +342,12 @@ def seed_exercises():
         db.session.add(exercise)
         db.session.flush()
         users["exercises"].append(exercise.exercise_id)
+    
     for patient_id in users["patients"]:
+        doctor_id = user_relationship[patient_id][0]
+        if not doctor_id:
+            continue
         for _ in range(faker.random_int(min=0, max=10)):
-            doctor_id = user_relationship[patient_id][0]
-            if not doctor_id:
-                continue
             patient_exercise = PatientExercise(
                 exercise_id=faker.random_element(tuple(users["exercises"])),
                 patient_id=patient_id,

@@ -285,13 +285,155 @@ def generate_exercises(count: int = 20, max_retries: int = 3) -> list[dict]:
                 f"Failed to parse JSON (error: {e})\n"
                 f"String was:\n{text}"
             )
-        if not (isinstance(exercises, list) and len(exercises) == count):
-            raise ValueError(
-                f"Expected a list of length {count}, got {type(exercises)} with length "
-                f"{len(exercises) if isinstance(exercises, list) else 'N/A'}:\n{exercises}"
-            )
         return exercises
     raise RuntimeError("Exhausted retries in generate_exercises")
 
+def generate_medications(count: int = 50, max_retries: int = 3) -> list[dict]:
+    system_msg = (
+        "You are a JSON-output assistant."
+        f"output only contains an array of {count} JSON objects"
+        "no yapping, no explanations, no extra text, no markdown fences. "
+        "using *double quotes* for all keys and strings, and no markdown fences. "
+        "where each key is medication name, description of the medication"
+    )
+    for attempt in range(1, max_retries + 1):
+        resp = client.chat.completions.create(
+            model="deepseek/deepseek-chat-v3-0324:free",
+            messages=[
+                {"role":"system", "content": system_msg},
+                {"role":"user",   "content": json.dumps({"count": count})}
+            ],
+            temperature=0.7,
+            stream=False,
+            response_format={
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "medication",
+                    "strict": True,
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "The name of the medicine"
+                            },
+                            "description": {
+                                "type": "string",
+                                "description": "A description of the medication"
+                            },
+                        }
+                    }
+                }
+            }
+        )
+        choice = resp.choices[0] if resp.choices else None
+        if choice and getattr(choice, "error", None):
+            err = choice.error
+            retryable = err.get("metadata", {}).get("raw", {}).get("retryable", False)
+            if attempt < max_retries and retryable:
+                continue
+            raise RuntimeError(f"DeepSeek error on attempt {attempt}: {err}")
+        raw = None
+        if choice and getattr(choice, "message", None):
+            raw = choice.message.content
+        elif choice and getattr(choice, "text", None):
+            raw = choice.text
+        if not raw:
+            raise RuntimeError(f"No content in response:\n{resp}")
+        text = raw.strip()
+        if text.startswith("```"):
+            lines = text.splitlines()
+        
+            if lines[0].startswith("```"):
+                lines = lines[1:]
+            if lines and lines[-1].endswith("```"):
+                lines = lines[:-1]
+            text = "\n".join(lines).strip()
+        if not text:
+            raise ValueError("DeepSeek returned an empty response.")
+        try:
+            medications = json.loads(text)
+        except json.JSONDecodeError as e:
+            raise ValueError(
+                f"Failed to parse JSON (error: {e})\n"
+                f"String was:\n{text}"
+            )
+        return medications
+    raise RuntimeError("Exhausted retries in generate_medications")
+
+def generate_social_media_posts(count: int = 80, max_retries: int = 3) -> list[dict]:
+    system_msg = (
+        "You are a JSON-output assistant."
+        f"output only contains an array of {count} JSON objects"
+        "no yapping, no explanations, no extra text, no markdown fences. "
+        "using *double quotes* for all keys and strings, and no markdown fences. "
+        "where each key is title, content and both should be medical related"
+    )
+    for attempt in range(1, max_retries + 1):
+        resp = client.chat.completions.create(
+            model="deepseek/deepseek-chat-v3-0324:free",
+            messages=[
+                {"role":"system", "content": system_msg},
+                {"role":"user",   "content": json.dumps({"count": count})}
+            ],
+            temperature=0.7,
+            stream=False,
+            response_format={
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "medical_social_media_post",
+                    "strict": True,
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "title": {
+                                "type": "string",
+                                "description": "The title of the post relating to medical field"
+                            },
+                            "content": {
+                                "type": "string",
+                                "description": "The content of the post relating to medical field"
+                            },
+                        }
+                    }
+                }
+            }
+        )
+        choice = resp.choices[0] if resp.choices else None
+        if choice and getattr(choice, "error", None):
+            err = choice.error
+            retryable = err.get("metadata", {}).get("raw", {}).get("retryable", False)
+            if attempt < max_retries and retryable:
+                continue
+            raise RuntimeError(f"DeepSeek error on attempt {attempt}: {err}")
+        raw = None
+        if choice and getattr(choice, "message", None):
+            raw = choice.message.content
+        elif choice and getattr(choice, "text", None):
+            raw = choice.text
+        if not raw:
+            raise RuntimeError(f"No content in response:\n{resp}")
+        text = raw.strip()
+        if text.startswith("```"):
+            lines = text.splitlines()
+        
+            if lines[0].startswith("```"):
+                lines = lines[1:]
+            if lines and lines[-1].endswith("```"):
+                lines = lines[:-1]
+            text = "\n".join(lines).strip()
+        if not text:
+            raise ValueError("DeepSeek returned an empty response.")
+        try:
+            posts = json.loads(text)
+        except json.JSONDecodeError as e:
+            raise ValueError(
+                f"Failed to parse JSON (error: {e})\n"
+                f"String was:\n{text}"
+            )
+        return posts
+    raise RuntimeError("Exhausted retries in generate_social_media_posts")
+
 if __name__ == "__main__":
-    print(generate_exercises())
+    print(generate_social_media_posts())
+
