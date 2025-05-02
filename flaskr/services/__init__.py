@@ -13,10 +13,12 @@ from .prescription_service import get_medications_by_prescription, get_prescript
 from .chat_service import get_current_chat, add_message
 from .social_media_service import get_all_posts, get_comments_of_post, delete_comment, delete_post, update_comment, update_post, create_comment, create_post
 from .doctor_service import all_doctors, doctor_details, total_patients, upcoming_appointments_count, pending_appointments_count, doctor_patients_count, todays_patient, doctor_rating_detail, last_completed_appointment, doctor_general_discussion, select_doctor, new_appointments_request, update_doctor
-from .pharmacy_service import get_all_pharmacy_patients, add_pt_rx
+from .pharmacy_service import get_all_pharmacy_patients, add_pt_rx, get_pharmacy_info
 from .patient_service import patient_info, patient_info, update_patient, patient_medical_history, create_medical_record, update_primary_pharmacy
 from .registration_service import add_user
 from .medication_service import medication_info
+from .user_service import get_user_info_by_id
+
 
 __all__ = [
     'user_id_credentials',
@@ -29,10 +31,11 @@ __all__ = [
     'get_current_chat', 'add_message', 
     'get_all_posts', 'get_comments_of_post', 'delete_comment', 'delete_post', 'update_comment', 'update_post', 'create_comment', 'create_post',
     'all_doctors', 'doctor_details', 'total_patients', 'upcoming_appointments_count', 'pending_appointments_count', 'doctor_patients_count', 'todays_patient', 'doctor_rating_detail', 'last_completed_appointment', 'doctor_general_discussion', 'select_doctor',
-    'get_all_pharmacy_patients',
+    'get_all_pharmacy_patients', 'get_pharmacy_info', 'add_pt_rx',
     'patient_info', 'update_patient','patient_medical_history', 'create_medical_record', 'update_primary_pharmacy',
     'add_user',
-    'medication_info'
+    'medication_info',
+    'get_user_info_by_id'
 ]
 
 # Depreciated
@@ -73,3 +76,4 @@ def USER_NOT_AUTHORIZED(uid: int|None=None) -> Response:
             'error': f'User with id {uid} does not have permission to this resource'
         }), 401
     return jsonify({'error': 'User does not have permission to this resource'}), 401
+   

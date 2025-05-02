@@ -1,0 +1,124 @@
+<<<<<<<< HEAD:flaskr/docs/patient_routes/get_patient_info_other_authenticated.yml
+Get patient info given user_id
+========
+Get info of a user given their ID
+>>>>>>>> b08581e7290607be100021f18a0a9782ba6ccd92:flaskr/docs/user_routes/get_user_info_by_id.yml
+---
+tags: 
+  - user
+parameters:
+  - name: user_id
+    in: path
+    type: integer
+    required: true
+    description: User ID (patient, doctor, or pharmacy)
+responses:
+  200:
+    description: Get all user info
+    schema:
+      type: object
+      properties:
+        address1:
+          type: string
+        address2:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zipcode:
+          type: string
+        country:
+          type: string
+        user_id:
+          type: integer
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        dob:
+          type: string
+          format: date-time
+        doctor:
+          type: object
+          properties:
+            first_name:
+              type: string
+            last_name:
+              type: string
+            specialization:
+              type: string
+            fee:
+              type: number
+              format: float
+            email:
+              type: string
+            phone:
+              type: string
+        pharmacy:
+          type: object
+          properties:
+            email:
+              type: integer
+            hours:
+              type: string
+            pharmacy_name:
+              type: string
+            phone:
+              type: string
+            address1:
+              type: string
+            address2:
+              type: string
+            city:
+              type: string
+            state:
+              type: string
+            country:
+              type: string
+            zipcode:
+              type: string
+    examples:
+      application/json:
+        user_id: 1
+        first_name: firstname
+        last_name: lastname
+        email: email@email.com
+        phone: 1112223333
+        dob: 2000-04-04T23:59:59Z
+        address1: 123 addr addr
+        address2: Fl 2
+        city: City
+        state: State
+        country: Country
+        zipcode: 01122
+        doctor:
+          first_name: docfname
+          last_name: doclname
+          specialization: blah blah blah
+          fee: 22.48
+        pharmacy:
+          pharmacy_name: pharmaname
+          email: pharrma_email@email.com
+          hours: 12:00am-12:00pm
+          phone: 1112223334
+          address1: 123 addr addr
+          address2: Fl 2
+          city: City
+          state: State
+          country: Country
+          zipcode: 01122
+  404:
+    description: user not found
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json: 
+        error: User not found

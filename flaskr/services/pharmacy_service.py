@@ -7,6 +7,7 @@ from flaskr.models import Prescription, Patient
 from flaskr.extensions import db
 from flaskr.tasks import send_rx
 
+from flaskr.models.user import Pharmacy
 
 def get_all_pharmacy_patients(pharmacy_id, new_request_time=datetime.now() - timedelta(hours=24)):
     rows = (
@@ -45,3 +46,9 @@ def add_pt_rx(pharmacy_id, patient_id, doctor_id, medications):
     except Exception as e:
         raise e
     return res.status
+def get_pharmacy_info(pharmacy_id):
+    pharmacy = Pharmacy.query.filter_by(user_id=pharmacy_id).first()
+    if not pharmacy:
+        return None
+
+    return pharmacy.to_dict()

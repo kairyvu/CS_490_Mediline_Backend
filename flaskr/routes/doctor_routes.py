@@ -11,7 +11,7 @@ from flaskr.services import select_doctor, all_doctors, doctor_details, total_pa
     doctor_general_discussion, new_appointments_request, update_doctor
 from sqlalchemy.exc import OperationalError, IntegrityError
 
-doctor_bp = Blueprint('doctor_bp', __name__, url_prefix='/doctors')
+doctor_bp = Blueprint('doctor_bp', __name__)
 
 ### ---PUBLIC ROUTES---
 @doctor_bp.route('/', methods=['GET'])
@@ -27,6 +27,27 @@ def get_doctor_by_id(doctor_id):
     if doctor:
         return jsonify(doctor), 200
     return jsonify({"error": "Doctor not found"}), 404
+@doctor_bp.route('/<int:doctor_id>/request', methods=['POST'])
+@swag_from('../docs/doctor_routes/request_doctor_by_id.yml')
+def request_doctor_by_id(doctor_id):
+    # Route to request a doctor as a patient
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No input data provided"}), 400
+    patient_id = data.get('patient_id')
+    if not patient_id:
+        return jsonify({"error": "patient id is required"}), 400
+    try:
+        select_doctor(doctor_id, patient_id)
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+    return jsonify({"message": "Doctor requested successfully"}), 200
+
+@doctor_bp.route('/<int:doctor_id>/total-patients', methods=['GET'])
+def total(doctor_id):
+    return jsonify({"total_patients": total_patients(doctor_id)}), 200
 
 @doctor_bp.route('/<int:doctor_id>/doctor-patients/count', methods=['GET'])
 @swag_from('../docs/doctor_routes/count_doctor_patients.yml')

@@ -13,6 +13,7 @@ from .patient_routes import patient_bp
 from .doctor_routes import doctor_bp
 from .pharmacy_routes import pharmacy_bp
 from .medication_routes import medication_bp
+from .user_routes import user_bp
 
 
 main_bp = Blueprint('main', __name__)
@@ -32,3 +33,4 @@ def register_routes(app: Flask):
     app.register_blueprint(register_bp, url_prefix='/register')
     app.register_blueprint(pharmacy_bp, url_prefix='/pharmacy')
     app.register_blueprint(medication_bp, url_prefix='/medication')
+    app.register_blueprint(user_bp, url_prefix='/user')

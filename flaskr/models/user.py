@@ -8,7 +8,7 @@ class User(db.Model):
     
     user_id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(512), nullable=False)
+    password = db.Column(db.String(128), nullable=False)
     address_id = db.Column(db.Integer, db.ForeignKey('address.address_id'))
 
     account_type = db.Column(db.Enum(AccountType), nullable=False)
@@ -78,7 +78,7 @@ class Doctor(db.Model):
     user = db.relationship('User', backref=db.backref('doctor', uselist=False))
 
     def to_dict(self):
-        return {
+        rtn = {
             "user_id": self.user_id,
             "first_name": self.first_name,
             "last_name": self.last_name,
@@ -91,7 +91,8 @@ class Doctor(db.Model):
             "dob": self.dob.isoformat() if self.dob else None,
             "license_id": self.license_id
         }
-    
+        rtn.update(self.user.address.to_dict())
+        return rtn
 class Pharmacy(db.Model):
     __tablename__ = 'pharmacy'
     
@@ -104,14 +105,15 @@ class Pharmacy(db.Model):
     user = db.relationship('User', backref=db.backref('pharmacy', uselist=False))
 
     def to_dict(self):
-        return {
+        rtn = {
             "user_id": self.user_id,
             "pharmacy_name": self.pharmacy_name,
             "phone": self.phone,
             "email": self.email,
             "hours": self.hours,
         }
-
+        rtn.update(self.user.address.to_dict())
+        return rtn
 
 class Patient(db.Model):
     __tablename__ = 'patient'

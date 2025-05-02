@@ -10,7 +10,7 @@ from sqlalchemy.exc import IntegrityError
 
 register_bp = Blueprint("register", __name__)
 
-@register_bp.route('/', methods=['POST'])
+@register_bp.route('/', methods=['POST'], strict_slashes=False)
 @swag_from('../docs/registration_routes/register.yml')
 def register():
     content_type = request.content_type.split(';')[0]
