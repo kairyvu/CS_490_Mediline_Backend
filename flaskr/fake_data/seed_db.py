@@ -8,7 +8,7 @@ from flaskr.struct import AccountType, ReportType, PaymentStatus, AppointmentSta
 from collections import defaultdict
 from flaskr.extensions import db
 from sqlalchemy import text
-from .deepseek_integration import generate_cities_for_countries, generate_addresses_for_cities, generate_doctor_profiles
+from .deepseek_integration import generate_cities_for_countries, generate_addresses_for_cities, generate_doctor_profiles, generate_exercises
 
 faker = Faker('en_US')
 users = defaultdict(list)
@@ -330,23 +330,23 @@ def seed_notifications(n=1000):
     db.session.commit()
     print("Notifications done")
 
-def seed_exercises(n=100):
-    for _ in range(n):
+def seed_exercises():
+    exercises = generate_exercises()
+    for exercise in exercises:
         exercise = ExerciseBank(
-            type_of_exercise=faker.unique.word(),
-            description=faker.text(max_nb_chars=200),
+            type_of_exercise=exercise["type_of_exercise"],
+            description=exercise["description"],
         )
         db.session.add(exercise)
         db.session.flush()
         users["exercises"].append(exercise.exercise_id)
-
+    for patient_id in users["patients"]:
         for _ in range(faker.random_int(min=0, max=10)):
-            patient_id = faker.random_element(tuple(users["patients"]))
             doctor_id = user_relationship[patient_id][0]
             if not doctor_id:
                 continue
             patient_exercise = PatientExercise(
-                exercise_id=exercise.exercise_id,
+                exercise_id=faker.random_element(tuple(users["exercises"])),
                 patient_id=patient_id,
                 doctor_id=doctor_id,
                 reps=faker.random_int(min=1, max=20),

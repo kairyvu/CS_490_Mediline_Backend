@@ -214,3 +214,84 @@ def generate_doctor_profiles(count: int = 20, max_retries: int = 3) -> list[dict
                 f"{len(profiles) if isinstance(profiles, list) else 'N/A'}:\n{profiles}"
             )
         return profiles
+    
+def generate_exercises(count: int = 20, max_retries: int = 3) -> list[dict]:
+    system_msg = (
+        "You are a JSON-output assistant."
+        f"output only contains an array of {count} JSON objects"
+        "no yapping, no explanations, no extra text, no markdown fences. "
+        "using *double quotes* for all keys and strings, and no markdown fences. "
+        "where each key is type_of_exercise, description"
+    )
+    for attempt in range(1, max_retries + 1):
+        resp = client.chat.completions.create(
+            model="deepseek/deepseek-chat-v3-0324:free",
+            messages=[
+                {"role":"system", "content": system_msg},
+                {"role":"user",   "content": json.dumps({"count": count})}
+            ],
+            temperature=0.7,
+            stream=False,
+            response_format={
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "exercise",
+                    "strict": True,
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "type_of_exercise": {
+                                "type": "string",
+                                "description": "A name of an exercise"
+                            },
+                            "description": {
+                                "type": "string",
+                                "description": "A description of the exercise"
+                            },
+                        }
+                    }
+                }
+            }
+        )
+        choice = resp.choices[0] if resp.choices else None
+        if choice and getattr(choice, "error", None):
+            err = choice.error
+            retryable = err.get("metadata", {}).get("raw", {}).get("retryable", False)
+            if attempt < max_retries and retryable:
+                continue
+            raise RuntimeError(f"DeepSeek error on attempt {attempt}: {err}")
+        raw = None
+        if choice and getattr(choice, "message", None):
+            raw = choice.message.content
+        elif choice and getattr(choice, "text", None):
+            raw = choice.text
+        if not raw:
+            raise RuntimeError(f"No content in response:\n{resp}")
+        text = raw.strip()  
+        if text.startswith("```"):
+            lines = text.splitlines()
+        
+            if lines[0].startswith("```"):
+                lines = lines[1:]
+            if lines and lines[-1].endswith("```"):
+                lines = lines[:-1]
+            text = "\n".join(lines).strip()
+        if not text:
+            raise ValueError("DeepSeek returned an empty response.")
+        try:
+            exercises = json.loads(text)
+        except json.JSONDecodeError as e:
+            raise ValueError(
+                f"Failed to parse JSON (error: {e})\n"
+                f"String was:\n{text}"
+            )
+        if not (isinstance(exercises, list) and len(exercises) == count):
+            raise ValueError(
+                f"Expected a list of length {count}, got {type(exercises)} with length "
+                f"{len(exercises) if isinstance(exercises, list) else 'N/A'}:\n{exercises}"
+            )
+        return exercises
+    raise RuntimeError("Exhausted retries in generate_exercises")
+
+if __name__ == "__main__":
+    print(generate_exercises())
