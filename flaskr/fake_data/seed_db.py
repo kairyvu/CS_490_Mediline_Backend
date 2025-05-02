@@ -55,7 +55,7 @@ def generate_pharmacy(user: User):
         user_id=user.user_id,
         pharmacy_name=faker.company(),
         phone=faker.basic_phone_number(),
-        email=user.email,
+        email=user.username,
         hours=faker.time_delta(),
     )
     db.session.add(pharmacy)
@@ -66,7 +66,7 @@ def generate_doctor(user: User, doctor_profile: dict):
         user_id=user.user_id,
         first_name=doctor_profile["first_name"],
         last_name=doctor_profile["last_name"],
-        email=user.email,
+        email=user.username,
         phone=faker.basic_phone_number(),
         specialization=doctor_profile["specialization"],
         bio=doctor_profile["bio"],
@@ -83,7 +83,7 @@ def generate_patient(user: User, doctor_id=None, pharmacy_id=None):
         user_id=user.user_id,
         first_name=faker.first_name(),
         last_name=faker.last_name(),
-        email=user.email,
+        email=user.username,
         phone=faker.basic_phone_number(),
         dob=faker.date_of_birth(minimum_age=18, maximum_age=65),
         doctor_id=doctor_id,
@@ -160,7 +160,7 @@ def seed_users(pharmacy_count=10, doctor_count=20, patient_count=500):
     db.session.commit()
     print("Users done")
 
-def seed_posts(n=80):
+def seed_posts(n=50):
     posts = generate_social_media_posts(n)
     for post in posts:
         created_at = faker.date_time_this_year()
@@ -192,7 +192,7 @@ def seed_posts(n=80):
     db.session.commit()
     print("Posts done")
 
-def seed_reports(n=1000):
+def seed_reports(n=300):
     for _, member in ReportType.__members__.items():
         report = Report(
             type=member,
@@ -225,10 +225,10 @@ def seed_reports(n=1000):
 
 def seed_medications(n=200):
     medications = generate_medications()
-    for medication in medications:
+    for med in medications:
         medication = Medication(
-            name=medication["name"],
-            description=medication["description"],
+            name=med["medication_name"],
+            description=med["medication_description"],
         )
         db.session.add(medication)
         db.session.flush()

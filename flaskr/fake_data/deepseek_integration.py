@@ -41,16 +41,18 @@ def generate_cities_for_countries(countries: list[str], min_count: int = 2, max_
             raise RuntimeError(f"No content returned by DeepSeek on attempt {attempt}:\n{resp}")
 
         text = raw.strip()
-        if text.startswith("```"):
-            lines = text.splitlines()
-            if lines[0].startswith("```"):
-                lines = lines[1:]
-            if lines and lines[-1].endswith("```"):
-                lines = lines[:-1]
-            text = "\n".join(lines).strip()
-
         if not text:
-            raise RuntimeError(f"DeepSeek returned an empty string for countries on attempt {attempt}.")
+            if attempt < max_retries:
+                continue
+            raise ValueError("DeepSeek returned an empty response.")
+        start = text.find('{')
+        end   = text.rfind('}')
+        if start != -1 and end != -1 and end > start:
+            text = text[start:end+1]
+        else:
+            if attempt < max_retries:
+                continue
+            raise ValueError(f"Could not locate JSON array in response on attempt {attempt}:\n{text}")
         try:
             data = json.loads(text)
         except json.JSONDecodeError as e:
@@ -105,15 +107,18 @@ def generate_addresses_for_cities(country: str, cities: list[str], min_address: 
                 f"No content found in response for {country}. Full response:\n{resp}"
             )
         text = raw.strip()
-        if text.startswith("```"):
-            lines = text.splitlines()
-            if lines[0].startswith("```"):
-                lines = lines[1:]
-            if lines and lines[-1].endswith("```"):
-                lines = lines[:-1]
-            text = "\n".join(lines).strip()
         if not text:
-            raise ValueError("Empty response from DeepSeek.")
+            if attempt < max_retries:
+                continue
+            raise ValueError("DeepSeek returned an empty response.")
+        start = text.find('{')
+        end   = text.rfind('}')
+        if start != -1 and end != -1 and end > start:
+            text = text[start:end+1]
+        else:
+            if attempt < max_retries:
+                continue
+            raise ValueError(f"Could not locate JSON array in response on attempt {attempt}:\n{text}")
         try:
             data = json.loads(text)
         except json.JSONDecodeError as e:
@@ -189,18 +194,18 @@ def generate_doctor_profiles(count: int = 20, max_retries: int = 3) -> list[dict
             raise RuntimeError(f"No content in response:\n{resp}")
 
         text = raw.strip()
-
-        if text.startswith("```"):
-            lines = text.splitlines()
-        
-            if lines[0].startswith("```"):
-                lines = lines[1:]
-            if lines and lines[-1].endswith("```"):
-                lines = lines[:-1]
-            text = "\n".join(lines).strip()
-
         if not text:
+            if attempt < max_retries:
+                continue
             raise ValueError("DeepSeek returned an empty response.")
+        start = text.find('[')
+        end   = text.rfind(']')
+        if start != -1 and end != -1 and end > start:
+            text = text[start:end+1]
+        else:
+            if attempt < max_retries:
+                continue
+            raise ValueError(f"Could not locate JSON array in response on attempt {attempt}:\n{text}")
         try:
             profiles = json.loads(text)
         except json.JSONDecodeError as e:
@@ -267,17 +272,19 @@ def generate_exercises(count: int = 20, max_retries: int = 3) -> list[dict]:
             raw = choice.text
         if not raw:
             raise RuntimeError(f"No content in response:\n{resp}")
-        text = raw.strip()  
-        if text.startswith("```"):
-            lines = text.splitlines()
-        
-            if lines[0].startswith("```"):
-                lines = lines[1:]
-            if lines and lines[-1].endswith("```"):
-                lines = lines[:-1]
-            text = "\n".join(lines).strip()
+        text = raw.strip()
         if not text:
+            if attempt < max_retries:
+                continue
             raise ValueError("DeepSeek returned an empty response.")
+        start = text.find('[')
+        end   = text.rfind(']')
+        if start != -1 and end != -1 and end > start:
+            text = text[start:end+1]
+        else:
+            if attempt < max_retries:
+                continue
+            raise ValueError(f"Could not locate JSON array in response on attempt {attempt}:\n{text}")
         try:
             exercises = json.loads(text)
         except json.JSONDecodeError as e:
@@ -294,7 +301,7 @@ def generate_medications(count: int = 50, max_retries: int = 3) -> list[dict]:
         f"output only contains an array of {count} JSON objects"
         "no yapping, no explanations, no extra text, no markdown fences. "
         "using *double quotes* for all keys and strings, and no markdown fences. "
-        "where each key is medication name, description of the medication"
+        "where each key is medication_name, medication_description"
     )
     for attempt in range(1, max_retries + 1):
         resp = client.chat.completions.create(
@@ -313,11 +320,11 @@ def generate_medications(count: int = 50, max_retries: int = 3) -> list[dict]:
                     "schema": {
                         "type": "object",
                         "properties": {
-                            "name": {
+                            "medication_name": {
                                 "type": "string",
                                 "description": "The name of the medicine"
                             },
-                            "description": {
+                            "medication_description": {
                                 "type": "string",
                                 "description": "A description of the medication"
                             },
@@ -341,16 +348,18 @@ def generate_medications(count: int = 50, max_retries: int = 3) -> list[dict]:
         if not raw:
             raise RuntimeError(f"No content in response:\n{resp}")
         text = raw.strip()
-        if text.startswith("```"):
-            lines = text.splitlines()
-        
-            if lines[0].startswith("```"):
-                lines = lines[1:]
-            if lines and lines[-1].endswith("```"):
-                lines = lines[:-1]
-            text = "\n".join(lines).strip()
         if not text:
+            if attempt < max_retries:
+                continue
             raise ValueError("DeepSeek returned an empty response.")
+        start = text.find('[')
+        end   = text.rfind(']')
+        if start != -1 and end != -1 and end > start:
+            text = text[start:end+1]
+        else:
+            if attempt < max_retries:
+                continue
+            raise ValueError(f"Could not locate JSON array in response on attempt {attempt}:\n{text}")
         try:
             medications = json.loads(text)
         except json.JSONDecodeError as e:
@@ -361,7 +370,7 @@ def generate_medications(count: int = 50, max_retries: int = 3) -> list[dict]:
         return medications
     raise RuntimeError("Exhausted retries in generate_medications")
 
-def generate_social_media_posts(count: int = 80, max_retries: int = 3) -> list[dict]:
+def generate_social_media_posts(count: int = 30, max_retries: int = 3) -> list[dict]:
     system_msg = (
         "You are a JSON-output assistant."
         f"output only contains an array of {count} JSON objects"
@@ -412,18 +421,22 @@ def generate_social_media_posts(count: int = 80, max_retries: int = 3) -> list[d
         elif choice and getattr(choice, "text", None):
             raw = choice.text
         if not raw:
+            if attempt < max_retries:
+                continue
             raise RuntimeError(f"No content in response:\n{resp}")
         text = raw.strip()
-        if text.startswith("```"):
-            lines = text.splitlines()
-        
-            if lines[0].startswith("```"):
-                lines = lines[1:]
-            if lines and lines[-1].endswith("```"):
-                lines = lines[:-1]
-            text = "\n".join(lines).strip()
         if not text:
+            if attempt < max_retries:
+                continue
             raise ValueError("DeepSeek returned an empty response.")
+        start = text.find('[')
+        end   = text.rfind(']')
+        if start != -1 and end != -1 and end > start:
+            text = text[start:end+1]
+        else:
+            if attempt < max_retries:
+                continue
+            raise ValueError(f"Could not locate JSON array in response on attempt {attempt}:\n{text}")
         try:
             posts = json.loads(text)
         except json.JSONDecodeError as e:
@@ -435,5 +448,4 @@ def generate_social_media_posts(count: int = 80, max_retries: int = 3) -> list[d
     raise RuntimeError("Exhausted retries in generate_social_media_posts")
 
 if __name__ == "__main__":
-    print(generate_social_media_posts())
-
+    print(generate_medications())
