@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from flaskr.services import get_invoices_by_user, update_invoice_status, assign_invoice_appoinmtnet
+from flaskr.services import get_invoices_by_user, update_invoice_status, assign_invoice_appoinmtnet, delete_invoice
 from flasgger import swag_from
 
 payment_bp = Blueprint("payment", __name__)
@@ -46,9 +46,15 @@ def assign_invoice():
         return jsonify({"error": "Missing Patient ID"}), 400
     if not appointment_id:
         return jsonify({"error": "Missing Appointment ID"}), 400
-    result = assign_invoice_appoinmtnet(doctor_id, appointment_id, patient_id)
 
+    return assign_invoice_appoinmtnet(doctor_id, appointment_id, patient_id)
+@payment_bp.route('/invoice/<int:invoice_id>', methods=['DELETE'])
+@swag_from('../docs/payment_routes/delete_invoice.yml')
+def delete_invoices(invoice_id):
+    data = request.get_json()
+    doctor_id = data.get('doctor_id')
+    
+    result = delete_invoice(doctor_id, invoice_id)
     if not result:
-        return jsonify({"error": "appointment not found"}), 404
-
+        return jsonify ({"error": "Invoice not found or not authorized"}), 404
     return jsonify(result), 200
