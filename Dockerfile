@@ -4,7 +4,8 @@ FROM python:3.13.3-bullseye
 
 COPY . .
 RUN pip3 install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+    pip install --no-cache-dir -r requirements.txt && \
+    make schema
 
 EXPOSE 8080
 
