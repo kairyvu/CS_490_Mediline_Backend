@@ -35,7 +35,7 @@ def generate_email() -> str:
     return email
 
 def generate_user(account_type: AccountType) -> User:
-    username = faker.user_name()
+    username = generate_email()
     while username in uniq_user:
         username = generate_email()
     uniq_user.add(username)
