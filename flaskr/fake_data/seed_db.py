@@ -8,7 +8,7 @@ from flaskr.struct import AccountType, ReportType, PaymentStatus, AppointmentSta
 from collections import defaultdict
 from flaskr.extensions import db
 from sqlalchemy import text
-from .deepseek_integration import generate_cities_for_countries, generate_addresses_for_cities, generate_doctor_profiles
+from .deepseek_integration import generate_cities_for_countries, generate_addresses_for_cities, generate_doctor_profiles, generate_exercises, generate_medications, generate_social_media_posts
 
 faker = Faker('en_US')
 users = defaultdict(list)
@@ -35,9 +35,9 @@ def generate_email() -> str:
     return email
 
 def generate_user(account_type: AccountType) -> User:
-    username = faker.user_name()
+    username = generate_email()
     while username in uniq_user:
-        username = faker.user_name()
+        username = generate_email()
     uniq_user.add(username)
     user = User(
         username=username,
@@ -55,7 +55,7 @@ def generate_pharmacy(user: User):
         user_id=user.user_id,
         pharmacy_name=faker.company(),
         phone=faker.basic_phone_number(),
-        email=generate_email(),
+        email=user.username,
         hours=faker.time_delta(),
     )
     db.session.add(pharmacy)
@@ -66,7 +66,7 @@ def generate_doctor(user: User, doctor_profile: dict):
         user_id=user.user_id,
         first_name=doctor_profile["first_name"],
         last_name=doctor_profile["last_name"],
-        email=generate_email(),
+        email=user.username,
         phone=faker.basic_phone_number(),
         specialization=doctor_profile["specialization"],
         bio=doctor_profile["bio"],
@@ -83,7 +83,7 @@ def generate_patient(user: User, doctor_id=None, pharmacy_id=None):
         user_id=user.user_id,
         first_name=faker.first_name(),
         last_name=faker.last_name(),
-        email=generate_email(),
+        email=user.username,
         phone=faker.basic_phone_number(),
         dob=faker.date_of_birth(minimum_age=18, maximum_age=65),
         doctor_id=doctor_id,
@@ -160,15 +160,16 @@ def seed_users(pharmacy_count=10, doctor_count=20, patient_count=500):
     db.session.commit()
     print("Users done")
 
-def seed_posts(n=1000):
-    for _ in range(n):
+def seed_posts(n=50):
+    posts = generate_social_media_posts(n)
+    for post in posts:
         created_at = faker.date_time_this_year()
         updated_at = created_at + timedelta(minutes=random.randint(0, 300))
         post = Post(
             user_id=faker.random_element(tuple(users["users"])),
-            title=faker.sentence(),
-            content=faker.text(max_nb_chars=500),
-            created_at=faker.date_time_this_year(),
+            title=post["title"],
+            content=post["content"],
+            created_at=created_at,
             updated_at=updated_at,
         )
         db.session.add(post)
@@ -176,14 +177,14 @@ def seed_posts(n=1000):
         users["posts"].append(post.post_id)
 
         for _ in range(faker.random_int(min=0, max=5)):
-            created_at = faker.date_time_this_year()
-            updated_at = created_at + timedelta(minutes=random.randint(0, 300))
+            comment_created_at = created_at + timedelta(minutes=random.randint(0, 300))
+            comment_updated_at = comment_created_at + timedelta(minutes=random.randint(0, 10))
             comment = Comment(
                 post_id=post.post_id,
                 user_id=faker.random_element(tuple(users["users"])),
                 content=faker.text(max_nb_chars=200),
-                created_at=created_at,
-                updated_at=updated_at,
+                created_at=comment_created_at,
+                updated_at=comment_updated_at,
             )
             db.session.add(comment)
             db.session.flush()
@@ -191,21 +192,22 @@ def seed_posts(n=1000):
     db.session.commit()
     print("Posts done")
 
-def seed_reports(n=1000):
-    for _ in range(n):
+def seed_reports(n=300):
+    for _, member in ReportType.__members__.items():
         report = Report(
-            type=faker.random_element([ReportType.DAILY, ReportType.WEEKLY, ReportType.MONTHLY]),
-            created_at=faker.date_time_this_year(),
+            type=member,
         )
         db.session.add(report)
         db.session.flush()
         users["reports"].append(report.report_id)
+
+    for _ in range(n):
         patient_id=faker.random_element(tuple(users["patients"]))
         doctor_id=user_relationship[patient_id][0]
 
         for _ in range(faker.random_int(min=0, max=5)):
             patient_report = PatientReport(
-                report_id=report.report_id,
+                report_id=faker.random_element(tuple(users["reports"])),
                 patient_id=patient_id,
                 doctor_id=doctor_id,
                 height=faker.random_number(digits=3, fix_len=False),
@@ -222,20 +224,21 @@ def seed_reports(n=1000):
     print("Reports done")
 
 def seed_medications(n=200):
-    for _ in range(n):
+    medications = generate_medications()
+    for med in medications:
         medication = Medication(
-            name=faker.text(max_nb_chars=50),
-            description=faker.text(max_nb_chars=200),
+            name=med["medication_name"],
+            description=med["medication_description"],
         )
         db.session.add(medication)
         db.session.flush()
         users["medications"].append(medication.medication_id)
 
-        for _ in range(faker.random_int(min=0, max=10)):
+        for pharmacy_id in users["pharmacies"]:
             inventory = Inventory(
                 medication_id=medication.medication_id,
-                quantity=faker.random_int(min=1, max=10),
-                pharmacy_id=faker.random_element(tuple(users["pharmacies"])),
+                quantity=faker.random_int(min=1000, max=100000),
+                pharmacy_id=pharmacy_id,
                 expiration_date=faker.date_time_between(start_date=faker.date_time_this_year(), end_date=faker.date_time_this_year() + timedelta(days=365*2))
             )
             db.session.add(inventory)
@@ -329,23 +332,24 @@ def seed_notifications(n=1000):
     db.session.commit()
     print("Notifications done")
 
-def seed_exercises(n=100):
-    for _ in range(n):
+def seed_exercises():
+    exercises = generate_exercises()
+    for exercise in exercises:
         exercise = ExerciseBank(
-            type_of_exercise=faker.unique.word(),
-            description=faker.text(max_nb_chars=200),
+            type_of_exercise=exercise["type_of_exercise"],
+            description=exercise["description"],
         )
         db.session.add(exercise)
         db.session.flush()
         users["exercises"].append(exercise.exercise_id)
-
+    
+    for patient_id in users["patients"]:
+        doctor_id = user_relationship[patient_id][0]
+        if not doctor_id:
+            continue
         for _ in range(faker.random_int(min=0, max=10)):
-            patient_id = faker.random_element(tuple(users["patients"]))
-            doctor_id = user_relationship[patient_id][0]
-            if not doctor_id:
-                continue
             patient_exercise = PatientExercise(
-                exercise_id=exercise.exercise_id,
+                exercise_id=faker.random_element(tuple(users["exercises"])),
                 patient_id=patient_id,
                 doctor_id=doctor_id,
                 reps=faker.random_int(min=1, max=20),
@@ -362,6 +366,7 @@ def seed_exercises(n=100):
     print("Exercises done")
 
 def seed_appointments(n=300):
+    treatments = ("Consultation", "Examination", "Diagnosis", "Prescription", "Referral", "Vaccination", "Counseling", "Screening", "Imaging", "Therapy")
     for _ in range(n):
         patient_id = faker.random_element(tuple(users["patients"]))
         doctor_id = user_relationship[patient_id][0]
@@ -390,7 +395,7 @@ def seed_appointments(n=300):
         )
         appointment_detail = AppointmentDetail(
             appointment_details_id=appointment.appointment_id,
-            treatment=faker.word(),
+            treatment=faker.random_element(treatments),
             start_date=start_date,
             end_date=end_date,
             status=status,
