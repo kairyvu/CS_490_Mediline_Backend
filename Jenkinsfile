@@ -1,8 +1,7 @@
 pipeline {
   agent {
     docker {
-      image 'kairyvu/mediline-ci:py3.13-make'
-      args '-u root:root'
+      dockerfile true
     }
   }
 
@@ -53,9 +52,6 @@ pipeline {
     }
     failure {
       echo "Build #${env.BUILD_NUMBER} failed."
-    }
-    always {
-      archiveArtifacts artifacts: 'reports/**/*.xml', allowEmptyArchive: true
     }
   }
 }
