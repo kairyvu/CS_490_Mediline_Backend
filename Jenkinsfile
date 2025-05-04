@@ -30,9 +30,7 @@ pipeline {
               . venv/bin/activate
               pip install --upgrade pip
               pip install -r requirements.txt
-              pytest tests --junitxml=reports/junit.xml
-              echo "=== REPORTS FOLDER CONTENTS ==="
-              ls -R reports
+              pytest tests
             '''
           }
         }
