@@ -1,10 +1,4 @@
 pipeline {
-  agent {
-    docker {
-      image 'python:3.13.3'
-      args  '-u root:root -v $WORKSPACE:/app'
-    }
-  }
 
   environment {
     VENV = "${WORKSPACE}/venv"
