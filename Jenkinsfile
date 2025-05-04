@@ -6,6 +6,7 @@ pipeline {
       steps {
         script {
           docker.image('kairyvu/mediline-ci:py3.13-make').inside {
+            sh 'mkdir -p reports'
             sh 'make venv'
             sh 'make install'
             sh 'pytest --junitxml=reports/junit.xml tests'
