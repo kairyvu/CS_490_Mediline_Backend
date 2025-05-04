@@ -1,9 +1,13 @@
 pipeline {
-  agent any
+  agent {
+    docker {
+      image 'python:3.13.3'
+      args  '-u root:root -v $WORKSPACE:/app'
+    }
+  }
 
   environment {
-    REGISTRY = 'docker.io/youruser'
-    IMAGE    = "${REGISTRY}/cs490-mediline-backend"
+    VENV = "${WORKSPACE}/venv"
   }
 
   stages {
@@ -13,47 +17,39 @@ pipeline {
       }
     }
 
-    stage('Install & Test') {
+    stage('Setup Virtualenv') {
       steps {
-        sh 'python -m venv .venv && . .venv/bin/activate'
-        sh 'pip install -r requirements.txt'
-        sh 'pytest tests'
+        sh 'make venv'
       }
     }
 
-    stage('Build Docker Image') {
+    stage('Install Dependencies') {
       steps {
-        script {
-          // tag with build number for traceability
-          dockerImage = docker.build("${IMAGE}:${env.BUILD_NUMBER}")
+        sh 'make install'
+      }
+    }
+
+    stage('Unit Tests') {
+      steps {
+        sh 'python -m pytest tests'
+      }
+      post {
+        always {
+          junit 'reports/junit.xml'
         }
-      }
-    }
-
-    stage('Publish Image') {
-      steps {
-        withCredentials([usernamePassword(
-          credentialsId: '6d06a70b-40d8-4fff-ba14-9e95aa00bb2b',
-          usernameVariable: 'DOCKERHUB_USER',
-          passwordVariable: 'DOCKERHUB_PASS'
-        )]) {
-          sh "echo \"$DOCKERHUB_PASS\" | docker login -u \"$DOCKERHUB_USER\" --password-stdin"
-          sh "docker push ${IMAGE}:${env.BUILD_NUMBER}"
-        }
-      }
-    }
-
-    stage('Deploy') {
-      steps {
-        // e.g. trigger a Kubernetes rollout or SSH-into-server script
-        sh './deploy.sh ${IMAGE}:${env.BUILD_NUMBER}'
       }
     }
   }
 
   post {
+    success {
+      echo "Build #${env.BUILD_NUMBER} succeeded!"
+    }
+    failure {
+      echo "Build #${env.BUILD_NUMBER} failed."
+    }
     always {
-      cleanWs()
+      archiveArtifacts artifacts: 'reports/**/*.xml', allowEmptyArchive: true
     }
   }
 }

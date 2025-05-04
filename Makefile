@@ -1,4 +1,4 @@
-.PHONY: install venv clean run schema fake deploy
+.PHONY: install venv clean run schema fake deploy test
 
 venv:
 	python -m venv venv
@@ -30,3 +30,6 @@ fake:
 
 deploy:
 	./entrypoint.sh
+
+test:
+	pytest tests
