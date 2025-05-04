@@ -14,15 +14,20 @@ pipeline {
       steps {
         script {
           withCredentials([file(credentialsId: 'gcp-service-account', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
-            docker.image('kairyvu/mediline-ci:py3.13-make').inside {
-              sh 'make clean'
-              sh 'make venv'
-              sh 'make install'
-              sh 'make test'
+            withCredentials([string(credentialsId: 'openai-api-key', variable: 'API_KEY')]) {
+              withEnv([
+                "DEEPSEEK_API_KEY=${API_KEY}",
+              ]) {
+                docker.image('kairyvu/mediline-ci:py3.13-make').inside {
+                  sh 'make clean'
+                  sh 'make venv'
+                  sh 'make install'
+                  sh 'make test'
+                }
+              }
             }
           }
         }
-      }
       post {
         always {
           junit 'reports/junit.xml'
