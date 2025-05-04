@@ -24,14 +24,10 @@ pipeline {
       steps {
         script {
           docker.image('kairyvu/mediline-ci:py3.13-make').inside {
-            sh '''
-              mkdir -p reports
-              python -m venv venv
-              . venv/bin/activate
-              pip install --upgrade pip
-              pip install -r requirements.txt
-              pytest tests
-            '''
+            sh 'make clean'
+            sh 'make venv'
+            sh 'make install'
+            sh 'make test'
           }
         }
       }
