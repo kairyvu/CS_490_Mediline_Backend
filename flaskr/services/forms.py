@@ -77,6 +77,9 @@ class PtRegForm(UserRegistrationForm):
     dob             =   DateField('Date of Birth', [
                             validators.InputRequired()
                         ])
+    gender          =   StringField('Gender', [
+                            validators.InputRequired()
+                        ])
 
 class DrRegForm(PtRegForm):
     specialization  =   StringField('Specialization', [

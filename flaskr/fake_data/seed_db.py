@@ -66,7 +66,7 @@ def generate_doctor(user: User, doctor_profile: dict):
         user_id=user.user_id,
         first_name=doctor_profile["first_name"],
         last_name=doctor_profile["last_name"],
-        gender=faker.random_element([Gender.MALE, Gender.FEMALE]),
+        gender=doctor_profile["gender"],
         email=user.username,
         phone=faker.basic_phone_number(),
         specialization=doctor_profile["specialization"],
