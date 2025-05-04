@@ -8,16 +8,14 @@ from flaskr.models import User, Patient, Doctor, Pharmacy
 from flaskr.models import Appointment, AppointmentDetail
 from flaskr.models import Chat, Message
 from flaskr.models import ExerciseBank, PatientExercise
-import os
 
 ## Unit test fixtures
 @pytest.fixture(scope='session')
 def app():
-    cfg = { "TESTING": True }
-    test_db = os.getenv("TEST_DATABASE_URL")
-    if test_db:
-        cfg["SQLALCHEMY_DATABASE_URI"] = test_db
-    app = create_app(cfg)
+    app = create_app({
+        "TESTING": True,
+        "SQLALCHEMY_DATABASE_URI": "sqlite:///tests.db"
+    })
 
     with app.app_context():
         yield app
