@@ -2,31 +2,19 @@ import os
 from flask_sqlalchemy import SQLAlchemy
 from flasgger import Swagger
 
-_connector = None
-def get_connector():
-    global _connector
-    if _connector is None:
-        from google.cloud.sql.connector import Connector, IPTypes
+class CloudSqlConnector:
+    def __init__(self):
+        self._connector = None
 
-        ip_type = IPTypes.PRIVATE if os.environ.get("PRIVATE_IP") else IPTypes.PUBLIC
-        _connector = Connector(ip_type=ip_type, refresh_strategy="LAZY")
-    return _connector
-
-def getconn():
-    connector = get_connector()
-    instance_conn_name = os.getenv("INSTANCE_CONNECTION_NAME")
-    db_name            = os.getenv("DB_NAME")
-
-    def creator():
-        return connector.connect(
-            instance_conn_name,
-            "pymysql",
-            user=os.getenv("DB_IAM_USER"),
-            enable_iam_auth=True,
-            db=db_name,
-        )
-
-    return creator
+    def connect(self, instance_connection_name, driver, **kwargs):
+        if self._connector is None:
+            from google.cloud.sql.connector import Connector
+            ip_type = os.getenv("DB_IP_TYPE", "PUBLIC_IP")
+            self._connector = Connector(
+                ip_type=ip_type,
+                refresh_strategy="LAZY"
+            )
+        return self._connector.connect(instance_connection_name, driver, **kwargs)
 
 db = SQLAlchemy()
 swag = Swagger(

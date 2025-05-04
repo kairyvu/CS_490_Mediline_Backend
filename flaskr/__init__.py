@@ -39,11 +39,20 @@ def create_app(config_mapping: dict|None=None):
         app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
     else:
         # Production on gcloud
-        from flaskr.extensions import getconn
-        app.config["SQLALCHEMY_DATABASE_URI"]    = "mysql+pymysql://"
-        app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-            "creator": getconn()
-        }
+        from flaskr.extensions import CloudSqlConnector
+        from pymysql.connections import Connection
+        instance_conn_name = os.getenv("INSTANCE_CONNECTION_NAME")
+        def getconn() -> Connection:
+            conn: Connection = CloudSqlConnector.connect(
+                instance_conn_name,
+                'pymysql',
+                user=os.getenv("DB_IAM_USER"),
+                enable_iam_auth=True,
+                db=database
+            )
+            return conn
+        app.config['SQLALCHEMY_ENGINE_OPTIONS'] = { "creator": getconn }
+        app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
                                             
     app.config['SWAGGER'] = { 'doc_dir': './docs/' }
 
