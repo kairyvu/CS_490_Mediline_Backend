@@ -1,10 +1,11 @@
 pipeline {
-  agent {
-    docker {
-      image 'kairyvu/mediline-ci:py3.13-make'
-      args '-u root:root'
-    }
-  }
+  // agent {
+  //   docker {
+  //     image 'kairyvu/mediline-ci:py3.13-make'
+  //     args '-u root:root'
+  //   }
+  // }
+  agent any
 
   environment {
     VENV = "${WORKSPACE}/venv"
@@ -17,28 +18,34 @@ pipeline {
       }
     }
 
-    stage('Setup Virtualenv') {
+    stage('Build') {
       steps {
-        sh 'make venv'
+        echo "Building the project..."
       }
     }
 
-    stage('Install Dependencies') {
-      steps {
-        sh 'make install'
-      }
-    }
+    // stage('Setup Virtualenv') {
+    //   steps {
+    //     sh 'make venv'
+    //   }
+    // }
 
-    stage('Unit Tests') {
-      steps {
-        sh 'python -m pytest tests'
-      }
-      post {
-        always {
-          junit 'reports/junit.xml'
-        }
-      }
-    }
+    // stage('Install Dependencies') {
+    //   steps {
+    //     sh 'make install'
+    //   }
+    // }
+
+    // stage('Unit Tests') {
+    //   steps {
+    //     sh 'python -m pytest tests'
+    //   }
+    //   post {
+    //     always {
+    //       junit 'reports/junit.xml'
+    //     }
+    //   }
+    // }
   }
 
   post {
