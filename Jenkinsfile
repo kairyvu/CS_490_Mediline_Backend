@@ -1,9 +1,5 @@
 pipeline {
   agent any
-  
-  options {
-    buildDiscarder(logRotator(numToKeepStr: '10', daysToKeepStr: '7'))
-  }
 
   stages {
     stage('Checkout') {
@@ -11,12 +7,6 @@ pipeline {
         script {
           checkout scm
         }
-      }
-    }
-
-    stage('Clean Workspace') {
-      steps {
-        cleanWs()
       }
     }
 
