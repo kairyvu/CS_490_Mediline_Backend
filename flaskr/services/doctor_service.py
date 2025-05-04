@@ -2,14 +2,25 @@ from flaskr.models import Doctor, Patient, Appointment, AppointmentDetail, Ratin
 from flaskr.extensions import db
 from datetime import date, datetime
 
-def all_doctors():
-    doctors = Doctor.query.with_entities(
-        Doctor.user_id,
-        Doctor.first_name,
-        Doctor.last_name,
-        Doctor.specialization
-    ).all()
+def all_doctors(sort_by='user_id', order='asc'):
+    if not hasattr(Doctor, sort_by):
+        raise ValueError(f"Invalid sort field: {sort_by}")
+    column = getattr(Doctor, sort_by)
 
+    if order == 'desc':
+        column = column.desc()
+
+    doctors = (
+        Doctor.query
+        .with_entities(
+            Doctor.user_id,
+            Doctor.first_name,
+            Doctor.last_name,
+            Doctor.specialization
+        )
+        .order_by(column)
+        .all()
+    )
     return [
         {
             "user_id": doc.user_id,
