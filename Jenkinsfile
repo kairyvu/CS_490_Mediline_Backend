@@ -1,7 +1,7 @@
 pipeline {
   agent {
     docker {
-      image 'yourdockerhubuser/mediline-ci:py3.13-make'
+      image 'kairyvu/mediline-ci:py3.13-make'
       args '-u root:root'
     }
   }
