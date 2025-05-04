@@ -14,11 +14,12 @@ pipeline {
       steps {
         script {
           withCredentials([file(credentialsId: 'gcp-service-account', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
-          docker.image('kairyvu/mediline-ci:py3.13-make').inside {
-            sh 'make clean'
-            sh 'make venv'
-            sh 'make install'
-            sh 'make test'
+            docker.image('kairyvu/mediline-ci:py3.13-make').inside {
+              sh 'make clean'
+              sh 'make venv'
+              sh 'make install'
+              sh 'make test'
+            }
           }
         }
       }
