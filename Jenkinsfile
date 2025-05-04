@@ -1,11 +1,10 @@
 pipeline {
-  // agent {
-  //   docker {
-  //     image 'kairyvu/mediline-ci:py3.13-make'
-  //     args '-u root:root'
-  //   }
-  // }
-  agent any
+  agent {
+    docker {
+      image 'kairyvu/mediline-ci:py3.13-make'
+      args '-u root:root'
+    }
+  }
 
   environment {
     VENV = "${WORKSPACE}/venv"
@@ -24,11 +23,11 @@ pipeline {
       }
     }
 
-    // stage('Setup Virtualenv') {
-    //   steps {
-    //     sh 'make venv'
-    //   }
-    // }
+    stage('Setup Virtualenv') {
+      steps {
+        sh 'make venv'
+      }
+    }
 
     // stage('Install Dependencies') {
     //   steps {
