@@ -1,5 +1,10 @@
 pipeline {
-  agent any
+  agent {
+    docker {
+      image 'yourdockerhubuser/mediline-ci:py3.13-make'
+      args '-u root:root'
+    }
+  }
 
   environment {
     VENV = "${WORKSPACE}/venv"
