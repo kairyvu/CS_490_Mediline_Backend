@@ -1,55 +1,28 @@
 pipeline {
-  agent {
-    dockerfile true
-  }
-
-  environment {
-    VENV = "${WORKSPACE}/venv"
-  }
+  agent any
 
   stages {
-    stage('Checkout') {
+    stage('Build & Test in Docker') {
       steps {
-        checkout scm
+        script {
+          docker.image('kairyvu/mediline-ci:py3.13-make').inside {
+            sh 'make venv'
+            sh 'make install'
+            sh 'pytest --junitxml=reports/junit.xml tests'
+          }
+        }
+      }
+      post {
+        always {
+          junit 'reports/junit.xml'
+        }
       }
     }
-
-    stage('Build') {
-      steps {
-        echo "Building the project..."
-      }
-    }
-
-    stage('Setup Virtualenv') {
-      steps {
-        sh 'make venv'
-      }
-    }
-
-    // stage('Install Dependencies') {
-    //   steps {
-    //     sh 'make install'
-    //   }
-    // }
-
-    // stage('Unit Tests') {
-    //   steps {
-    //     sh 'python -m pytest tests'
-    //   }
-    //   post {
-    //     always {
-    //       junit 'reports/junit.xml'
-    //     }
-    //   }
-    // }
   }
 
   post {
-    success {
-      echo "Build #${env.BUILD_NUMBER} succeeded!"
-    }
-    failure {
-      echo "Build #${env.BUILD_NUMBER} failed."
+    always {
+      echo "Finished build #${env.BUILD_NUMBER}"
     }
   }
 }
