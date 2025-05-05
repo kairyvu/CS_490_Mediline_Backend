@@ -1,0 +1,43 @@
+Add a request
+---
+tags:
+  - request
+parameters:
+  - name: request
+    in: body
+    required: true
+    description: Request details
+    schema:
+      properties:
+        doctor_id:
+          type: integer
+        patient_id:
+          type: integer
+responses:
+  201:
+    description: Created a request successfully
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+        request_id:
+          type: integer
+    examples:
+      application/json:
+        message: Request created successfully
+        request_id: 1
+  400:
+    description: Invalid request creation
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          enum:
+            - "No input data provided"
+            - "doctor_id and patient_id are required."
+            - "User not found as either patient or doctor"
+    examples:
+      application/json:
+        error: doctor_id and patient_id are required.
