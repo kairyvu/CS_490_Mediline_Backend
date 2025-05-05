@@ -8,6 +8,19 @@ parameters:
     type: integer
     required: true
     description: Request ID to delete
+  - name: status
+    in: body
+    schema:
+      properties:
+        status:
+          type: string
+          enum:
+            - accepted
+            - rejected
+          description: Status of the request
+          example: accepted
+    description: Status of the request
+    required: true
 responses:
   200:
     description: Deleted a request successfully

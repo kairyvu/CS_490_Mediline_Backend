@@ -8,7 +8,7 @@ from .chat_service import get_current_chat, add_message
 from .social_media_service import get_all_posts, get_comments_of_post
 from .doctor_service import all_doctors, doctor_details, total_patients, upcoming_appointments_count, pending_appointments_count, doctor_patients_count, todays_patient, doctor_rating_detail, last_completed_appointment, doctor_general_discussion, select_doctor
 from .pharmacy_service import get_all_pharmacy_patients, get_pharmacy_info
-from .patient_service import get_patient_info, update_patient
+from .patient_service import get_patient_info, update_patient, update_doctor_by_patient_id
 from .registration_service import add_user
 from .user_service import get_user_info_by_id
 from .request_service import add_patient_request, delete_patient_request, get_patient_requests_by_doctor_id
@@ -26,7 +26,7 @@ __all__ = [
     'get_all_posts', 'get_comments_of_post',
     'all_doctors', 'doctor_details', 'total_patients', 'upcoming_appointments_count', 'pending_appointments_count', 'doctor_patients_count', 'todays_patient', 'doctor_rating_detail', 'last_completed_appointment', 'doctor_general_discussion', 'select_doctor',
     'get_all_pharmacy_patients', 'get_pharmacy_info',
-    'get_patient_info', 'update_patient',
+    'get_patient_info', 'update_patient', 'update_doctor_by_patient_id',
     'add_user',
     'get_user_info_by_id',
     'add_patient_request', 'delete_patient_request', 'get_patient_requests_by_doctor_id'
