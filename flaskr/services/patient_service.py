@@ -2,6 +2,7 @@ from werkzeug.datastructures import ImmutableMultiDict
 from sqlalchemy import select, update
 from flaskr.models import Patient, Doctor, Pharmacy, User, Address, City, Country
 from flaskr.extensions import db
+from flaskr.struct import Gender
 from .forms import UserRegistrationForm
 
 from sqlalchemy.exc import OperationalError, IntegrityError
@@ -18,12 +19,14 @@ def get_patient_info(user_id):
         "user_id": patient.user_id,
         "first_name": patient.first_name,
         "last_name": patient.last_name,
+        "gender": patient.gender.value if isinstance(patient.gender, Gender) else patient.gender,
         "email": patient.email,
         "phone": patient.phone,
         "dob": str(patient.dob),
         "doctor": {
             "first_name": doctor.first_name,
             "last_name": doctor.last_name,
+            "gender": doctor.gender.value if isinstance(doctor.gender, Gender) else doctor.gender,
             "specialization": doctor.specialization,
             "fee" : doctor.fee,
             "phone": doctor.phone,

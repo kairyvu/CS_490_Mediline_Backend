@@ -1,5 +1,5 @@
 from flaskr.extensions import db
-from flaskr.struct import AccountType
+from flaskr.struct import AccountType, Gender
 
 class User(db.Model):
     __tablename__ = 'user'
@@ -41,6 +41,7 @@ class Doctor(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), primary_key=True)
     first_name = db.Column(db.String(80), nullable=False)
     last_name = db.Column(db.String(80), nullable=False)
+    gender = db.Column(db.Enum(Gender), nullable=False) 
     email = db.Column(db.String(120), unique=True, nullable=False)
     phone = db.Column(db.String(50), nullable=False)
     specialization = db.Column(db.String(80), nullable=False)
@@ -58,6 +59,7 @@ class Doctor(db.Model):
             "user_id": self.user_id,
             "first_name": self.first_name,
             "last_name": self.last_name,
+            "gender": self.gender.value if isinstance(self.gender, Gender) else self.gender,
             "email": self.email,
             "phone": self.phone,
             "specialization": self.specialization,
@@ -97,6 +99,7 @@ class Patient(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), primary_key=True)
     first_name = db.Column(db.String(80), nullable=False)
     last_name = db.Column(db.String(80), nullable=False)
+    gender = db.Column(db.Enum(Gender), nullable=False)
     dob = db.Column(db.Date, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     phone = db.Column(db.String(50), nullable=False)
@@ -112,6 +115,7 @@ class Patient(db.Model):
             "user_id": self.user_id,
             "first_name": self.first_name,
             "last_name": self.last_name,
+            "gender": self.gender.value if isinstance(self.gender, Gender) else self.gender,
             "dob": self.dob.isoformat() if self.dob else None,
             "email": self.email,
             "phone": self.phone,
