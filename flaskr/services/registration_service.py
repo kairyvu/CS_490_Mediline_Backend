@@ -94,6 +94,7 @@ def add_patient(pt_info: ImmutableMultiDict, user_obj: User) -> Response:
     new_patient = Patient(
         first_name=patient.first_name.data,
         last_name=patient.last_name.data,
+        gender=patient.gender.data,
         dob=patient.dob.data,
         email=patient.email.data,
         phone=patient.phone.data,
