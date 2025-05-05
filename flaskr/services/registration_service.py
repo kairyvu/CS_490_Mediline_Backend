@@ -118,6 +118,7 @@ def add_doctor(dr_info: ImmutableMultiDict, user_obj: User) -> Response:
     new_doctor = Doctor(
         first_name=doctor.first_name.data,
         last_name=doctor.last_name.data,
+        gender=doctor.gender.data,
         dob=doctor.dob.data,
         email=doctor.email.data,
         phone=doctor.phone.data,

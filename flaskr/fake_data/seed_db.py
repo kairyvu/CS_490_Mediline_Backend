@@ -4,7 +4,7 @@ from faker import Faker
 from flaskr.models import User, Patient, Doctor, Pharmacy, SuperUser, Post, Comment, Report, PatientReport, RatingSurvey, Invoice, Notification, MedicalRecord, Prescription, PrescriptionMedication, Medication, Inventory, ExerciseBank, PatientExercise, Chat, Message, Appointment, AppointmentDetail, Address, City, Country
 import contextlib
 from sqlalchemy import MetaData
-from flaskr.struct import AccountType, ReportType, PaymentStatus, AppointmentStatus, ExerciseStatus, PrescriptionStatus
+from flaskr.struct import AccountType, ReportType, PaymentStatus, AppointmentStatus, ExerciseStatus, PrescriptionStatus, Gender
 from collections import defaultdict
 from flaskr.extensions import db
 from sqlalchemy import text
@@ -66,6 +66,7 @@ def generate_doctor(user: User, doctor_profile: dict):
         user_id=user.user_id,
         first_name=doctor_profile["first_name"],
         last_name=doctor_profile["last_name"],
+        gender=doctor_profile["gender"],
         email=user.username,
         phone=faker.basic_phone_number(),
         specialization=doctor_profile["specialization"],
@@ -83,6 +84,7 @@ def generate_patient(user: User, doctor_id=None, pharmacy_id=None):
         user_id=user.user_id,
         first_name=faker.first_name(),
         last_name=faker.last_name(),
+        gender=faker.random_element([Gender.MALE, Gender.FEMALE]),
         email=user.username,
         phone=faker.basic_phone_number(),
         dob=faker.date_of_birth(minimum_age=18, maximum_age=65),

@@ -2,19 +2,23 @@ from flaskr.models import Doctor, Patient, Appointment, AppointmentDetail, Ratin
 from flaskr.extensions import db
 from datetime import date, datetime
 
+from flaskr.struct import Gender
+
 def all_doctors():
     doctors = Doctor.query.with_entities(
         Doctor.user_id,
         Doctor.first_name,
         Doctor.last_name,
-        Doctor.specialization
+        Doctor.specialization,
+        Doctor.gender,
     ).all()
 
     return [
         {
             "user_id": doc.user_id,
             "name": f"{doc.first_name} {doc.last_name}",
-            "specialization": doc.specialization
+            "specialization": doc.specialization,
+            "gender": doc.gender.value if isinstance(doc.gender, Gender) else doc.gender,
         }
         for doc in doctors
     ]
@@ -56,6 +60,7 @@ def todays_patient(doctor_id, date):
             result.append({
                 "first_name": patient.first_name,
                 "last_name": patient.last_name,
+                "gender": patient.gender.value if isinstance(patient.gender, Gender) else patient.gender,
                 "visit_time": detail.start_date.strftime("%I:%M %p"),
                 "dob": patient.dob,
                 "treatment": detail.treatment,
@@ -117,6 +122,7 @@ def last_completed_appointment(patient_id, doctor_id):
             "dob": patient.dob,
             "first_name": patient.first_name,
             "last_name": patient.last_name,
+            "gender": patient.gender.value if isinstance(patient.gender, Gender) else patient.gender,
             "age": age,
             "phone": patient.phone
         }

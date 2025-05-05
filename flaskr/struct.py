@@ -28,3 +28,7 @@ class ExerciseStatus(enum.Enum):
 class PrescriptionStatus(enum.Enum):
     PAID = 'paid'
     UNPAID = 'unpaid'
+
+class Gender(enum.Enum):
+    MALE = 'male'
+    FEMALE = 'female'
