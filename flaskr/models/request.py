@@ -6,7 +6,7 @@ class PatientRequest(db.Model):
     request_id = db.Column(db.Integer, primary_key=True)
     doctor_id = db.Column(db.Integer, db.ForeignKey('doctor'), nullable=False)
     patient_id = db.Column(db.Integer, db.ForeignKey('patient'), nullable=False)
-    request_date = db.Column(db.DateTime, nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
 
     patient = db.relationship('Patient', backref=db.backref('requests', lazy=True))
     doctor = db.relationship('Doctor', backref=db.backref('requests', lazy=True))

@@ -192,3 +192,15 @@ def update_patient(user_id, updates: dict) -> dict:
     except IntegrityError as e:
         raise e
     return {"message": "Patient updated successfully"}
+
+# This function is restricted to use directly
+def update_doctor_by_patient_id(patient_id, doctor_id):
+    doctor = Doctor.query.filter_by(user_id=doctor_id).first()
+    if not doctor:
+        raise ValueError(f'Doctor with id {doctor_id} not found')
+    patient = Patient.query.filter_by(user_id=patient_id).first()
+    if not patient:
+        raise ValueError(f'Patient with id {patient_id} not found')
+    patient.doctor_id = doctor_id
+    db.session.commit()
+    return patient.to_dict()

@@ -10,6 +10,7 @@ from .exercise import ExerciseBank, PatientExercise
 from .chat import Chat, Message
 from .audit import UserAudit, PatientAudit, DoctorAudit, AppointmentAudit
 from .appointment import Appointment, AppointmentDetail
+from .request import PatientRequest
 
 
 __all__ = ['Address', 'City', 'Country',
@@ -20,4 +21,6 @@ __all__ = ['Address', 'City', 'Country',
            'PrescriptionMedication', 'Medication', 'Inventory',
            'ExerciseBank', 'PatientExercise', 'Chat', 'Message',
            'UserAudit', 'PatientAudit', 'DoctorAudit', 'AppointmentAudit',
-           'Appointment', 'AppointmentDetail']
+           'Appointment', 'AppointmentDetail',
+           'PatientRequest'
+           ]
