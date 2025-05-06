@@ -15,6 +15,7 @@ jobs:
           command: |
             echo "$GCLOUD_SERVICE_KEY" > ${HOME}/gcloud-key.json
             export GOOGLE_APPLICATION_CREDENTIALS=${HOME}/gcloud-key.json
+            gcloud auth activate-service-account --key-file=${HOME}/gcloud-key.json
       - run:
           name: Run tests
           command: pytest --junitxml=junit.xml || ((($? == 5)) && echo 'Did not find any tests to run.')
@@ -31,9 +32,3 @@ workflows:
   build-and-test:
     jobs:
       - test-python
-      - deploy:
-          requires:
-            - test-python
-          filters:
-            branches:
-              only: circleci_project_setuo
