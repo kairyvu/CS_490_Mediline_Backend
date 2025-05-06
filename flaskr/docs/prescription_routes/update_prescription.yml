@@ -1,0 +1,94 @@
+update_prescription
+---
+tags:
+  - prescription
+parameters:
+  - name: prescription_id
+    in: path
+    type: integer
+    required: true
+    description: Prescription ID
+  - name: status
+    in: body
+    type: JSON
+    properties:
+      status:
+        type: string
+        enum:
+          - paid
+          - unpaid
+    required: true
+    description: Status to be updated
+responses:
+  200:
+    description: Prescription updated successfully
+    schema:
+      type: object
+      properties:
+        prescription_id:
+          type: integer
+        amount:
+          type: number
+          format: float
+        status:
+          type: string
+          enum:
+            - paid
+            - unpaid
+        doctor_id:
+          type: integer
+        doctor_name:
+          type: string
+        patient_id:
+          type: integer
+        patient_name:
+          type: string
+        pharmacy_id:
+          type: integer
+        pharmacy_name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+    examples:
+      application/json:
+        prescription_id: 1
+        amount: 100.50
+        status: paid
+        created_at: "2023-10-01T12:00:00Z"
+        doctor_id: 1
+        doctor_name: "Dr. John Doe"
+        patient_id: 1
+        patient_name: "Jane Smith"
+        pharmacy_id: 1
+        pharmacy_name: "Pharmacy A"
+  400:
+    description: Invalid input
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json:
+        error: "Invalid prescription ID"
+  404:
+    description: Prescription not found
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json:
+        error: "Prescription not found"
+  500:
+    description: Internal server error
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json:
+        error: "Internal server error"

@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from flaskr.services import get_medications_by_prescription, get_prescriptions, get_prescription_count_by_pharmacy, get_pharmacy_medications_inventory, get_medications_history_by_patient
+from flaskr.services import get_medications_by_prescription, get_prescriptions, get_prescription_count_by_pharmacy, get_pharmacy_medications_inventory, get_medications_history_by_patient, update_prescription_status
 from flasgger import swag_from
 
 prescription_bp = Blueprint("prescription", __name__)
@@ -58,3 +58,18 @@ def get_medications_history(patient_id):
         return jsonify({'error': str(e)}), 404
     except Exception as e:
         return jsonify({'error': 'An error occurred while fetching the medications history'}), 500
+
+@prescription_bp.route('/<int:prescription_id>', methods=['PATCH'])
+@swag_from('../docs/prescription_routes/update_prescription.yml')
+def update_prescription(prescription_id):
+    data = request.get_json()
+    status = data.get('status')
+    try:
+        if not status:
+            return jsonify({'error': 'Status is required'}), 400
+        updated_prescription = update_prescription_status(prescription_id, status)
+        return jsonify(updated_prescription), 200
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 404
+    except Exception as e:
+        return jsonify({'error': 'An error occurred while updating the prescription'}), 500
