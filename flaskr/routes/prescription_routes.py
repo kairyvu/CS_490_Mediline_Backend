@@ -60,7 +60,7 @@ def get_medications_history(patient_id):
         return jsonify({'error': 'An error occurred while fetching the medications history'}), 500
 
 @prescription_bp.route('/<int:prescription_id>', methods=['PATCH'])
-@swag_from('../docs/prescription_routes/update_prescription_status.yml')
+@swag_from('../docs/prescription_routes/update_prescription.yml')
 def update_prescription(prescription_id):
     data = request.get_json()
     status = data.get('status')
