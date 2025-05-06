@@ -12,11 +12,7 @@ jobs:
       - python/install-packages
       - run:
           name: Set up Google Cloud credentials
-          command: |
-            echo "$GCLOUD_SERVICE_KEY" > /home/circleci/gcloud-key.json
-      - run:
-          name: Debug DEEPSEEK_API_KEY
-          command: echo "Key set? ${DEEPSEEK_API_KEY:+yes}"
+          command: echo "$GCLOUD_SERVICE_KEY" > ${HOME}/gcloud-key.json export GOOGLE_APPLICATION_CREDENTIALS=${HOME}/gcloud-key.json
       - run:
           name: Run tests
           command: pytest --junitxml=junit.xml || ((($? == 5)) && echo 'Did not find any tests to run.')
