@@ -5,7 +5,7 @@ from flasgger import swag_from
 medical_record_bp = Blueprint('medical_record', __name__)
 
 @medical_record_bp.route('/<int:user_id>', methods=['GET'])
-# @swag_from('../docs/medical_record_routes/get_medical_records.yml')
+@swag_from('../docs/medical_record_routes/get_medical_records.yml')
 def get_medical_records(user_id):
     try:
         medical_records = get_medical_records_by_user(user_id=user_id)
