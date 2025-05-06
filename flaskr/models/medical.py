@@ -5,11 +5,32 @@ class MedicalRecord(db.Model):
     __tablename__ = 'medical_record'
 
     medical_record_id = db.Column(db.Integer, primary_key=True)
-    patient_id = db.Column(db.Integer, db.ForeignKey('patient.user_id'), nullable=False)
+    appointment_id = db.Column(db.Integer, db.ForeignKey('appointment.appointment_id'), nullable=False)
     description = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
-    patient = db.relationship('Patient', backref=db.backref('medical_records', lazy=True))
+    appointment = db.relationship('Appointment', backref=db.backref('medical_records', lazy=True))
+    
+    def to_dict(self):
+        result = {
+            'medical_record_id': self.medical_record_id,
+            'description': self.description,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+        }
+
+        if self.appointment:
+            appt = self.appointment
+            appt_dict = {
+                'appointment_id': appt.appointment_id,
+                'doctor_id': appt.doctor_id,
+                'patient_id': appt.patient_id,
+                'doctor_name': f"{appt.doctor.first_name} {appt.doctor.last_name}" if appt.doctor else None,
+                'patient_name': f"{appt.patient.first_name} {appt.patient.last_name}" if appt.patient else None,
+            }
+            result['appointment'] = appt_dict
+        else:
+            result['appointment'] = None
+        return result
 
 class Prescription(db.Model):
     __tablename__ = 'prescription'
