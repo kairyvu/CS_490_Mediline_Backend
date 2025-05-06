@@ -5,6 +5,8 @@ jobs:
   build:
     docker:
       - image: cimg/python:3.12-node
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: /home/circleci/gcloud-key.json
     steps:
       - checkout
       - python/install-packages
