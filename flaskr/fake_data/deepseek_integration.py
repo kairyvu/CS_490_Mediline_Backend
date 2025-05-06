@@ -71,6 +71,7 @@ def generate_addresses_for_cities(country: str, cities: list[str], min_address: 
         "You are a JSON-output assistant."
         "Given a country and a list of cities, produce exactly a JSON object "
         "where each key is a city name and its value is an array of unique street "
+        "must have a comma between each object"
         "address objects (with address1, address2, state, zipcode)."
     )
     user_payload = {
@@ -137,7 +138,7 @@ def generate_doctor_profiles(count: int = 20, max_retries: int = 3) -> list[dict
         f"output only contains an array of {count} JSON objects"
         "no yapping, no explanations, no extra text, no markdown fences. "
         "using *double quotes* for all keys and strings, and no markdown fences. "
-        "where each key is first_name, last_name, specialization(real medical specialty) and bio (~80-word paragraph)"
+        "where each key is first_name, last_name, gender, specialization(real medical specialty) and bio (~80-word paragraph)"
     )
     for attempt in range(1, max_retries + 1):
         resp = client.chat.completions.create(
@@ -163,6 +164,10 @@ def generate_doctor_profiles(count: int = 20, max_retries: int = 3) -> list[dict
                             "last_name": {
                                 "type": "string",
                                 "description": "A doctor's Last Name"
+                            },
+                            "gender": {
+                                "type": "string",
+                                "description": "A doctor's gender"
                             },
                             "specialization": {
                                 "type": "string",
@@ -448,4 +453,4 @@ def generate_social_media_posts(count: int = 30, max_retries: int = 3) -> list[d
     raise RuntimeError("Exhausted retries in generate_social_media_posts")
 
 if __name__ == "__main__":
-    print(generate_medications())
+    print(generate_doctor_profiles())

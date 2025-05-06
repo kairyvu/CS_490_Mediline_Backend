@@ -1,0 +1,47 @@
+Delete a request
+---
+tags:
+  - request
+parameters:
+  - name: request_id
+    in: path
+    type: integer
+    required: true
+    description: Request ID to delete
+  - name: status
+    in: body
+    schema:
+      properties:
+        status:
+          type: string
+          enum:
+            - accepted
+            - rejected
+          description: Status of the request
+          example: accepted
+    description: Status of the request
+    required: true
+responses:
+  200:
+    description: Deleted a request successfully
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+    examples:
+      application/json:
+        message: Request deleted successfully
+  400:
+    description: Invalid request deletion
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          enum:
+            - "Request not found"
+            - "Invalid request ID"
+    examples:
+      application/json:
+        error: Request not found
