@@ -96,7 +96,6 @@ def update_medication_inventory(prescription_id, status: PrescriptionStatus):
         if not inventory_item:
             raise ValueError("Medication not found in the pharmacy inventory")
         if status == PrescriptionStatus.PAID:
-            print(type(inventory_item.quantity), type(medication.dosage), type(medication.duration))
             inventory_item.quantity -= medication.dosage * medication.duration
             if inventory_item.quantity < 0:
                 raise ValueError("Not enough medication in the inventory")
