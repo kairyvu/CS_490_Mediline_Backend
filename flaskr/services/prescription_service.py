@@ -78,3 +78,48 @@ def get_medications_history_by_patient(patient_id):
         medications = get_medications_by_prescription(prescription.prescription_id)
         medications_history.append(medications)
     return medications_history
+
+def update_medication_inventory(prescription_id, status: PrescriptionStatus):
+    pharmacy_id = Prescription.query.get(prescription_id).pharmacy_id
+    if not pharmacy_id:
+        raise ValueError("Pharmacy not found for the prescription")
+    prescription_medications = PrescriptionMedication.query.filter_by(prescription_id=prescription_id).all()
+    if not prescription_medications:
+        raise ValueError("No medications found for the prescription")
+
+    for medication in prescription_medications:
+        inventory_item = Inventory.query.filter_by(pharmacy_id=pharmacy_id, medication_id=medication.medication_id).first()
+        if not inventory_item:
+            raise ValueError("Medication not found in the pharmacy inventory")
+        if status == PrescriptionStatus.PAID:
+            print(type(inventory_item.quantity), type(medication.dosage), type(medication.duration))
+            inventory_item.quantity -= medication.dosage * medication.duration
+            if inventory_item.quantity < 0:
+                raise ValueError("Not enough medication in the inventory")
+        elif status == PrescriptionStatus.UNPAID:
+            inventory_item.quantity += medication.dosage * medication.duration
+        else:
+            raise ValueError("Invalid status")
+    db.session.commit()
+    return get_pharmacy_medications_inventory(pharmacy_id)
+
+def update_prescription_status(prescription_id, status_str: str):
+    prescription = Prescription.query.get(prescription_id)
+    if not prescription:
+        raise ValueError("Prescription not found")
+    if isinstance(status_str, str):
+        try:
+            status = PrescriptionStatus(status_str.lower())
+        except ValueError:
+            raise ValueError(f"Invalid status: {status_str}")
+    if prescription.status == status:
+        raise ValueError("Prescription already has the requested status")
+    else:
+        try:
+            update_medication_inventory(prescription_id, status)
+        except ValueError as e:
+            raise ValueError(f"Failed to update medication inventory: {str(e)}")
+
+    prescription.status = status
+    db.session.commit()
+    return prescription.to_dict()
