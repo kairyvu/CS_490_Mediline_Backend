@@ -71,6 +71,7 @@ def generate_addresses_for_cities(country: str, cities: list[str], min_address: 
         "You are a JSON-output assistant."
         "Given a country and a list of cities, produce exactly a JSON object "
         "where each key is a city name and its value is an array of unique street "
+        "must have a comma between each object"
         "address objects (with address1, address2, state, zipcode)."
     )
     user_payload = {
