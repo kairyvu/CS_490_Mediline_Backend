@@ -33,3 +33,9 @@ workflows:
   build-and-test:
     jobs:
       - test-python
+      - deploy:
+          requires:
+            - test-python
+          filters:
+            branches:
+              only: circleci_project_setuo
