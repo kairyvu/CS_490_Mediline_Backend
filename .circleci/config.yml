@@ -1,11 +1,8 @@
-# This config was automatically generated from your source code
-# Stacks detected: deps:python:.
 version: 2.1
 orbs:
   python: circleci/python@2
 jobs:
   test-python:
-    # Install dependencies and run tests
     docker:
       - image: cimg/python:3.12-node
     steps:
@@ -13,18 +10,19 @@ jobs:
       - python/install-packages
       - run:
           name: Set up Google Cloud credentials
-          command: echo "$GCLOUD_SERVICE_KEY" > ${HOME}/gcloud-key.json export GOOGLE_APPLICATION_CREDENTIALS=${HOME}/gcloud-key.json
+          command: |
+            echo "$GCLOUD_SERVICE_KEY" > ${HOME}/gcloud-key.json
+            export GOOGLE_APPLICATION_CREDENTIALS=${HOME}/gcloud-key.json
+            gcloud auth activate-service-account --key-file=${HOME}/gcloud-key.json
       - run:
           name: Run tests
           command: pytest --junitxml=junit.xml || ((($? == 5)) && echo 'Did not find any tests to run.')
       - store_test_results:
           path: junit.xml
   deploy:
-    # This is an example deploy job, not actually used by the workflow
     docker:
       - image: cimg/base:stable
     steps:
-      # Replace this with steps to deploy to users
       - run:
           name: deploy
           command: "#e.g. ./deploy.sh"
@@ -32,6 +30,3 @@ workflows:
   build-and-test:
     jobs:
       - test-python
-    # - deploy:
-    #     requires:
-    #       - test-python
