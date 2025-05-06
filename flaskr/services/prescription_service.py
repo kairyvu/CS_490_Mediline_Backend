@@ -22,8 +22,12 @@ def get_prescriptions(user_id, sort_by='created_at', order='asc'):
     if not hasattr(Prescription, sort_by):
         raise ValueError(f"Invalid sort field: {sort_by}")
     column = getattr(Prescription, sort_by)
-    if order == 'desc':
+    if order.lower() == 'desc':
         column = column.desc()
+    elif order.lower() == 'asc':
+        column = column.asc()
+    else:
+        raise ValueError(f"Invalid order: {order}")
     query = query.order_by(column)
     prescriptions = query.all()
     return [prescription.to_dict() for prescription in prescriptions]

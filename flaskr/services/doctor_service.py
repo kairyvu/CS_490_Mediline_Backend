@@ -8,8 +8,12 @@ def all_doctors(sort_by='user_id', order='asc'):
     if not hasattr(Doctor, sort_by):
         raise ValueError(f"Invalid sort field: {sort_by}")
     column = getattr(Doctor, sort_by)
-    if order == 'desc':
+    if order.lower() == 'desc':
         column = column.desc()
+    elif order.lower() == 'asc':
+        column = column.asc()
+    else:
+        raise ValueError(f"Invalid order: {order}")
 
     doctors = (
         Doctor.query

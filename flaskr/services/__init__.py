@@ -12,6 +12,7 @@ from .patient_service import get_patient_info, update_patient, update_doctor_by_
 from .registration_service import add_user
 from .user_service import get_user_info_by_id
 from .request_service import add_patient_request, delete_patient_request, get_patient_requests_by_doctor_id
+from .medical_record_service import get_medical_records_by_user
 
 
 __all__ = [
@@ -29,5 +30,6 @@ __all__ = [
     'get_patient_info', 'update_patient', 'update_doctor_by_patient_id',
     'add_user',
     'get_user_info_by_id',
-    'add_patient_request', 'delete_patient_request', 'get_patient_requests_by_doctor_id'
+    'add_patient_request', 'delete_patient_request', 'get_patient_requests_by_doctor_id',
+    'get_medical_records_by_user'
 ]

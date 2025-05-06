@@ -19,7 +19,11 @@ def get_patient_requests_by_doctor_id(doctor_id, sort_by='created_at', order='de
     if not hasattr(PatientRequest, sort_by):
         raise ValueError(f"Invalid sort field: {sort_by}")
     column = getattr(PatientRequest, sort_by)
-    if order == 'desc':
+    if order.lower() == 'desc':
         column = column.desc()
+    elif order.lower() == 'asc':
+        column = column.asc()
+    else:
+        raise ValueError(f"Invalid order: {order}")
     requests = PatientRequest.query.filter_by(doctor_id=doctor_id).order_by(column).all()
     return [request.to_dict() for request in requests]

@@ -6,8 +6,12 @@ def get_patient_report_result(user_id, sort_by='created_at', order='asc'):
         raise ValueError(f"Invalid sort field: {sort_by}")
 
     column = getattr(PatientReport, sort_by)
-    if order == 'desc':
+    if order.lower() == 'desc':
         column = column.desc()
+    elif order.lower() == 'asc':
+        column = column.asc()
+    else:
+        raise ValueError(f"Invalid order: {order}")
     reports = PatientReport.query.filter_by(patient_id=user_id).order_by(column).all()
     return [report.to_dict() for report in reports]
 
