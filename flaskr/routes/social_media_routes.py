@@ -30,24 +30,37 @@ def get_post_comments(post_id):
         return jsonify({"error": str(e)}), 500
     
 @social_media_bp.route('/<int:user_id>/post/<int:post_id>', methods=['DELETE'])
+@jwt_required()
 @swag_from('../docs/social_media_routes/delete_post.yml')
 def delete_posts(user_id, post_id):
+    if ((current_user.account_type.name != 'SuperUser') 
+        and (current_user.user_id != user_id)):
+        return USER_NOT_AUTHORIZED(current_user.user_id)
+
     result = delete_post(user_id, post_id)
     if not result:
         return jsonify({"error": "Post not found or unauthorized"}), 404
     return jsonify(result), 200
 
 @social_media_bp.route('/<int:user_id>/comment/<int:comment_id>', methods=['DELETE'])
+@jwt_required()
 @swag_from('../docs/social_media_routes/delete_comment.yml')
 def delete_comments(user_id, comment_id):
+    if ((current_user.account_type.name != 'SuperUser') 
+        and (current_user.user_id != user_id)):
+        return USER_NOT_AUTHORIZED(current_user.user_id)
     result = delete_comment(user_id, comment_id)
     if not result:
         return jsonify({"error": "Comment not found or unauthorized"}), 404
     return jsonify(result), 200
 
 @social_media_bp.route('/<int:user_id>/post/<int:post_id>', methods=['PUT'])
+@jwt_required()
 @swag_from('../docs/social_media_routes/update_post.yml')
 def update_posts(user_id, post_id):
+    if ((current_user.account_type.name != 'SuperUser') 
+        and (current_user.user_id != user_id)):
+        return USER_NOT_AUTHORIZED(current_user.user_id)
     data = request.get_json()
     if not data:
         return jsonify({"error": "No input data provided"}), 400
@@ -59,8 +72,12 @@ def update_posts(user_id, post_id):
     return jsonify(result), 200
 
 @social_media_bp.route('/<int:user_id>/comment/<int:comment_id>', methods=['PUT'])
+@jwt_required()
 @swag_from('../docs/social_media_routes/update_comment.yml')
 def update_comments(user_id, comment_id):
+    if ((current_user.account_type.name != 'SuperUser') 
+        and (current_user.user_id != user_id)):
+        return USER_NOT_AUTHORIZED(current_user.user_id)
     data = request.get_json()
     if not data:
         return jsonify({"error": "No input data provided"}), 400
@@ -72,8 +89,12 @@ def update_comments(user_id, comment_id):
     return jsonify(result), 200
 
 @social_media_bp.route('/<int:user_id>/post', methods=['POST'])
+@jwt_required()
 @swag_from('../docs/social_media_routes/create_posts.yml')
 def create_posts(user_id):
+    if ((current_user.account_type.name != 'SuperUser') 
+        and (current_user.user_id != user_id)):
+        return USER_NOT_AUTHORIZED(current_user.user_id)
     data = request.get_json()
     title = data.get("title")
     content = data.get("content")
@@ -88,8 +109,12 @@ def create_posts(user_id):
         }), 201
 
 @social_media_bp.route('/<int:user_id>/post/<int:post_id>/comment', methods=['POST'])
+@jwt_required()
 @swag_from('../docs/social_media_routes/create_comments.yml')
 def create_comments(user_id, post_id):
+    if ((current_user.account_type.name != 'SuperUser') 
+        and (current_user.user_id != user_id)):
+        return USER_NOT_AUTHORIZED(current_user.user_id)
     data = request.get_json()
     content = data.get("content")
     if not content:
