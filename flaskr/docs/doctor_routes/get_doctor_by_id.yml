@@ -1,0 +1,64 @@
+Get doctor details by ID
+---
+tags:
+  - doctor
+parameters:
+  - name: doctor_id
+    in: path
+    type: integer
+    required: true
+    description: ID of the doctor
+responses:
+  200:
+    description: Get Doctor successfully
+    schema:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        first_name:
+          type: string
+        last_name:
+          type: string
+        gender:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        specialization:
+          type: string
+        bio:
+          type: string
+        fee:
+          type: number
+        profile_picture:
+          type: string
+        dob:
+          type: string
+        license_id:
+          type: string
+    examples:
+      application/json:
+        user_id: 1
+        first_name: John
+        last_name: John
+        gender: Male
+        email: john@email.com
+        phone: "000-000-0000"
+        specialization: specialization
+        bio: bio
+        fee: 50
+        profile_picture: "picture.jpg"
+        dob: "YYYY-MM-DD"
+        license_id: "1234"
+  404:
+    description: Doctor not found
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json:
+        error: Doctor not found
