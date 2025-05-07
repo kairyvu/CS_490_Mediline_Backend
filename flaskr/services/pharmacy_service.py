@@ -64,7 +64,16 @@ def validate_rx(data: dict) -> Response|tuple[int, int, list]:
             }), 400
 
 def add_pt_rx(pharmacy_id, patient_id, doctor_id, medications): # TODO - need to do with RabbitMQ
-    pass
+    import os
+    from google.cloud import pubsub_v1
+    publisher = pubsub_v1.PublisherClient()
+    topic_path = publisher.topic_path(os.environ.get())
+
+    for n in range(1, 10):
+        data_str = f'Msg # {n}'
+        data = data_str.encode('utf-8')
+        future = publisher.publish(topic_path, data)
+        print(future.result())
 
 def get_pharmacy_info(pharmacy_id):
     pharmacy = Pharmacy.query.filter_by(user_id=pharmacy_id).first()

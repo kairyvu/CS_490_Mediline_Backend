@@ -112,3 +112,19 @@ def update_prescription(prescription_id):
         return jsonify({'error': str(e)}), 404
     except Exception as e:
         return jsonify({'error': 'An error occurred while updating the prescription'}), 500
+
+@prescription_bp.route('/pharmacy/<int:pharmacy_id>', methods=['GET'])
+@jwt_required()
+def get_prescriptions(pharmacy_id):
+    _user_id = current_user.user_id
+    _acct_type = current_user.account_type.name
+    if (_user_id != pharmacy_id) and (_acct_type != 'SuperUser'):
+        return USER_NOT_AUTHORIZED(_user_id)
+    # TODO: update service
+    try:
+        count = get_prescription_count_by_pharmacy(pharmacy_id)
+        return jsonify(count), 200
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 404
+    except Exception as e:
+        return jsonify({'error': 'An error occurred while fetching the prescription count'}), 500
