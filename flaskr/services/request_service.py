@@ -2,6 +2,10 @@ from flaskr.models import PatientRequest
 from flaskr.extensions import db
 
 def add_patient_request(patient_id, doctor_id):
+    if (PatientRequest.query
+        .filter_by(patient_id=patient_id, doctor_id=doctor_id)
+        .first()):
+        raise ValueError(f'patient with ID: {patient_id} already requested doctor with ID: {doctor_id}')
     new_request = PatientRequest(patient_id=patient_id, doctor_id=doctor_id)
     db.session.add(new_request)
     db.session.commit()
