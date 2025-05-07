@@ -233,6 +233,9 @@ def update_doctor(user_id, updates: dict) -> dict:
         }
 
     curr_doctor_info = doctor.doctor.to_dict()
+    # cast 'accepting_patients' in current doctor attribute
+    # to string to allow comparison with updated value
+    curr_doctor_info['accepting_patients'] = str(curr_doctor_info['accepting_patients'])
     curr_addr_info = doctor.address.to_dict()
     curr_city = db.session.scalar( 
         select(City)
@@ -245,6 +248,17 @@ def update_doctor(user_id, updates: dict) -> dict:
     _city = {'city': updates.get('city') or curr_city.city}
     _country = {'country': updates.get('country') or curr_country.country}
 
+    if isinstance(updates.get('accepting_patients'), bool):
+        updates['accepting_patients'] = str(updates['accepting_patients'])
+    elif isinstance(updates.get('accepting_patients'), str):
+        if updates['accepting_patients']  == 'false':
+            updates['accepting_patients'] = 'False'
+        elif updates['accepting_patients'] == 'true':
+            updates['accepting_patients'] = 'True'
+        elif updates['accepting_patients'] in ['True', 'False']:
+            pass
+        else:
+            raise Exception(f"updates['accepting_patients'] is {updates['accepting_patients']}")
     doctor_info_updates = {
         attr: 
             updates.get(attr) 
@@ -334,7 +348,13 @@ def update_doctor(user_id, updates: dict) -> dict:
         doctor.address_id = new_addr.address_id
         db.session.flush()
     if (doctor_diff):
-        doctor_info_updates['accepting_patients'] = int(bool(doctor_info_updates['accepting_patients']))
+        if isinstance(doctor_info_updates.get('accepting_patients'), str):
+            if doctor_info_updates['accepting_patients'] in ['false', 'False']:
+                doctor_info_updates['accepting_patients'] = False
+            elif doctor_info_updates['accepting_patients'] in ['true', 'True']:
+                doctor_info_updates['accepting_patients'] = True
+            else:
+                raise Exception(f"doctor_info_updates['accepting_patients'] is {doctor_info_updates['accepting_patients']}")
         try:
             db.session.execute(
                 update(Doctor)
