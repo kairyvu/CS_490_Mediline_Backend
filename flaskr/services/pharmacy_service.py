@@ -1,13 +1,8 @@
 from datetime import datetime, timedelta
 from sqlalchemy import func
 
-from celery.result import AsyncResult
-
-from flaskr.models import Prescription, Patient
+from flaskr.models import Prescription, Patient, Pharmacy
 from flaskr.extensions import db
-from flaskr.tasks import send_rx
-
-from flaskr.models.user import Pharmacy
 
 def get_all_pharmacy_patients(pharmacy_id, new_request_time=datetime.now() - timedelta(hours=24)):
     rows = (
@@ -39,13 +34,9 @@ def get_all_pharmacy_patients(pharmacy_id, new_request_time=datetime.now() - tim
         'other_patients': other_patients
     }
 
-def add_pt_rx(pharmacy_id, patient_id, doctor_id, medications):
-    # TODO: detect duplicates
-    try:
-        res: AsyncResult = send_rx.apply_async(args=[pharmacy_id, patient_id, doctor_id, medications])
-    except Exception as e:
-        raise e
-    return res.status
+def add_pt_rx(pharmacy_id, patient_id, doctor_id, medications): # TODO - need to do with RabbitMQ
+    pass
+
 def get_pharmacy_info(pharmacy_id):
     pharmacy = Pharmacy.query.filter_by(user_id=pharmacy_id).first()
     if not pharmacy:

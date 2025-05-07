@@ -44,38 +44,10 @@ __all__ = [
     'get_medical_records_by_user'
 ]
 
-# Depreciated
-def token_required(f):
-    @wraps(f)
-    def _verify(*args, **kwargs):
-        invalid_msg = {
-            'message': 'Invalid token. Registration or authentication required',
-            'authenticated': False
-        }
-        expired_msg = {
-            'message': 'Expired token. Reauthentication required',
-            'authenticated': False
-        }
-        auth_headers = request.headers.get('Authorization', '').split()
-        if len(auth_headers) != 2:
-            return jsonify(invalid_msg), 401
-        try:
-            token = auth_headers[1]
-            data = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
-            user: User = User.query.filter_by(user_id=data['user_id']).first()
-            if not user:
-                raise RuntimeError('User not found')
-            return f((user.user_id, user), *args, **kwargs)
-        except jwt.ExpiredSignatureError:
-            return jsonify(expired_msg), 401
-        except (jwt.InvalidTokenError, Exception) as e:
-            print(f'exception thrown message: {e}')
-            return jsonify(invalid_msg), 401
-    return _verify
-
 # AUTHORIZATION EXCEPTION RESPONSES
 class UnauthorizedError(JWTExtendedException):
     pass
+
 def USER_NOT_AUTHORIZED(uid: int|None=None) -> Response:
     if uid:
         return jsonify({

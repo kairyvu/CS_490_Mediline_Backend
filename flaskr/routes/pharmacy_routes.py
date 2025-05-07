@@ -1,5 +1,4 @@
 
-from kombu.exceptions import OperationalError as MQOpErr
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, current_user
 from flaskr.models import User
@@ -27,6 +26,7 @@ def get_pharmacy_patients(pharmacy_id):
     except Exception as e:
         return jsonify({'error': 'An error occurred while fetching the medications history'}), 500
 
+# This route is only returning {'message': 'ok', 'status': 202} for now and not working as intended
 @pharmacy_bp.route('/<int:pharmacy_id>', methods=['POST'])
 @swag_from('../docs/pharmacy_routes/post_patient_prescription.yml')
 def post_patient_prescription(pharmacy_id):
@@ -59,12 +59,10 @@ def post_patient_prescription(pharmacy_id):
             }), 400
     try:
         res = add_pt_rx(pharmacy_id, patient_id, doctor_id, medications)
-    except MQOpErr as e:
-        return jsonify({'error': 'failed to send prescription'}), 500
     except Exception as e:
         print(type(e))
         return jsonify({'error': f'{str(e)}'}), 500
-    if res == 'PENDING':
+    if res:
         return jsonify({
             'message': 'prescription submitted successfully'
         }), 202         # 202 to indicate async operation
