@@ -18,12 +18,16 @@ def add_request(patient_id, doctor_id):
             pass
         case _:
             return USER_NOT_AUTHORIZED(_user_id)
+    if patient_id == doctor_id:
+        return jsonify({"error": "you can't request yourself..?"}), 400
 
     try:
         request_data = add_patient_request(patient_id, doctor_id)
         return jsonify(request_data), 201
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @request_bp.route('/<int:request_id>', methods=['DELETE'])
 @jwt_required()
