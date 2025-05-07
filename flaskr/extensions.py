@@ -5,7 +5,6 @@ from flask_jwt_extended import JWTManager
 from flask_socketio import SocketIO, emit
 from flasgger import Swagger
 
-from socketio import KombuManager
 from google.cloud.sql.connector import Connector, IPTypes
 
 ip_type = IPTypes.PRIVATE if os.environ.get("PRIVATE_IP") else IPTypes.PUBLIC
