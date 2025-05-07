@@ -54,8 +54,6 @@ def doctor_details(doctor_id):
 
     return doctor.to_dict()
 
-def total_patients(doctor_id):
-    return Patient.query.filter_by(doctor_id=doctor_id).count()
 def upcoming_appointments_count(doctor_id):
     upcoming_count = Appointment.query.filter_by(doctor_id=doctor_id).join(AppointmentDetail).filter(AppointmentDetail.status == "CONFIRMED").count()
     return (upcoming_count)
@@ -177,38 +175,6 @@ def doctor_general_discussion(doctor_id):
                 "timestamp": msg.time.strftime("%Y-%m-%d %I:%M %p")
             })
     return result
-
-def select_doctor(doctor_id, patient_id, requesting_user: User|None=None):
-    # Creates relationship between doctor and patient
-    # The doctor does not need to manually go through each patient and accept 
-    # them so long as they are accepting new patients
-    from flaskr.services import UnauthorizedError
-    if (requesting_user
-        and requesting_user.account_type.name not in {'Patient', 'SuperUser'}):
-        raise UnauthorizedError
-    pt: Patient = Patient.query.filter_by(user_id=patient_id).first()
-    if not pt:
-        raise ValueError(f'patient with id {patient_id} not found')
-    
-    dr: Doctor = Doctor.query.filter_by(user_id=doctor_id).first()
-    if not dr: 
-        raise ValueError(f'doctor with id {doctor_id} not found')
-    if not dr.accepting_patients:
-        raise ValueError(f'doctor is not accepting patients')
-    
-    if pt.doctor_id and pt.doctor_id == doctor_id:
-        raise ValueError(f'patient already has this doctor')
-    pt.doctor_id = doctor_id
-    pt.doctor = dr
-    # Automatically append pt to doctor's patients list
-    dr.patients.append(pt)
-    db.session.add_all((pt, dr))
-    try:
-        db.session.commit()
-    except Exception as e:
-        raise e
-
-    return
 
 def new_appointments_request(doctor_id):
     appointments = (Appointment.query

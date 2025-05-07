@@ -23,10 +23,6 @@ def get_all_doctors():
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
 
-@doctor_bp.route('/<int:doctor_id>/total-patients', methods=['GET'])
-def total(doctor_id):
-    return jsonify({"total_patients": total_patients(doctor_id)}), 200
-
 @doctor_bp.route('/<int:doctor_id>/doctor-patients/count', methods=['GET'])
 @swag_from('../docs/doctor_routes/count_doctor_patients.yml')
 def count_doctor_patients(doctor_id):
@@ -44,27 +40,6 @@ def doctor_ratings(doctor_id):
 ### ---END PUBLIC ROUTES---
 
 ### ---PROTECTED ROUTES---
-@doctor_bp.route('/<int:doctor_id>/request', methods=['POST'])
-@jwt_required()
-@swag_from('../docs/doctor_routes/request_doctor_by_id.yml')
-def request_doctor_by_id(doctor_id):
-    # Route to request a doctor as a patient
-    data = request.get_json()
-    if not data:
-        return jsonify({"error": "No input data provided"}), 400
-    patient_id = data.get('patient_id')
-    if not patient_id:
-        return jsonify({"error": "patient id is required"}), 400
-    try:
-        select_doctor(doctor_id, patient_id, requesting_user=current_user)
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 400
-    except UnauthorizedError as e:
-        return USER_NOT_AUTHORIZED(current_user.user_id)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    return jsonify({"message": "Doctor requested successfully"}), 200
-
 @doctor_bp.route('/<int:doctor_id>/upcoming-appointments/count', methods=['GET'])
 @jwt_required()
 @swag_from('../docs/doctor_routes/count_upcoming_appointments.yml')
