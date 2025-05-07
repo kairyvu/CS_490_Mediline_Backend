@@ -19,8 +19,12 @@ def get_all_patient_exercise(user_id, sort_by='exercise_id', order='asc'):
         raise ValueError(f"Invalid sort field: {sort_by}")
     
     column = getattr(PatientExercise, sort_by)
-    if order == 'desc':
+    if order.lower() == 'desc':
         column = column.desc()
+    elif order.lower() == 'asc':
+        column = column.asc()
+    else:
+        raise ValueError(f"Invalid order: {order}")
     exercises = PatientExercise.query.filter_by(patient_id=user_id).order_by(column).all()
     result = []
     for ex in exercises:

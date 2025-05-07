@@ -4,7 +4,7 @@ from faker import Faker
 from flaskr.models import User, Patient, Doctor, Pharmacy, SuperUser, Post, Comment, Report, PatientReport, RatingSurvey, Invoice, Notification, MedicalRecord, Prescription, PrescriptionMedication, Medication, Inventory, ExerciseBank, PatientExercise, Chat, Message, Appointment, AppointmentDetail, Address, City, Country
 import contextlib
 from sqlalchemy import MetaData
-from flaskr.struct import AccountType, ReportType, PaymentStatus, AppointmentStatus, ExerciseStatus, PrescriptionStatus
+from flaskr.struct import AccountType, ReportType, PaymentStatus, AppointmentStatus, ExerciseStatus, PrescriptionStatus, Gender
 from collections import defaultdict
 from flaskr.extensions import db
 from sqlalchemy import text
@@ -66,6 +66,7 @@ def generate_doctor(user: User, doctor_profile: dict):
         user_id=user.user_id,
         first_name=doctor_profile["first_name"],
         last_name=doctor_profile["last_name"],
+        gender=doctor_profile["gender"],
         email=user.username,
         phone=faker.basic_phone_number(),
         specialization=doctor_profile["specialization"],
@@ -83,6 +84,7 @@ def generate_patient(user: User, doctor_id=None, pharmacy_id=None):
         user_id=user.user_id,
         first_name=faker.first_name(),
         last_name=faker.last_name(),
+        gender=faker.random_element([Gender.MALE, Gender.FEMALE]),
         email=user.username,
         phone=faker.basic_phone_number(),
         dob=faker.date_of_birth(minimum_age=18, maximum_age=65),
@@ -247,16 +249,14 @@ def seed_medications(n=200):
     db.session.commit()
     print("Medications done")
 
-def seed_medical_records(n=400):
-    for _ in range(n):
+def seed_medical_records():
+    for appointment_id in users["appointments"]:
         medical_record = MedicalRecord(
-            patient_id=faker.unique.random_element(tuple(users["patients"])),
+            appointment_id=appointment_id,
             description=faker.text(max_nb_chars=200),
             created_at=faker.date_time_this_year(),
         )
         db.session.add(medical_record)
-        db.session.flush()
-    
     db.session.commit()
     print("Medical records done")
 
@@ -449,7 +449,6 @@ def seed_all():
     seed_posts()
     seed_reports()
     seed_medications()
-    seed_medical_records()
     seed_prescriptions()
     seed_ratings()
     seed_invoices()
@@ -457,6 +456,7 @@ def seed_all():
     seed_exercises()
     seed_appointments()
     seed_messages()
+    seed_medical_records()
 
 if __name__ == "__main__":
 

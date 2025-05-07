@@ -27,8 +27,12 @@ def get_upcoming_appointments(user_id, sort_by='start_date', order='desc'):
         raise ValueError(f"Invalid sort field: {sort_by}")
     
     column = getattr(AppointmentDetail, sort_by)
-    if order == 'desc':
+    if order.lower() == 'desc':
         column = column.desc()
+    elif order.lower() == 'asc':
+        column = column.asc()
+    else:
+        raise ValueError(f"Invalid order: {order}")
     
     query = query.order_by(column)
     appointments = query.all()

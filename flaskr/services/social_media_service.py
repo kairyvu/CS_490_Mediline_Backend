@@ -3,27 +3,35 @@ from flaskr.extensions import db
 from datetime import datetime
 
 def get_all_posts(sort_by='created_at', order='asc'):
-    posts = Post.query.all()
-    if hasattr(Post, sort_by):
-        if order == 'desc':
-            posts = sorted(posts, key=lambda p: getattr(p, sort_by), reverse=True)
-        else:
-            posts = sorted(posts, key=lambda p: getattr(p, sort_by))
+    if not hasattr(Post, sort_by):
+        raise ValueError(f"Invalid sort field: {sort_by!r}")
+    column = getattr(Post, sort_by)
+
+    if order.lower() == 'desc':
+        column = column.desc()
+    elif order.lower() == 'asc':
+        column = column.asc()
     else:
-        raise ValueError(f"Invalid sort field: {sort_by}")
+        raise ValueError(f"Invalid order: {order}")
+    posts = Post.query.order_by(column).all()
+    
     return [post.to_dict() for post in posts]
 
 def get_comments_of_post(post_id, sort_by='created_at', order='asc'):
     post = Post.query.get(post_id)
     if not post:
         raise ValueError("Post not found")
-    comments = post.comments
-    if hasattr(Comment, sort_by):
-        if order.lower() == 'desc':
-            comments = sorted(comments, key=lambda c: getattr(c, sort_by), reverse=True)
-        else:
-            comments = sorted(comments, key=lambda c: getattr(c, sort_by))
-    
+    if not hasattr(Comment, sort_by):
+        raise ValueError(f"Invalid sort field: {sort_by!r}")
+    column = getattr(Comment, sort_by)
+    if order.lower() == 'desc':
+        column = column.desc()
+    elif order.lower() == 'asc':
+        column = column.asc()
+    else:
+        raise ValueError(f"Invalid order: {order}")
+    comments = Comment.query.filter_by(post_id=post_id).order_by(column).all()
+
     return [comment.to_dict() for comment in comments]
 
 def delete_post(user_id, post_id):
@@ -87,3 +95,5 @@ def create_comment(user_id, post_id, content):
     db.session.add(new_comment)
     db.session.commit()
     return new_comment.to_dict()
+
+
