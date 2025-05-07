@@ -1,0 +1,55 @@
+Add a chat message
+---
+tags:
+  - chat
+parameters:
+  - name: appointment_id
+    in: path
+    required: true
+    type: integer
+    description: ID of the appointment
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        message_content:
+          type: string
+        appointment_id:
+          type: integer
+    description: Chat message details
+responses:
+  201:
+    description: Message added successfully
+    schema:
+      type: object
+      properties:
+        chat_id:
+          type: integer
+        message_id:
+          type: integer
+        user_id:
+          type: integer
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+  400:
+    description: Missing input data
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+  404:
+    description: Invalid appointment id
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+
