@@ -51,6 +51,8 @@ def delete_request(request_id):
                 return jsonify({"message": "Request accepted", "patient": patient}), 200
             except ValueError as e:
                 return jsonify({"error": str(e)}), 400
+            except UnauthorizedError:
+                return USER_NOT_AUTHORIZED(current_user.user_id)
         elif status == 'rejected':
             try:
                 request_data = delete_patient_request(request_id, requesting_user=current_user)
