@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, current_user
 from flaskr.models import User
-from flaskr.services import patient_info, update_patient, patient_medical_history, create_medical_record, update_primary_pharmacy, token_required, USER_NOT_AUTHORIZED
+from flaskr.services import patient_info, update_patient, patient_medical_history, create_medical_record, update_primary_pharmacy, USER_NOT_AUTHORIZED
 from flasgger import swag_from
 
 from sqlalchemy.exc import OperationalError, IntegrityError

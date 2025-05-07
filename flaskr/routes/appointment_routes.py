@@ -4,7 +4,7 @@ from flask_jwt_extended import jwt_required, current_user
 from flask_jwt_extended.exceptions import NoAuthorizationError
 from flaskr.models import User
 from flaskr.services import get_upcoming_appointments, add_appointment, \
-    update_appointment, get_appointment, token_required, USER_NOT_AUTHORIZED
+    update_appointment, get_appointment, USER_NOT_AUTHORIZED
 from flaskr.struct import AppointmentStatus
 from flasgger import swag_from
 
