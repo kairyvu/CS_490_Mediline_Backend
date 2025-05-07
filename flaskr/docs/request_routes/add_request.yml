@@ -3,11 +3,11 @@ Add a request
 tags:
   - request
 parameters:
-  - name: patient ID
+  - name: patient_id
     in: path
     type: integer
     required: true
-  - name: doctor ID
+  - name: doctor_id
     in: path
     type: integer
     required: true
