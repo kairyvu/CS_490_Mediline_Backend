@@ -66,6 +66,10 @@ def add_exercise(exercise_id):
     match _user_id, _acct_type:
         case 'SuperUser' | 'Doctor' if ((doctor_id == _user_id) 
             and patient_id in set([p.user_id for p in _user.doctor.patients])):
+            # Doctor who is assigned a patient can edit that patient's exercises
+            pass
+        case 'Patient' if patient_id == _user_id:
+            # Patient can assign their own exercise
             pass
         case _:
             return USER_NOT_AUTHORIZED(_user_id)
