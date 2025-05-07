@@ -130,15 +130,15 @@ def get_new_appointment_requests(doctor_id):
 @jwt_required()
 @swag_from('../docs/doctor_routes/update_doctor_info.yml')
 def update_doctor_info(user_id):
-    data = request.get_json()
-    if not data:
-        return jsonify({"error": "no input data provided"}), 400
     _acct_type = current_user.account_type.name
     match _acct_type:
         case 'SuperUser' | 'Doctor' if current_user.user_id == user_id:
             pass
         case _:
             return USER_NOT_AUTHORIZED(current_user.user_id)
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "no input data provided"}), 400
     try:
         result = update_doctor(user_id, data)
     except ValueError as e:
@@ -150,7 +150,10 @@ def update_doctor_info(user_id):
         return jsonify({"error": error_msg}), 504
     except IntegrityError as e:
         error_msg = str((str(e.args[0]).split(maxsplit=1))[1]).split(',')[1].strip().strip(')"\\')
-        return jsonify({"error", error_msg}), 400
+        return jsonify({"error": error_msg}), 400
+    except Exception as e:
+        error_msg = str(e)
+        return jsonify({"error": error_msg}), 500
     if "error" not in result:
         return jsonify(result), 200
     return jsonify(result), 404
