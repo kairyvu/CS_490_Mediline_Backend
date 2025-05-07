@@ -26,6 +26,7 @@ def get_all_doctors():
         return jsonify({"error": str(e)}), 400
 
 @doctor_bp.route('/<int:doctor_id>/doctor-patients', methods=['GET'])
+@jwt_required()
 @swag_from('../docs/doctor_routes/doctor_patients_count_details.yml')
 def doctor_patients_count_details(doctor_id):
     if (current_user.user_id != doctor_id 
