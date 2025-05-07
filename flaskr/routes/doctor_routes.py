@@ -25,15 +25,6 @@ def get_all_doctors():
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
 
-@doctor_bp.route('/<int:doctor_id>/doctor-patients', methods=['GET'])
-@jwt_required()
-@swag_from('../docs/doctor_routes/doctor_patients_count_details.yml')
-def doctor_patients_count_details(doctor_id):
-    if (current_user.user_id != doctor_id 
-        and current_user.account_type.name != 'SuperUser'):
-        return USER_NOT_AUTHORIZED(current_user.user_id)
-    return jsonify(doctor_patients_count_and_list(doctor_id)), 200
-
 @doctor_bp.route('/<int:doctor_id>/ratings', methods=['GET'])
 @swag_from('../docs/doctor_routes/doctor_ratings.yml')
 def doctor_ratings(doctor_id):
@@ -46,6 +37,15 @@ def doctor_ratings(doctor_id):
 ### ---END PUBLIC ROUTES---
 
 ### ---PROTECTED ROUTES---
+@doctor_bp.route('/<int:doctor_id>/doctor-patients', methods=['GET'])
+@jwt_required()
+@swag_from('../docs/doctor_routes/doctor_patients_count_details.yml')
+def doctor_patients_count_details(doctor_id):
+    if (current_user.user_id != doctor_id 
+        and current_user.account_type.name != 'SuperUser'):
+        return USER_NOT_AUTHORIZED(current_user.user_id)
+    return jsonify(doctor_patients_count_and_list(doctor_id)), 200
+
 @doctor_bp.route('/<int:doctor_id>/upcoming-appointments/count', methods=['GET'])
 @jwt_required()
 @swag_from('../docs/doctor_routes/count_upcoming_appointments.yml')
