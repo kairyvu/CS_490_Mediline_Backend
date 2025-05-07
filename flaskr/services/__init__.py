@@ -16,12 +16,12 @@ from .doctor_service import all_doctors, doctor_details, upcoming_appointments_c
     doctor_patients_count, todays_patient, doctor_rating_detail, last_completed_appointment, doctor_general_discussion, \
     new_appointments_request, update_doctor, assign_survey
 from .pharmacy_service import get_all_pharmacy_patients, add_pt_rx, get_pharmacy_info, validate_rx
-from .patient_service import patient_info, update_patient, patient_medical_history, create_medical_record, update_primary_pharmacy, update_doctor_by_patient_id
+from .patient_service import patient_info, update_patient, update_primary_pharmacy, update_doctor_by_patient_id
 from .registration_service import add_user
 from .medication_service import medication_info
 from .user_service import get_user_info_by_id
 from .request_service import add_patient_request, delete_patient_request, get_patient_requests_by_doctor_id
-from .medical_record_service import get_medical_records_by_user
+from .medical_record_service import get_medical_records_by_user, create_medical_record, update_medical_record, delete_medical_record
 
 
 __all__ = [
@@ -31,16 +31,16 @@ __all__ = [
     'get_upcoming_appointments', 'add_appointment', 'update_appointment', 'get_appointment',
     'get_patient_report_result', 'add_patient_report',
     'get_medications_by_prescription', 'get_prescriptions',
-    'get_prescription_count_by_pharmacy', 'get_pharmacy_medications_inventory', 'get_medications_history_by_patient',
+    'get_prescription_count_by_pharmacy', 'get_pharmacy_medications_inventory', 'get_medications_history_by_patient', 'update_prescription_status',
     'get_current_chat', 'add_message', 
     'get_all_posts', 'get_comments_of_post', 'delete_comment', 'delete_post', 'update_comment', 'update_post', 'create_comment', 'create_post',
-    'all_doctors', 'doctor_details', 'upcoming_appointments_count', 'pending_appointments_count', 'doctor_patients_count', 'todays_patient', 'doctor_rating_detail', 'last_completed_appointment', 'doctor_general_discussion', 'get_all_pharmacy_patients', 'get_pharmacy_info', 'add_pt_rx', 'validate_rx'
-    'patient_info', 'update_patient','patient_medical_history', 'create_medical_record', 'update_primary_pharmacy', 'update_doctor_by_patient_id'
+    'all_doctors', 'doctor_details', 'upcoming_appointments_count', 'pending_appointments_count', 'doctor_patients_count', 'todays_patient', 'doctor_rating_detail', 'last_completed_appointment', 'doctor_general_discussion', 'get_all_pharmacy_patients', 'get_pharmacy_info', 'add_pt_rx', 'validate_rx',
+    'patient_info', 'update_patient','patient_medical_history', 'create_medical_record', 'update_primary_pharmacy', 'update_doctor_by_patient_id',
     'add_user', 'new_appointments_request', 'update_doctor', 'assign_survey',
     'medication_info',
     'get_user_info_by_id',
     'add_patient_request', 'delete_patient_request', 'get_patient_requests_by_doctor_id',
-    'get_medical_records_by_user'
+    'get_medical_records_by_user', 'create_medical_record', 'update_medical_record', 'delete_medical_record'
 ]
 
 # AUTHORIZATION EXCEPTION RESPONSES
