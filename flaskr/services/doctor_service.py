@@ -96,7 +96,7 @@ def todays_patient(doctor_id, date):
                 "first_name": patient.first_name,
                 "last_name": patient.last_name,
                 "gender": patient.gender.value if isinstance(patient.gender, Gender) else patient.gender,
-                "visit_time": detail.start_date.strftime("%I:%M %p"),
+                "visit_time": detail.start_date.isoformat(),
                 "dob": patient.dob,
                 "treatment": detail.treatment,
                 "status": detail.status.name,
