@@ -21,7 +21,6 @@ swag = Swagger(
 jwt = JWTManager()
 
 ## SocketIO stuff
-# TODO: replace with environment variables
 sio = SocketIO(
     ping_timeout=60,
     cors_allowed_origins='*',
