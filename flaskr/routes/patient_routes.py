@@ -86,8 +86,12 @@ def update_patient_info(user_id):
     return jsonify(result), 404
 
 @patient_bp.route('/<int:patient_id>/medical_history', methods=['GET'])
+@jwt_required()
 @swag_from('../docs/patient_routes/medical_history.yml')
 def medical_history(patient_id):
+    if ((current_user.account_type.name != 'SuperUser') 
+        and (current_user.user_id != patient_id)):
+        return USER_NOT_AUTHORIZED(current_user.user_id)
     result = patient_medical_history(patient_id)
     if not result:
         return jsonify({"error": "Patient not Found"}), 404
@@ -110,8 +114,12 @@ def insert_medical_record(patient_id):
     return jsonify(result), 201
 
 @patient_bp.route('/<int:patient_id>/pharmacy', methods=['PUT'])
+@jwt_required()
 @swag_from('../docs/patient_routes/update_primary_pharmacy.yml')
 def primary_pharmacy(patient_id):
+    if ((current_user.account_type.name != 'SuperUser') 
+        and (current_user.user_id != patient_id)):
+        return USER_NOT_AUTHORIZED(current_user.user_id)
     data = request.get_json()
     pharmacy_id = data.get("pharmacy_id")
     if not pharmacy_id:

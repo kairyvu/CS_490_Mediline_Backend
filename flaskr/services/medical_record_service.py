@@ -1,11 +1,15 @@
-from flaskr.models import MedicalRecord, Doctor, Patient
+from flaskr.models import MedicalRecord, Doctor, Patient, User
 from flaskr.extensions import db
 
-def get_medical_records_by_user(user_id, sort_by='created_at', order='desc'):
+def get_medical_records_by_user(user_id, sort_by='created_at', order='desc', requesting_user: User|None=None):
+    from flaskr.services import UnauthorizedError
     is_patient = Patient.query.get(user_id) is not None
     is_doctor = Doctor.query.get(user_id) is not None
     if not (is_patient or is_doctor):
         raise ValueError("User not found as either patient or doctor")
+    if ((user_id != requesting_user.user_id) 
+        and (requesting_user.account_type.name != 'SuperUser')):
+        raise UnauthorizedError
     query = MedicalRecord.query
     if is_patient:
         query = query.filter(MedicalRecord.appointment.has(patient_id=user_id))

@@ -28,11 +28,15 @@ def get_invoices_by_user_route(user_id):
         return jsonify({"error": str(e)}), 400
     
 @payment_bp.route('/patient/<int:patient_id>/invoice/<int:invoice_id>', methods=['PUT'])
+@jwt_required()
 @swag_from('../docs/payment_routes/update_invoice_status.yml')
 def update_invoice_status_put(patient_id, invoice_id):
     data = request.get_json()
     if not data:
         return jsonify({"error": "no input data provided"}), 400
+    if ((current_user.account_type.name != 'SuperUser') 
+        and (current_user.user_id != patient_id)):
+        return USER_NOT_AUTHORIZED(current_user.user_id)
     
     new_status = data.get("status")
     if not new_status:
