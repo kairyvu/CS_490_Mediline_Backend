@@ -204,7 +204,9 @@ def update_doctor(user_id, updates: dict) -> dict:
         return {"error": "Doctor not found"}
     
     address_attr = {'address1', 'address2', 'state', 'zipcode'}
-    doctor_attr = {'first_name', 'last_name', 'email', 'phone', 'dob', 'specialization', 'fee', 'license_id', 'profile_picture', 'email'}
+    doctor_attr = {'first_name', 'last_name', 'email', 'phone', 'dob', 
+                   'specialization', 'fee', 'license_id', 'profile_picture', 
+                   'bio', 'accepting_patients', 'gender'}
 
     invalid_attrs = set(updates) - (doctor_attr 
                                     | address_attr 
@@ -317,6 +319,7 @@ def update_doctor(user_id, updates: dict) -> dict:
         doctor.address_id = new_addr.address_id
         db.session.flush()
     if (doctor_diff):
+        doctor_info_updates['accepting_patients'] = int(bool(doctor_info_updates['accepting_patients']))
         try:
             db.session.execute(
                 update(Doctor)
