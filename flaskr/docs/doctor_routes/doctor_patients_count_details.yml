@@ -37,7 +37,7 @@ responses:
                 type: string
     examples:
       application/json:
-        patients_count: 2
+        doctor_patients_count: 2
         patients:
           - patient_id: 3
             first_name: patient first name

@@ -60,7 +60,7 @@ def pending_appointments_count(doctor_id):
 def doctor_patients_count_and_list(doctor_id):
     patients = Patient.query.filter_by(doctor_id=doctor_id).all()
     return {
-        "patients_count": len(patients),
+        "doctor_patients_count": len(patients),
         "patients": [
             {
                 "patient_id": patient.user_id,
