@@ -1,0 +1,59 @@
+Count and list of all patients assigned to a doctor
+---
+tags:
+  - doctor
+parameters:
+  - name: doctor_id
+    in: path
+    type: integer
+    required: true
+    description: Doctor's user ID
+responses:
+  200:
+    description: Returns the total number patients and their details
+    schema:
+      type: object
+      properties:
+        patients_count:
+          type: integer
+        patients:
+          type: array
+          items:
+            type: object
+            properties:
+              patient_id:
+                type: integer
+              first_name:
+                type: string
+              last_name:
+                type: string
+              email:
+                type: string
+              dob:
+                type: string
+              phone:
+                type: string
+              gender:
+                type: string
+    examples:
+      application/json:
+        patients_count: 2
+        patients:
+          - patient_id: 3
+            first_name: patient first name
+            last_name: patient last name
+            email: email1234@example.com
+            dob: "YYYY-MM-DD"
+            phone: "1234567890"
+            gender: FEMALE
+          - patient_id: 4
+            first_name: patient firstname
+            last_name: patient lastname
+            email: email@example.com
+            dob: "YYYY-MM-DD"
+            phone: "0000000000"
+            gender: MALE
+  403:
+    description: Unauthorized access
+  404:
+    description: Doctor not found

@@ -57,9 +57,24 @@ def upcoming_appointments_count(doctor_id):
 def pending_appointments_count(doctor_id):
     pending_count = Appointment.query.filter_by(doctor_id=doctor_id).join(AppointmentDetail).filter(AppointmentDetail.status == "PENDING").count()
     return (pending_count)
-def doctor_patients_count(doctor_id):
-    patients_count = Patient.query.filter_by(doctor_id=doctor_id).count()
-    return (patients_count)
+def doctor_patients_count_and_list(doctor_id):
+    patients = Patient.query.filter_by(doctor_id=doctor_id).all()
+    return {
+        "patients_count": len(patients),
+        "patients": [
+            {
+                "patient_id": patient.user_id,
+                "first_name": patient.first_name,
+                "last_name": patient.last_name,
+                "email": patient.email,
+                "dob": patient.dob,
+                "phone": patient.phone,
+                "gender": patient.gender.value
+            }
+            for patient in patients
+        ]
+    }
+
 def todays_patient(doctor_id, date):
     try:
         query_date = datetime.strptime(date, '%Y-%m-%d').date() if date else datetime.today().date()

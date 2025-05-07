@@ -3,11 +3,12 @@ from flask_jwt_extended import jwt_required, current_user
 from flask_jwt_extended.exceptions import NoAuthorizationError
 from flaskr.services import all_doctors, doctor_details, \
     upcoming_appointments_count, pending_appointments_count, \
-    doctor_patients_count, todays_patient, doctor_rating_detail, new_appointments_request, update_doctor,\
+    doctor_patients_count_and_list, todays_patient, doctor_rating_detail, new_appointments_request, update_doctor,\
     last_completed_appointment, doctor_general_discussion, assign_survey,\
     USER_NOT_AUTHORIZED, UnauthorizedError
 from flasgger import swag_from
 from sqlalchemy.exc import OperationalError, IntegrityError
+
 
 doctor_bp = Blueprint('doctor_bp', __name__)
 
@@ -24,10 +25,14 @@ def get_all_doctors():
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
 
-@doctor_bp.route('/<int:doctor_id>/doctor-patients/count', methods=['GET'])
-@swag_from('../docs/doctor_routes/count_doctor_patients.yml')
-def count_doctor_patients(doctor_id):
-    return jsonify({"doctor_patients_count": doctor_patients_count(doctor_id)}), 200
+@doctor_bp.route('/<int:doctor_id>/doctor-patients', methods=['GET'])
+@jwt_required()
+@swag_from('../docs/doctor_routes/doctor_patients_count_details.yml')
+def doctor_patients_count_details(doctor_id):
+    if (current_user.user_id != doctor_id 
+        and current_user.account_type.name != 'SuperUser'):
+        return USER_NOT_AUTHORIZED(current_user.user_id)
+    return jsonify(doctor_patients_count_and_list(doctor_id)), 200
 
 @doctor_bp.route('/<int:doctor_id>/ratings', methods=['GET'])
 @swag_from('../docs/doctor_routes/doctor_ratings.yml')
@@ -158,3 +163,5 @@ def update_doctor_info(user_id):
         return jsonify(result), 200
     return jsonify(result), 404
 ### ---END PROTECTED ROUTES---
+
+
