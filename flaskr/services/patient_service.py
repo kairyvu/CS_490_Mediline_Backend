@@ -27,6 +27,7 @@ def patient_info(user_id):
         "phone": patient.phone,
         "dob": str(patient.dob),
         "doctor": {
+            "doctor_id": doctor.user_id,
             "first_name": doctor.first_name,
             "last_name": doctor.last_name,
             "gender": doctor.gender.value if isinstance(doctor.gender, Gender) else doctor.gender,
@@ -36,6 +37,7 @@ def patient_info(user_id):
             "email": doctor.email
         } if doctor else None,
         "pharmacy": {
+            "pharmacy_id": pharmacy.user_id,
             "pharmacy_name": pharmacy.pharmacy_name,
             "phone": pharmacy.phone,
             "email": pharmacy.email,

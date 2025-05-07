@@ -82,6 +82,7 @@ def todays_patient(doctor_id, date):
 
         if patient:
             result.append({
+                "patient_id": patient.user_id,
                 "first_name": patient.first_name,
                 "last_name": patient.last_name,
                 "gender": patient.gender.value if isinstance(patient.gender, Gender) else patient.gender,
