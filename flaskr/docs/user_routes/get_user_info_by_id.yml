@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:flaskr/docs/patient_routes/get_patient_info_other_authenticated.yml
-Get patient info given user_id
-========
 Get info of a user given their ID
->>>>>>>> b08581e7290607be100021f18a0a9782ba6ccd92:flaskr/docs/user_routes/get_user_info_by_id.yml
 ---
 tags: 
   - user
