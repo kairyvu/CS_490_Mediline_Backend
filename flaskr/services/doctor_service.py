@@ -2,17 +2,14 @@ from datetime import date, datetime
 from werkzeug.datastructures import ImmutableMultiDict
 from flask import jsonify
 from sqlalchemy import select, update
-
 from sqlalchemy.exc import OperationalError, IntegrityError
+from flask_jwt_extended.exceptions import NoAuthorizationError
+
 from flaskr.models import User, Doctor, Patient, Appointment, AppointmentDetail, RatingSurvey, Chat, Message, City, Country, Address
 from flaskr.extensions import db
-from flaskr.struct import AppointmentStatus
+from flaskr.struct import AppointmentStatus, Gender
 
 from .forms import DrRegForm
-
-
-from flaskr.struct import Gender
-
 
 def all_doctors(sort_by='user_id', order='asc'):
     if not hasattr(Doctor, sort_by):
@@ -335,9 +332,16 @@ def update_doctor(user_id, updates: dict) -> dict:
         raise e
     return {"message": "Doctor updated successfully"}
 
-def assign_survey(doctor_id, patient_id, stars, comment=None):
+def assign_survey(doctor_id, patient_id, stars, comment=None, requesting_user: User|None=None):
+    if not requesting_user:
+        raise NoAuthorizationError('must be authenticated')
     if stars < 1 or stars > 5:
-        return {"error": "Rating must be between 1 and 5"}
+        raise ValueError("Rating must be between 1 and 5")
+
+    dr_pts = Doctor.query.filter_by(user_id=doctor_id).first().patients
+    if requesting_user.user_id not in {pt.user_id for pt in dr_pts}:
+        raise NoAuthorizationError(f'User with ID: {requesting_user.user_id} is not authorized')
+
     new_survvey = RatingSurvey(
         doctor_id = doctor_id,
         patient_id = patient_id,
@@ -346,7 +350,10 @@ def assign_survey(doctor_id, patient_id, stars, comment=None):
     )
 
     db.session.add(new_survvey)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except Exception as e:
+        raise e
 
     return {
         "message": "Survey Assigned successfully",

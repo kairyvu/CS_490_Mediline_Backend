@@ -1,5 +1,6 @@
 from werkzeug.datastructures import ImmutableMultiDict
 from sqlalchemy import select, update
+from flask_jwt_extended.exceptions import NoAuthorizationError
 from flaskr.models import Patient, Doctor, Pharmacy, User, Address, City, Country
 from flaskr.models import MedicalRecord
 from flaskr.extensions import db
@@ -253,10 +254,19 @@ def update_primary_pharmacy(patient_id, pharmacy_id):
         "new_pharmacy_id": pharmacy_id
     }
 # This function is restricted to use directly
-def update_doctor_by_patient_id(patient_id, doctor_id):
+def update_doctor_by_patient_id(patient_id, doctor_id, requesting_user=None):
+    from flaskr.services import UnauthorizedError
+    if not requesting_user:
+        return NoAuthorizationError
     doctor = Doctor.query.filter_by(user_id=doctor_id).first()
     if not doctor:
         raise ValueError(f'Doctor with id {doctor_id} not found')
+
+    match requesting_user.account_type.name:
+        case 'SuperUser' | 'Doctor' if requesting_user.user_id == doctor_id:
+            pass
+        case _:
+            raise UnauthorizedError
     patient = Patient.query.filter_by(user_id=patient_id).first()
     if not patient:
         raise ValueError(f'Patient with id {patient_id} not found')

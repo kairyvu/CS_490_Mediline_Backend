@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, current_user
+from flask_jwt_extended.exceptions import NoAuthorizationError
 from flaskr.services import all_doctors, doctor_details, \
     upcoming_appointments_count, pending_appointments_count, \
     doctor_patients_count, todays_patient, doctor_rating_detail, new_appointments_request, update_doctor,\
@@ -87,6 +88,7 @@ def get_doctor_general_discussions(doctor_id):
     return jsonify(doctor_general_discussion(doctor_id)), 200
 
 @doctor_bp.route('/survey/<int:doctor_id>', methods=['POST'])
+@jwt_required()
 @swag_from('../docs/doctor_routes/assign_survey_rating.yml')
 def assign_survey_rating(doctor_id):
     data = request.get_json()
@@ -99,25 +101,44 @@ def assign_survey_rating(doctor_id):
 
     if not patient_id or not stars:
         return jsonify({"error":"patient id and stars are required"})
-    result = assign_survey(doctor_id, patient_id, stars, comment)
-
-    if "error" in result:
-        return jsonify(result), 400
+    try:
+        result = assign_survey(doctor_id, patient_id, stars, 
+                               comment, requesting_user=current_user)
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+    except NoAuthorizationError as e:
+        return jsonify({'error': str(e)}), 401
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
     return jsonify(result), 201
 
 @doctor_bp.route('/<int:doctor_id>/appointment_requests', methods=['GET'])
+@jwt_required()
 @swag_from('../docs/doctor_routes/new_appointment_requests.yml')
 def get_new_appointment_requests(doctor_id):
+    _acct_type = current_user.account_type.name
+    match _acct_type:
+        case 'SuperUser' | 'Doctor' if current_user.user_id == doctor_id:
+            pass
+        case _:
+            return USER_NOT_AUTHORIZED(current_user.user_id)
     appointments = new_appointments_request(doctor_id)
     return jsonify(appointments), 200
 
 
 @doctor_bp.route('/<int:user_id>', methods=['PUT'])
+@jwt_required()
 @swag_from('../docs/doctor_routes/update_doctor_info.yml')
 def update_doctor_info(user_id):
     data = request.get_json()
     if not data:
         return jsonify({"error": "no input data provided"}), 400
+    _acct_type = current_user.account_type.name
+    match _acct_type:
+        case 'SuperUser' | 'Doctor' if current_user.user_id == user_id:
+            pass
+        case _:
+            return USER_NOT_AUTHORIZED(current_user.user_id)
     try:
         result = update_doctor(user_id, data)
     except ValueError as e:
