@@ -91,6 +91,7 @@ class Doctor(db.Model):
             "fee": self.fee,
             "profile_picture": self.profile_picture,
             "dob": self.dob.isoformat() if self.dob else None,
+            "accepting_patients": self.accepting_patients,
             "license_id": self.license_id
         }
         rtn.update(self.user.address.to_dict())
