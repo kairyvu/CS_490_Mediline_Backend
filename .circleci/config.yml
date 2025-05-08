@@ -11,8 +11,6 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            python3 -m venv venv
-            . venv/bin/activate
             pip install -r requirements.txt
   lint:
     docker:
@@ -52,7 +50,7 @@ jobs:
           command: echo "Key set? ${DEEPSEEK_API_KEY:+yes}"
       - run:
           name: Run tests
-          command: pytest --junitxml=junit.xml || true
+          command: pytest --junitxml=junit.xml flaskr || true
       - store_test_results:
           path: junit.xml
   build-and-push-docker-image:
