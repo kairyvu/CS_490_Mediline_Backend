@@ -93,6 +93,11 @@ jobs:
       - image: google/cloud-sdk:latest
     steps:
       - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Load Docker image
+          command: docker load -i my-app-image.tar
       - run:
           name: Authenticate with GCP
           command: |
