@@ -1,0 +1,85 @@
+Get a doctor's full details
+---
+tags:
+  - doctor
+parameters:
+  - name: doctor_id
+    in: path
+    type: integer
+    required: true
+    description: ID of the doctor
+responses:
+  200:
+    description: Doctor details fetched successfully
+    schema:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        specialization:
+          type: string
+        fee:
+          type: number
+        bio:
+          type: string
+        dob:
+          type: string
+        license_id:
+          type: string
+        profile_picture:
+          type: string
+        accepting_patients:
+          type: boolen
+        address:
+          type: object
+          properties:
+            address1:
+              type: string
+            address2:
+              type: string
+            city:
+              type: string
+            state:
+              type: string
+            country:
+              type: string
+            zipcode:
+              type: string
+    examples:
+      application/json:
+        user_id: 5
+        first_name: first name
+        last_name: last name
+        email: email@example.com
+        phone: "1234567890"
+        specialization: Doctor
+        fee: 50
+        bio: bio.
+        dob: "YYYY-MM-DD"
+        license_id: "ABC123456"
+        profile_picture: "url"
+        address:
+          address1: "123 street"
+          address2: ""
+          city: "Newark"
+          state: "NJ"
+          country: "USA"
+          zipcode: "00000"
+  404:
+    description: Doctor not found
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json:
+        error: Doctor not found

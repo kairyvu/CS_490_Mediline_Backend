@@ -1,56 +1,37 @@
-Get count of prescriptions by pharmacy
+Fetch a patient's prescriptions
 ---
-tags:
+tags: 
   - prescription
 parameters:
   - name: pharmacy_id
     in: path
     type: integer
     required: true
-    description: The ID of the pharmacy
+    description: pharmacy ID
 responses:
   200:
-    description: Counts of collected and processing prescriptions
+    description: fetch collected prescription number and processing prescription number
     schema:
       type: object
       properties:
         collected_prescription:
           type: integer
-          example: 1
         processing_prescription:
           type: integer
-          example: 2
-    examples:
-      application/json:
-        collected_prescription: 1
-        processing_prescription: 2
-  403:
-    description: Unauthorized access
-    schema:
-      type: object
-      properties:
-        error:
-          type: string
-    examples:
-      application/json:
-        error: Unauthorized
   404:
-    description: Pharmacy not found or no records
+    description: Failed to fetch data
     schema:
       type: object
       properties:
         error:
           type: string
-    examples:
-      application/json:
-        error: Pharmacy not found
+          enum:
+            - User not found as either patient or doctor
+            - Invalid sort field <sort_by arg>
   500:
-    description: Server error
+    description: internal server error
     schema:
       type: object
       properties:
         error:
           type: string
-    examples:
-      application/json:
-        error: An error occurred while fetching the prescription count

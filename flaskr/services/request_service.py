@@ -1,4 +1,4 @@
-from flaskr.models import Patient, PatientRequest
+from flaskr.models import Patient, PatientRequest, Doctor
 from flaskr.extensions import db
 
 def add_patient_request(patient_id, doctor_id):
@@ -10,6 +10,11 @@ def add_patient_request(patient_id, doctor_id):
         .filter_by(user_id=patient_id)
         .first().doctor_id == doctor_id):
         raise ValueError(f'patient with ID: {patient_id} is already assigned doctor with ID: {doctor_id}')
+    requested_doc = Doctor.query.filter_by(user_id=doctor_id).first()
+    if not requested_doc:
+        raise ValueError(f'Doctor not found')
+    if not requested_doc.accepting_patients:
+        raise ValueError(f'Doctor is not accepting patients at the moment')
     new_request = PatientRequest(patient_id=patient_id, doctor_id=doctor_id)
     db.session.add(new_request)
     db.session.commit()

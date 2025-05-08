@@ -80,7 +80,7 @@ def update_patient_info(user_id):
         return jsonify({"error": error_msg}), 504
     except IntegrityError as e:
         error_msg = str((str(e.args[0]).split(maxsplit=1))[1]).split(',')[1].strip().strip(')"\\')
-        return jsonify({"error", error_msg}), 400
+        return jsonify({"error": error_msg}), 400
     if "error" not in result:
         return jsonify(result), 200
     return jsonify(result), 404

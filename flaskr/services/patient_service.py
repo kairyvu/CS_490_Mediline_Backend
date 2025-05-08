@@ -69,7 +69,7 @@ def update_patient(user_id, updates: dict) -> dict:
 
     # Attributes that can be edited through this route
     address_attr = {'address1', 'address2', 'state', 'zipcode'}
-    patient_attr = {'first_name', 'last_name', 'email', 'phone', 'dob'}
+    patient_attr = {'first_name', 'last_name', 'email', 'phone', 'dob', 'gender'}
 
     # Check provided updates payload if it's a subset of the allowed attributes
     invalid_attrs = set(updates) - (patient_attr 

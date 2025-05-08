@@ -48,6 +48,7 @@ def update_invoice_status_put(patient_id, invoice_id):
     return jsonify(result), 200
 
 @payment_bp.route('/', methods=['POST'])
+@jwt_required()
 @swag_from('../docs/payment_routes/assign_invoice.yml')
 def assign_invoice():
     data = request.get_json()
@@ -62,14 +63,20 @@ def assign_invoice():
     if not appointment_id:
         return jsonify({"error": "Missing Appointment ID"}), 400
 
-    return assign_invoice_appoinmtnet(doctor_id, appointment_id, patient_id)
+    return assign_invoice_appoinmtnet(doctor_id, appointment_id, patient_id, requesting_user=current_user)
+
 @payment_bp.route('/invoice/<int:invoice_id>', methods=['DELETE'])
+@jwt_required()
 @swag_from('../docs/payment_routes/delete_invoice.yml')
 def delete_invoices(invoice_id):
     data = request.get_json()
     doctor_id = data.get('doctor_id')
+    if ((current_user.account_type.name != 'SuperUser') 
+        and (current_user.user_id != doctor_id)):
+        return USER_NOT_AUTHORIZED(current_user.user_id)
     
     result = delete_invoice(doctor_id, invoice_id)
+    
     if not result:
         return jsonify ({"error": "Invoice not found or not authorized"}), 404
     return jsonify(result), 200

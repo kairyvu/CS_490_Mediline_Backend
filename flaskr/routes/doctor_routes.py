@@ -24,15 +24,14 @@ def get_all_doctors():
         return jsonify(doctors), 200
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
-
-@doctor_bp.route('/<int:doctor_id>/doctor-patients', methods=['GET'])
-@jwt_required()
-@swag_from('../docs/doctor_routes/doctor_patients_count_details.yml')
-def doctor_patients_count_details(doctor_id):
-    if (current_user.user_id != doctor_id 
-        and current_user.account_type.name != 'SuperUser'):
-        return USER_NOT_AUTHORIZED(current_user.user_id)
-    return jsonify(doctor_patients_count_and_list(doctor_id)), 200
+    
+@doctor_bp.route('/<int:doctor_id>/details', methods=['GET'])
+@swag_from('../docs/doctor_routes/get_doctor_details.yml')
+def get_doctor_details(doctor_id):
+    result = doctor_details(doctor_id)
+    if not result:
+        return jsonify({"error": "Doctor not found"}), 404
+    return jsonify(result), 200
 
 @doctor_bp.route('/<int:doctor_id>/ratings', methods=['GET'])
 @swag_from('../docs/doctor_routes/doctor_ratings.yml')
@@ -46,6 +45,15 @@ def doctor_ratings(doctor_id):
 ### ---END PUBLIC ROUTES---
 
 ### ---PROTECTED ROUTES---
+@doctor_bp.route('/<int:doctor_id>/doctor-patients', methods=['GET'])
+@jwt_required()
+@swag_from('../docs/doctor_routes/doctor_patients_count_details.yml')
+def doctor_patients_count_details(doctor_id):
+    if (current_user.user_id != doctor_id 
+        and current_user.account_type.name != 'SuperUser'):
+        return USER_NOT_AUTHORIZED(current_user.user_id)
+    return jsonify(doctor_patients_count_and_list(doctor_id)), 200
+
 @doctor_bp.route('/<int:doctor_id>/upcoming-appointments/count', methods=['GET'])
 @jwt_required()
 @swag_from('../docs/doctor_routes/count_upcoming_appointments.yml')
@@ -135,15 +143,15 @@ def get_new_appointment_requests(doctor_id):
 @jwt_required()
 @swag_from('../docs/doctor_routes/update_doctor_info.yml')
 def update_doctor_info(user_id):
-    data = request.get_json()
-    if not data:
-        return jsonify({"error": "no input data provided"}), 400
     _acct_type = current_user.account_type.name
     match _acct_type:
         case 'SuperUser' | 'Doctor' if current_user.user_id == user_id:
             pass
         case _:
             return USER_NOT_AUTHORIZED(current_user.user_id)
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "no input data provided"}), 400
     try:
         result = update_doctor(user_id, data)
     except ValueError as e:
@@ -155,7 +163,10 @@ def update_doctor_info(user_id):
         return jsonify({"error": error_msg}), 504
     except IntegrityError as e:
         error_msg = str((str(e.args[0]).split(maxsplit=1))[1]).split(',')[1].strip().strip(')"\\')
-        return jsonify({"error", error_msg}), 400
+        return jsonify({"error": error_msg}), 400
+    except Exception as e:
+        error_msg = str(e)
+        return jsonify({"error": error_msg}), 500
     if "error" not in result:
         return jsonify(result), 200
     return jsonify(result), 404
