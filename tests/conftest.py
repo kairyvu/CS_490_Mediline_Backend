@@ -2,12 +2,13 @@ from datetime import datetime, timedelta
 import pytest
 from flaskr import create_app
 from flaskr.extensions import db
-from flaskr.struct import AccountType, AppointmentStatus, ExerciseStatus, Gender
+from flaskr.struct import AccountType, AppointmentStatus, ExerciseStatus, Gender, PrescriptionStatus
 from flaskr.models import Country, City, Address
 from flaskr.models import User, Patient, Doctor, Pharmacy
 from flaskr.models import Appointment, AppointmentDetail
 from flaskr.models import Chat, Message
 from flaskr.models import ExerciseBank, PatientExercise
+from flaskr.models import MedicalRecord, Medication, PrescriptionMedication, Prescription, Inventory
 
 ## Unit test fixtures
 @pytest.fixture(scope='session')
@@ -277,6 +278,52 @@ def pt_ex3(request, ex3, pt1, dr1):
     _pt_ex.doctor = u2_dr
     yield _pt_ex, pt1, dr1, ex3 
 
+@pytest.fixture(scope='module')
+def record1(request):
+    yield MedicalRecord(
+        medical_record_id=1,
+        appointment_id=1,
+        description="",
+        created_at=datetime.now()
+    )
+
+@pytest.fixture(scope='module')
+def rx1(request):
+    yield Prescription(
+        prescription_id=1,
+        patient_id=1,
+        doctor_id=2,
+        pharmacy_id=3,
+        amount=300.00,
+        status=PrescriptionStatus.UNPAID,
+        created_at=datetime.now()
+    )
+    
+@pytest.fixture(scope='module')
+def med1(request):
+    yield Medication(
+        medication_id=1,
+        name='med1',
+        description='desc1'
+    )
+
+@pytest.fixture(scope='module')
+def med2(request):
+    yield Medication(
+        medication_id=1,
+        name='med2',
+        description='desc2'
+    )
+
+@pytest.fixture(scope='module')
+def inv1(request):
+    yield Inventory(
+        inventory_id=1,
+        pharmacy_id=1,
+        medication_id=1,
+        quantity=10,
+        expiration_date=datetime.now()
+    )
 
 @pytest.fixture(scope='session')
 def pt_reg_form1(request):
