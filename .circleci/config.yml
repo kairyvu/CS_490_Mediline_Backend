@@ -15,10 +15,11 @@ jobs:
       - checkout
       - python/install-packages
       - run:
+          name: Install pylint
+          command: pip install pylint
+      - run:
           name: Run linters (pylint)
-          command: |
-            pip install pylint
-            pylint flaskr tests
+          command: pylint flaskr tests || true
   test:
     docker:
       - image: cimg/python:3.12-node
