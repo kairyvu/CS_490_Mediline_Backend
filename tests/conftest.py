@@ -20,7 +20,7 @@ def app():
     with app.app_context():
         yield app
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def database_session(app):
     with db.session.begin():
         yield db

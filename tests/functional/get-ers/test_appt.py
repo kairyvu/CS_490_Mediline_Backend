@@ -28,7 +28,9 @@ def test_get_upcoming_appt(database_session, appt1):
     _p, _d, _appt, _appt_dt = appt1
     _up, _pt = _p
     _ud, _dr = _d
-    db.session.add_all([_up, _ud, _pt, _dr, _appt, _appt_dt])
+    db.session.add_all([_up, _ud, _pt, _dr])
+    db.session.flush()
+    db.session.add_all([_appt, _appt_dt])
     db.session.flush()
     res = get_upcoming_appointments(1)
     assert isinstance(res, list)
