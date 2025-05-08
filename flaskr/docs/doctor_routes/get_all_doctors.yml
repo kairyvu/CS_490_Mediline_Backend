@@ -17,7 +17,7 @@ responses:
           specialization:
             type: string
           is_accepting_patients:
-            type: boolen
+            type: boolean
     examples:
       application/json:
         [
