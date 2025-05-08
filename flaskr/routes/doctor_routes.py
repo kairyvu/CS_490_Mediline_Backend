@@ -24,6 +24,7 @@ def get_all_doctors():
         return jsonify(doctors), 200
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
+    
 
 @doctor_bp.route('/<int:doctor_id>/ratings', methods=['GET'])
 @swag_from('../docs/doctor_routes/doctor_ratings.yml')

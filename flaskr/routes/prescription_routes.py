@@ -44,10 +44,9 @@ def get_medication_list(prescription_id):
 @jwt_required()
 @swag_from('../docs/prescription_routes/get_prescription_count.yml')
 def get_prescription_count(pharmacy_id):
-    _user_id = current_user.user_id
-    _acct_type = current_user.account_type.name
-    if (_user_id != pharmacy_id) and (_acct_type != 'SuperUser'):
-        return USER_NOT_AUTHORIZED(_user_id)
+    if ((current_user.account_type.name != 'SuperUser') 
+        and (current_user.user_id != pharmacy_id)):
+        return USER_NOT_AUTHORIZED(current_user.user_id)
     try:
         count = get_prescription_count_by_pharmacy(pharmacy_id)
         return jsonify(count), 200
