@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 import pytest
 from flaskr import create_app
 from flaskr.extensions import db
-from flaskr.struct import AccountType, AppointmentStatus, ExerciseStatus
+from flaskr.struct import AccountType, AppointmentStatus, ExerciseStatus, Gender
 from flaskr.models import Country, City, Address
 from flaskr.models import User, Patient, Doctor, Pharmacy
 from flaskr.models import Appointment, AppointmentDetail
@@ -14,7 +14,8 @@ from flaskr.models import ExerciseBank, PatientExercise
 def app():
     app = create_app({
         "TESTING": True,
-        "SQLALCHEMY_DATABASE_URI": "sqlite:///tests.db"
+        "SQLALCHEMY_DATABASE_URI": "sqlite:///tests.db",
+        "FLASK_ENV": "testing"
     })
 
     with app.app_context():
@@ -22,8 +23,8 @@ def app():
 
 @pytest.fixture
 def database_session(app):
-    with db.session.begin():
-        yield db
+    yield db
+    db.drop_all()
 
 ## Integration test fixtures
 @pytest.fixture
@@ -34,12 +35,11 @@ def client(app, database_session):
     database_session.drop_all()
 
 ### MODELS FIXTURES
-@pytest.fixture(scope='module')
+@pytest.fixture
 def addr1(request):
     country: Country = Country(country_id=1, country='US')
     city: City = City(city_id=1, city='NYC', country_id=1)
     address: Address = Address(
-        address_id=1,
         address1='123 North St',
         address2='Apt 2',
         city_id=1,
@@ -48,12 +48,11 @@ def addr1(request):
     )
     yield address, city, country
 
-@pytest.fixture(scope='module')
+@pytest.fixture
 def addr2(request):
     country: Country = Country(country_id=1, country='US')
     city: City = City(city_id=1, city='NYC', country_id=1)
     address: Address = Address(
-        address_id=2,
         address1='777 20th Ave',
         city_id=1,
         state='New York',
@@ -61,7 +60,7 @@ def addr2(request):
     )
     yield address, city, country
 
-@pytest.fixture(scope='module')
+@pytest.fixture
 def addr3(request):
     country: Country = Country(country_id=1, country='US')
     city: City = City(city_id=2, city='Albany', country_id=1)
@@ -74,7 +73,7 @@ def addr3(request):
     )
     yield address, city, country
 
-@pytest.fixture(scope='module')
+@pytest.fixture
 def addr4(request):
     country: Country = Country(country_id=1, country='US')
     city: City = City(city_id=3, city='Newark', country_id=1)
@@ -87,7 +86,7 @@ def addr4(request):
     )
     yield address, city, country
 
-@pytest.fixture(scope='module')
+@pytest.fixture
 def pt1(request, addr1):
     _dob = datetime.fromisoformat('2000-01-01')
     addr, _, _ = addr1
@@ -99,12 +98,12 @@ def pt1(request, addr1):
         dob=_dob,
         phone='9992223333',
         email='email@email.com',
-        gender='female',
+        gender=Gender.MALE,
         user=u1
     )
-    yield u1, pt
+    yield u1, pt, addr1
 
-@pytest.fixture(scope='module')
+@pytest.fixture
 def dr1(request, addr2):
     _dob = datetime.fromisoformat('2000-01-01')
     addr, _, _ = addr2
@@ -120,10 +119,10 @@ def dr1(request, addr2):
         specialization='Neurology',
         license_id='9f82hslc-982j',
         fee=200.00,
-        gender='male',
+        gender=Gender.FEMALE,
         user=u2
     )
-    yield u2, dr
+    yield u2, dr, addr2
 
 @pytest.fixture(scope='module')
 def pharm1(request, addr3):
@@ -139,10 +138,10 @@ def pharm1(request, addr3):
     )
     yield u3, pharm
 
-@pytest.fixture(scope='module')
+@pytest.fixture
 def appt1(request, pt1, dr1):
-    _up, _p = pt1
-    _ud, _d = dr1
+    _up, _p, _addr1 = pt1
+    _ud, _d, _addr2 = dr1
     appt = Appointment(
         appointment_id=1,
         doctor_id=_d.user_id,
@@ -282,7 +281,7 @@ def pt_ex3(request, ex3, pt1, dr1):
 @pytest.fixture(scope='session')
 def pt_reg_form1(request):
     yield {
-        'username': 'username', 
+        'username': 'email@email.com',
         'password': 'apoliknsdbvpoiahnwepn',
         'account_type': 'patient',
         'address1': '123 St St',
@@ -294,6 +293,30 @@ def pt_reg_form1(request):
         'last_name': 'Smith', 
         'phone': '1112223333',
         'email': 'email@email.com',
-        'dob': '2000-01-01'
+        'dob': '2000-01-01',
+        'gender': 'FEMALE',
     }
+
+@pytest.fixture(scope='session')
+def dr_reg_form1(request):
+    yield {
+        'username': 'email1@email.com',
+        'password': 'apoliknsdbvpoiahnwepn',
+        'account_type': 'doctor',
+        'address1': '888 St St',
+        'city': 'NYC',
+        'state': 'New York',
+        'zipcode': '01122',
+        'country': 'US',
+        'first_name': 'Alex',
+        'last_name': 'Smith', 
+        'phone': '1112223383',
+        'email': 'email1@email.com',
+        'dob': '2000-01-01',
+        'gender': 'MALE',
+        'specialization': 'Orthology',
+        'license_id': '8873j0sk10',
+        'fee': '200.00'
+    }
+   
    
