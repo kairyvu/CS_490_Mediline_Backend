@@ -57,6 +57,7 @@ jobs:
       - run:
           name: Run tests
           command: |
+            export GOOGLE_APPLICATION_CREDENTIALS=gcloud-key.json
             . venv/bin/activate
             pytest --junitxml=junit.xml || true
       - store_test_results:
