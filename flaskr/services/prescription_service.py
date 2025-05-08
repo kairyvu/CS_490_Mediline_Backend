@@ -52,9 +52,9 @@ def get_medications_by_prescription(prescription_id, requesting_user: User|None=
                 if requesting_user.user_id == prescription.pharmacy_id:
                 pass
             case _:
-                return UnauthorizedError
+                raise UnauthorizedError
     else:
-        return UnauthorizedError
+        raise UnauthorizedError
 
     for pres_med in prescription.prescription_medications:
         med_details = pres_med.medication.to_dict()
