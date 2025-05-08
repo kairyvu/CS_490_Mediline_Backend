@@ -66,7 +66,7 @@ def delete_request(request_id):
         
     return jsonify({"error": "Invalid request"}), 400
 
-@request_bp.route('/<int:doctor_id>', methods=['GET'])
+@request_bp.route('/<int:user_id>', methods=['GET'])
 @jwt_required()
 @swag_from('../docs/request_routes/get_request_by_doctor_id.yml')
 def get_request_by_user_id(user_id, sort_by='created_at', order='desc'):
