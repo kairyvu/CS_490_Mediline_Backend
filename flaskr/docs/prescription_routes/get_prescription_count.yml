@@ -34,9 +34,4 @@ responses:
       type: object
       properties:
         error:
-<<<<<<< HEAD
           type: string
-=======
-          type: string
-
->>>>>>> 0c483a63d312aa06ce5b941faddd48ab2c8a0174
