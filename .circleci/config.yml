@@ -7,11 +7,10 @@ jobs:
       - image: cimg/python:3.12-node
     steps:
       - checkout
+      - python/install-packages
       - run:
-          name: Install dependencies (using venv)
+          name: Install dependencies
           command: |
-            python3 -m venv venv
-            . venv/bin/activate
             pip install -r requirements.txt
   lint:
     docker:
@@ -30,7 +29,6 @@ jobs:
       - image: google/cloud-sdk:latest
     steps:
       - checkout
-      - python/install-packages
       - run:
           name: Install Python & pip
           command: |
@@ -38,8 +36,9 @@ jobs:
       - run:
           name: Create virtual environment
           command: |
-            python3 -m venv venv
+            python -m venv venv
             . venv/bin/activate
+            pip install --upgrade pip
             pip install -r requirements.txt
       - run:
           name: Set up Google Cloud credentials
