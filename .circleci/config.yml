@@ -51,7 +51,9 @@ jobs:
           command: echo "Key set? ${DEEPSEEK_API_KEY:+yes}"
       - run:
           name: Run tests
-          command: pytest --junitxml=junit.xml flaskr || true
+          command: |
+            . venv/bin/activate
+            pytest --junitxml=junit.xml || true
       - store_test_results:
           path: junit.xml
   build-and-push-docker-image:
