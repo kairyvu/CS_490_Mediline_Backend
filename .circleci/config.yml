@@ -36,7 +36,6 @@ jobs:
       - run:
           name: Create virtual environment
           command: |
-            python3 -m venv venv
             . venv/bin/activate
             pip install --upgrade pip
             pip install -r requirements.txt
@@ -70,7 +69,7 @@ jobs:
       - run:
           name: Build and Push Docker Image to Artifact Registry
           command: |
-            IMAGE_URI=us-central1-docker.pkg.dev/$GCLOUD_PROJECT/test/$CLOUDRUN_SERVICE:$CIRCLE_SHA1
+            IMAGE_URI=us-central1-docker.pkg.dev/$GCLOUD_PROJECT/cloudrun-services/$CLOUDRUN_SERVICE:$CIRCLE_SHA1
             echo "IMAGE_URI=$IMAGE_URI" >> $BASH_ENV
             docker build -t $IMAGE_URI .
             docker push $IMAGE_URI
@@ -88,7 +87,7 @@ jobs:
       - run:
           name: Deploy to Cloud Run using Artifact Registry image
           command: |
-            IMAGE_URI=us-central1-docker.pkg.dev/$GCLOUD_PROJECT/test/$CLOUDRUN_SERVICE:$CIRCLE_SHA1
+            IMAGE_URI=us-central1-docker.pkg.dev/$GCLOUD_PROJECT/cloudrun-services/$CLOUDRUN_SERVICE:$CIRCLE_SHA1
             gcloud run deploy $CLOUDRUN_SERVICE \
               --image $IMAGE_URI \
               --region $CLOUDRUN_REGION \
@@ -113,6 +112,9 @@ workflows:
           requires:
             - test
             - lint
+          filters:
+            branches:
+              only: main
       - deploy:
           requires:
             - build-and-push-docker-image
