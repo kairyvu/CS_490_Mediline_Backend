@@ -6,7 +6,6 @@ def test_user_patient(pt1):
     assert (isinstance(_u.account_type, AccountType) 
             and _u.account_type.value == 'patient') \
             or _u.account_type == 'patient'
-    assert _p.user_id == 1
     assert _p.first_name == 'John'
     assert _p.last_name == 'Smith'
     assert isinstance(_u.to_dict(), dict)
@@ -20,7 +19,6 @@ def test_user_doc(dr1):
             and _u.account_type.value == 'doctor') \
             or _u.account_type == 'doctor'
     assert _u.address_id == 2
-    assert _d.user_id == 2
     assert _d.first_name == 'Jack'
     assert _d.last_name == 'Daniels'
     assert _d.bio == 'Blah Blah Blah'
@@ -33,7 +31,6 @@ def test_user_pharm(pharm1):
     assert (isinstance(_u.account_type, AccountType) 
             and _u.account_type.value == 'pharmacy') \
             or _u.account_type == 'pharmacy'
-    assert _ph.user_id == 3
     assert _ph.pharmacy_name == 'Walgreens'
     assert _ph.hours == '10am-5pm'
     assert isinstance(_u.to_dict(), dict)

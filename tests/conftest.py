@@ -90,20 +90,15 @@ def addr4(request):
 def pt1(request, addr1):
     _dob = datetime.fromisoformat('2000-01-01')
     addr, _, _ = addr1
-    u1 = User(
-        user_id=1,
-        username='user1',
-        password='password1',
-        account_type=AccountType.Patient,
-        address_id=addr.address_id
-    )
+    u1 = User('user1', 'password1', AccountType.Patient, addr.address_id)
+    u1.address = addr
     pt = Patient(
-        user_id=1,
         first_name='John',
         last_name='Smith',
         dob=_dob,
         phone='9992223333',
         email='email@email.com',
+        user=u1
     )
     yield u1, pt
 
@@ -111,15 +106,9 @@ def pt1(request, addr1):
 def dr1(request, addr2):
     _dob = datetime.fromisoformat('2000-01-01')
     addr, _, _ = addr2
-    u2 = User(
-        user_id=2,
-        username='doct1',
-        password='password1',
-        account_type=AccountType.Doctor,
-        address_id=addr.address_id
-    )
+    u2 = User('doct1', 'password1', AccountType.Doctor, addr.address_id)
+    u2.address = addr
     dr = Doctor(
-        user_id=2,
         first_name='Jack',
         last_name='Daniels',
         dob=_dob,
@@ -128,26 +117,22 @@ def dr1(request, addr2):
         bio='Blah Blah Blah',
         specialization='Neurology',
         license_id='9f82hslc-982j',
-        fee=200.00
+        fee=200.00,
+        user=u2
     )
     yield u2, dr
 
 @pytest.fixture(scope='module')
 def pharm1(request, addr3):
     addr, _, _ = addr3
-    u3 = User(
-        user_id=3,
-        username='pharm',
-        password='password1',
-        account_type=AccountType.Pharmacy,
-        address_id=addr.address_id
-    )
+    u3 = User('pharm', 'password1', AccountType.Pharmacy, addr.address_id)
+    u3.address = addr
     pharm = Pharmacy(
-        user_id=3,
         pharmacy_name='Walgreens',
         phone='281-288-3949',
         email='walgreens.pharm@gmail.com',
-        hours='10am-5pm'
+        hours='10am-5pm',
+        user=u3
     )
     yield u3, pharm
 
