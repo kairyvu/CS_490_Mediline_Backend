@@ -1,8 +1,10 @@
 import os
-from werkzeug.exceptions import abort
-from flask import make_response, jsonify
+
 from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import JWTManager
+from flask_socketio import SocketIO, emit
 from flasgger import Swagger
+
 from google.cloud.sql.connector import Connector, IPTypes
 
 ip_type = IPTypes.PRIVATE if os.environ.get("PRIVATE_IP") else IPTypes.PUBLIC
@@ -13,4 +15,15 @@ swag = Swagger(
         os.getcwd(), 'flaskr', 'docs', 'template.yml'
     ),
     parse=True
+)
+
+jwt = JWTManager()
+
+## SocketIO stuff
+sio = SocketIO(
+    ping_timeout=60,
+    cors_allowed_origins='*',
+    always_connect=True, 
+    namespaces='*',
+    logger=True,
 )

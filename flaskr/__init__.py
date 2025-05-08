@@ -5,7 +5,8 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_migrate import Migrate
 
-from flaskr.extensions import db, swag
+from flaskr.extensions import db, swag, jwt, sio
+from flaskr.models import User
 from flaskr.routes import register_routes
 from flaskr.cli import register_commands
 
@@ -31,6 +32,7 @@ def create_app(config_mapping: dict|None=None):
     elif os.environ.get('FLASK_ENV') == 'development':
         # When running app on local machine
         print("***IN DEVELOPMENT MODE***")
+        app.config['FLASK_ENV'] = 'development'
         username = os.getenv("DB_USER") or os.getenv("MYSQL_USER", "root")
         password = os.getenv("DB_PASS") or os.getenv("MYSQL_PASSWORD", "")
         host = os.getenv("INSTANCE_HOST") or os.getenv("MYSQL_HOST", "localhost")
@@ -39,6 +41,7 @@ def create_app(config_mapping: dict|None=None):
         app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
     else:
         # Production on gcloud
+        # TODO: celery integration
         from flaskr.extensions import connector
         from pymysql.connections import Connection
         instance_conn_name = os.getenv("INSTANCE_CONNECTION_NAME")
@@ -54,13 +57,30 @@ def create_app(config_mapping: dict|None=None):
         app.config['SQLALCHEMY_ENGINE_OPTIONS'] = { "creator": getconn }
         app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
                                             
+    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'super-secret-key')
+    app.config['JWT_SECRET_KEY'] = os.getenv('SECRET_KEY', 'super-secret-key')
     app.config['SWAGGER'] = { 'doc_dir': './docs/' }
 
     db.init_app(app)
     migrate = Migrate(app, db)
     swag.init_app(app)
+    jwt.init_app(app)
+    ### TODO: Move these registrations somewhere else for code cleanliness maybe
+    ## Register jwt related callbacks here to prevent circular import
+    # Callback that returns user_id
+    @jwt.user_identity_loader
+    def user_id_cb(user):
+        return str(user.user_id)
+
+    # Callback to load user from db on protected route access
+    @jwt.user_lookup_loader
+    def user_lookup_cb(_jwt_header, jwt_data):
+        identity = int(jwt_data['sub'])
+        return User.query.filter_by(user_id=identity).one_or_none()
     
     register_routes(app)
     register_commands(app)
+
+    sio.init_app(app)
 
     return app

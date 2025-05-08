@@ -1,0 +1,52 @@
+Update a post
+---
+tags:
+  - social_media
+parameters:
+  - name: user_id
+    in: path
+    required: true
+    type: integer
+    description: ID of the user
+  - name: post_id
+    in: path
+    required: true
+    type: integer
+    description: ID of the post to update
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+    description: Post details to update
+responses:
+  200:
+    description: Post updated successfully
+    schema:
+      type: object
+      properties:
+        post_id:
+          type: integer
+        title:
+          type: string
+        content:
+          type: string
+  400:
+    description: Missing input data
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+  404:
+    description: Post not found or unauthorized
+    schema:
+      type: object
+      properties:
+        error:
+          type: string

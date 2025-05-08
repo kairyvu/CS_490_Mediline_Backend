@@ -1,0 +1,32 @@
+Delete a comment
+---
+tags:
+  - social_media
+parameters:
+  - name: user_id
+    in: path
+    required: true
+    type: integer
+    description: ID of the user
+  - name: comment_id
+    in: path
+    required: true
+    type: integer
+    description: ID of the comment to delete
+responses:
+  200:
+    description: Comment deleted successfully
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+        comment_id:
+          type: integer
+  404:
+    description: Comment not found or unauthorized
+    schema:
+      type: object
+      properties:
+        error:
+          type: string

@@ -1,0 +1,85 @@
+Update a doctor details
+---
+tags: 
+  - doctor
+parameters:
+  - name: user_id
+    in: path
+    type: integer
+    required: true
+    description: Doctor id to update
+  - name: doctor_details
+    in: body
+    schema:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        dob:
+          type: string
+        specialization:
+          type: string
+        fee:
+          type: number
+        license_id:
+          type: string
+        profile_picture:
+          type: string
+        phone:
+          type: string
+        address1:
+          type: string
+        address2:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        country:
+          type: string
+    description: Doctor details to update
+responses:
+  200:
+    description: Successful doctor update
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+    examples:
+      application/json:
+        message: Doctor updated successfully
+  400:
+    description: Unseccessful doctor update
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json: 
+        error: <exception string>
+  404:
+    description: Doctor not found
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json: 
+        error: Doctor not found
+  504:
+    description: Unseccessful patient update
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json: 
+        error: <exception string>

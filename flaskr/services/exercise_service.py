@@ -1,4 +1,4 @@
-from flaskr.models import ExerciseBank, PatientExercise
+from flaskr.models import User, ExerciseBank, PatientExercise
 from flaskr.struct import ExerciseStatus
 from flaskr.extensions import db
 
@@ -52,10 +52,25 @@ def add_patient_exercise(exercise_id, patient_id, doctor_id, reps):
     return exercise.patient_exercise_id
     
 
-def update_patient_exercise(exercise_id, status, reps):
+def update_patient_exercise(exercise_id, status, reps, 
+                            requesting_user: User|None=None):
+    from flaskr.services import UnauthorizedError
     exercise = PatientExercise.query.filter_by(patient_exercise_id=exercise_id).first()
     if not exercise:
         raise ValueError("Exercise not found")
+    
+    if requesting_user:
+        match requesting_user.account_type.name:
+            case 'SuperUser' | 'Patient' \
+                if exercise.patient_id == requesting_user.user_id:
+                pass
+            case 'Doctor' if exercise.patient_id in set([
+                p.user_id for p in requesting_user.doctor.patients]):
+                pass
+            case _:
+                return UnauthorizedError
+    else:
+        return UnauthorizedError
     if not reps:
         raise ValueError("reps is required")
     if not status:

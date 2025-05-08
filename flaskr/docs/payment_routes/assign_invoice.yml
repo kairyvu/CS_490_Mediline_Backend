@@ -1,0 +1,71 @@
+Assign a new invoice for an appointment, and mark appointment as completed
+---
+tags:
+  - payment
+parameters:
+  - in: body
+    name: body
+    required: true
+    schema:
+      type: object
+      required:
+        - doctor_id
+        - appointment_id
+        - patient_id
+      properties:
+        doctor_id:
+          type: integer
+          description: ID of the doctor
+        appointment_id:
+          type: integer
+          description: ID of the appointment
+        patient_id:
+          type: integer
+          description: ID of the patient
+responses:
+  200:
+    description: Invoice assigned successfully
+    schema:
+      type: object
+      properties:
+        invoice_id:
+          type: integer
+        patient_id:
+          type: integer
+        doctor_id:
+          type: integer
+        status:
+          type: string
+        pay_date:
+          type: string
+        created_at:
+          type: string
+    examples:
+      application/json:
+        invoice_id: 1
+        patient_id: 1
+        doctor_id: 2
+        status: PENDING
+        pay_date: ""
+        created_at: ""
+  404:
+    description: Appointment not found
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json:
+        error: appointment not found
+
+  400:
+    description: Missing required parameters
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json:
+        error: Missing Doctor ID

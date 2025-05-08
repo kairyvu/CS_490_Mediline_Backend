@@ -1,0 +1,40 @@
+Get new appointment requests for a doctor
+---
+tags:
+  - doctor
+parameters:
+  - name: doctor_id
+    in: path
+    required: true
+    type: integer
+    description: ID of the doctor
+responses:
+  200:
+    description: List of pending appointment requests
+    schema:
+      type: array
+      items:
+        type: object
+        properties:
+          appointment_id:
+            type: integer
+          patient_id:
+            type: integer
+          created_at:
+            type: string
+          status:
+            type: string
+          visit_time:
+            type: string
+    examples:
+      application/json:
+        - appointment_id: 1
+          patient_id: 2
+          created_at: ""
+          status: "PENDING"
+          visit_time: ""
+        - appointment_id: 3
+          patient_id: 12
+          created_at: ""
+          status: "PENDING"
+          visit_time: ""
