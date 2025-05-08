@@ -40,9 +40,9 @@ def get_medication_list(prescription_id):
     except Exception as e:
         return jsonify({'error': 'An error occurred while fetching the medications'}), 500
 
-## TODO: Documentation
 @prescription_bp.route('/pharmacy/<int:pharmacy_id>/count', methods=['GET'])
 @jwt_required()
+@swag_from('../docs/prescription_routes/get_prescription_count.yml')
 def get_prescription_count(pharmacy_id):
     _user_id = current_user.user_id
     _acct_type = current_user.account_type.name
@@ -56,9 +56,9 @@ def get_prescription_count(pharmacy_id):
     except Exception as e:
         return jsonify({'error': 'An error occurred while fetching the prescription count'}), 500
 
-## TODO: Documentation
 @prescription_bp.route('/pharmacy/<int:pharmacy_id>/inventory', methods=['GET'])
 @jwt_required()
+@swag_from('../docs/prescription_routes/get_pharmacy_inventory.yml')
 def get_pharmacy_inventory(pharmacy_id):
     _user_id = current_user.user_id
     _acct_type = current_user.account_type.name
@@ -72,9 +72,9 @@ def get_pharmacy_inventory(pharmacy_id):
     except Exception as e:
         return jsonify({'error': 'An error occurred while fetching the pharmacy inventory'}), 500
     
-## TODO: Documentation
 @prescription_bp.route('/patient/<int:patient_id>/history', methods=['GET'])
 @jwt_required()
+@swag_from('../docs/prescription_routes/get_medications_history.yml')
 def get_medications_history(patient_id):
     _user: User = current_user
     _user_id = _user.user_id
