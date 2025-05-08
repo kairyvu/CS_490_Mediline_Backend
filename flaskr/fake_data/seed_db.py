@@ -5,7 +5,7 @@ from collections import defaultdict
 from faker import Faker
 from sqlalchemy import MetaData
 from sqlalchemy import text
-from deepseek_integration import generate_cities_for_countries, generate_addresses_for_cities, generate_doctor_profiles, generate_exercises, generate_medications, generate_social_media_posts
+from flaskr.fake_data.deepseek_integration import generate_cities_for_countries, generate_addresses_for_cities, generate_doctor_profiles, generate_exercises, generate_medications, generate_social_media_posts
 from flaskr.models import User, Patient, Doctor, Pharmacy, SuperUser, Post, Comment, Report, PatientReport, RatingSurvey, Invoice, Notification, MedicalRecord, Prescription, PrescriptionMedication, Medication, Inventory, ExerciseBank, PatientExercise, Chat, Message, Appointment, AppointmentDetail, Address, City, Country
 from flaskr.struct import AccountType, ReportType, PaymentStatus, AppointmentStatus, ExerciseStatus, PrescriptionStatus, Gender
 from flaskr.extensions import db
