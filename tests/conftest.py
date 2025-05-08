@@ -94,7 +94,7 @@ def pt1(request, addr1):
         user_id=1,
         username='user1',
         password='password1',
-        account_type=AccountType.Patient,
+        account_type=AccountType.PATIENT,
         address_id=addr.address_id
     )
     pt = Patient(
@@ -115,7 +115,7 @@ def dr1(request, addr2):
         user_id=2,
         username='doct1',
         password='password1',
-        account_type=AccountType.Doctor,
+        account_type=AccountType.DOCTOR,
         address_id=addr.address_id
     )
     dr = Doctor(
@@ -139,7 +139,7 @@ def pharm1(request, addr3):
         user_id=3,
         username='pharm',
         password='password1',
-        account_type=AccountType.Pharmacy,
+        account_type=AccountType.PHARMACY,
         address_id=addr.address_id
     )
     pharm = Pharmacy(

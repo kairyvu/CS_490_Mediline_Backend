@@ -1,14 +1,14 @@
 from datetime import timedelta
 import random
-from faker import Faker
-from flaskr.models import User, Patient, Doctor, Pharmacy, SuperUser, Post, Comment, Report, PatientReport, RatingSurvey, Invoice, Notification, MedicalRecord, Prescription, PrescriptionMedication, Medication, Inventory, ExerciseBank, PatientExercise, Chat, Message, Appointment, AppointmentDetail, Address, City, Country
 import contextlib
-from sqlalchemy import MetaData
-from flaskr.struct import AccountType, ReportType, PaymentStatus, AppointmentStatus, ExerciseStatus, PrescriptionStatus, Gender
 from collections import defaultdict
-from flaskr.extensions import db
+from faker import Faker
+from sqlalchemy import MetaData
 from sqlalchemy import text
-from .deepseek_integration import generate_cities_for_countries, generate_addresses_for_cities, generate_doctor_profiles, generate_exercises, generate_medications, generate_social_media_posts
+from deepseek_integration import generate_cities_for_countries, generate_addresses_for_cities, generate_doctor_profiles, generate_exercises, generate_medications, generate_social_media_posts
+from flaskr.models import User, Patient, Doctor, Pharmacy, SuperUser, Post, Comment, Report, PatientReport, RatingSurvey, Invoice, Notification, MedicalRecord, Prescription, PrescriptionMedication, Medication, Inventory, ExerciseBank, PatientExercise, Chat, Message, Appointment, AppointmentDetail, Address, City, Country
+from flaskr.struct import AccountType, ReportType, PaymentStatus, AppointmentStatus, ExerciseStatus, PrescriptionStatus, Gender
+from flaskr.extensions import db
 
 faker = Faker('en_US')
 users = defaultdict(list)
@@ -98,7 +98,6 @@ def seed_addresses():
     countries = [
         "United States", "Canada", "China", "United Kingdom",
     ]
-    
     for country in countries:
         ctr = Country(country=country)
         db.session.add(ctr)
@@ -107,7 +106,6 @@ def seed_addresses():
         c.country: c.country_id
         for c in Country.query.all()
     }
-    
     cities = generate_cities_for_countries(countries, min_count=5, max_count=10)
     for country, city_list in cities.items():
         country_id = country_map[country]
@@ -134,22 +132,19 @@ def seed_addresses():
     print("Addresses done")
 
 def seed_users(pharmacy_count=10, doctor_count=20, patient_count=500):
-    user = generate_user(AccountType.SuperUser)
+    user = generate_user(AccountType.SUPERUSER)
     super_user = SuperUser(user_id=user.user_id)
     db.session.add(super_user)
     doctor_profile = generate_doctor_profiles(doctor_count)
 
     for _ in range(pharmacy_count):
-        user = generate_user(AccountType.Pharmacy)
+        user = generate_user(AccountType.PHARMACY)
         generate_pharmacy(user)
-
     for i in range(doctor_count):
-        user = generate_user(AccountType.Doctor)
+        user = generate_user(AccountType.DOCTOR)
         generate_doctor(user, doctor_profile[i])
-    
     for _ in range(patient_count):
-        user = generate_user(AccountType.Patient)
-        
+        user = generate_user(AccountType.PATIENT)   
         users["users"].append(user.user_id)
         users["patients"].append(user.user_id)
 
