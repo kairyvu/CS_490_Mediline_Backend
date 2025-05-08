@@ -22,7 +22,8 @@ def app():
 
 @pytest.fixture(scope='session')
 def database_session(app):
-    yield db
+    with db.session.begin():
+        yield db
 
 ## Integration test fixtures
 @pytest.fixture
@@ -98,6 +99,7 @@ def pt1(request, addr1):
         dob=_dob,
         phone='9992223333',
         email='email@email.com',
+        gender='female',
         user=u1
     )
     yield u1, pt
@@ -118,6 +120,7 @@ def dr1(request, addr2):
         specialization='Neurology',
         license_id='9f82hslc-982j',
         fee=200.00,
+        gender='male',
         user=u2
     )
     yield u2, dr

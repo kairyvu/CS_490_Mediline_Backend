@@ -1,6 +1,6 @@
 import pytest
 from flaskr.services import get_appointment, get_upcoming_appointments
-from flaskr.models import User, Patient, Doctor, Appointment, AppointmentDetail
+from flaskr.models import Country, City, Address, User, Patient, Doctor, Appointment, AppointmentDetail
 
 def test_get_upcoming_appt_not_found(database_session):
     db = database_session
@@ -16,6 +16,9 @@ def test_get_upcoming_appt_not_found(database_session):
 def test_get_upcoming_appt(database_session, appt1):
     db = database_session
     db.metadata.create_all(db.engine, [
+        Country.__table__,
+        City.__table__,
+        Address.__table__,
         User.__table__,
         Patient.__table__,
         Doctor.__table__,
