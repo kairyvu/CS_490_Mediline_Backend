@@ -1,9 +1,9 @@
-Get requests by doctor_id
+Get requests by user_id
 ---
 tags:
   - request
 parameters:
-  - name: doctor_id
+  - name: user_id
     in: path
     type: integer
     required: true
