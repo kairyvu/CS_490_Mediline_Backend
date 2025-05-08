@@ -8,6 +8,10 @@ jobs:
     steps:
       - checkout
       - python/install-packages
+      - run:
+          name: Install dependencies
+          command: |
+            pip install -r requirements.txt
   lint:
     docker:
       - image: cimg/python:3.12-node
@@ -17,7 +21,6 @@ jobs:
       - run:
           name: Run linters (pylint)
           command: |
-            pip install pylint
             pylint flaskr tests
   test:
     docker:
