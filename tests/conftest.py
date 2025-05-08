@@ -35,7 +35,7 @@ def client(app, database_session):
     database_session.drop_all()
 
 ### MODELS FIXTURES
-@pytest.fixture
+@pytest.fixture(scope='module')
 def addr1(request):
     country: Country = Country(country_id=1, country='US')
     city: City = City(city_id=1, city='NYC', country_id=1)
@@ -48,7 +48,7 @@ def addr1(request):
     )
     yield address, city, country
 
-@pytest.fixture
+@pytest.fixture(scope='module')
 def addr2(request):
     country: Country = Country(country_id=1, country='US')
     city: City = City(city_id=1, city='NYC', country_id=1)
@@ -60,7 +60,7 @@ def addr2(request):
     )
     yield address, city, country
 
-@pytest.fixture
+@pytest.fixture(scope='module')
 def addr3(request):
     country: Country = Country(country_id=1, country='US')
     city: City = City(city_id=2, city='Albany', country_id=1)
@@ -73,7 +73,7 @@ def addr3(request):
     )
     yield address, city, country
 
-@pytest.fixture
+@pytest.fixture(scope='module')
 def addr4(request):
     country: Country = Country(country_id=1, country='US')
     city: City = City(city_id=3, city='Newark', country_id=1)
@@ -86,7 +86,7 @@ def addr4(request):
     )
     yield address, city, country
 
-@pytest.fixture
+@pytest.fixture(scope='module')
 def pt1(request, addr1):
     _dob = datetime.fromisoformat('2000-01-01')
     addr, _, _ = addr1
@@ -103,7 +103,7 @@ def pt1(request, addr1):
     )
     yield u1, pt, addr1
 
-@pytest.fixture
+@pytest.fixture(scope='module')
 def dr1(request, addr2):
     _dob = datetime.fromisoformat('2000-01-01')
     addr, _, _ = addr2
@@ -136,9 +136,9 @@ def pharm1(request, addr3):
         hours='10am-5pm',
         user=u3
     )
-    yield u3, pharm
+    yield u3, pharm, addr3
 
-@pytest.fixture
+@pytest.fixture(scope='module')
 def appt1(request, pt1, dr1):
     _up, _p, _addr1 = pt1
     _ud, _d, _addr2 = dr1
@@ -228,8 +228,8 @@ def ex3(request):
 
 @pytest.fixture(scope='module')
 def pt_ex1(request, ex1, pt1, dr1):
-    u1, u1_pt = pt1
-    u2, u2_dr = dr1
+    u1, u1_pt, _ = pt1
+    u2, u2_dr, _ = dr1
     _pt_ex = PatientExercise(
         patient_exercise_id=1,
         exercise_id=ex1.exercise_id,
@@ -245,8 +245,8 @@ def pt_ex1(request, ex1, pt1, dr1):
 
 @pytest.fixture(scope='module')
 def pt_ex2(request, ex2, pt1, dr1):
-    u1, u1_pt = pt1
-    u2, u2_dr = dr1
+    u1, u1_pt, _ = pt1
+    u2, u2_dr, _ = dr1
     _pt_ex = PatientExercise(
         patient_exercise_id=2,
         exercise_id=ex2.exercise_id,
@@ -262,8 +262,8 @@ def pt_ex2(request, ex2, pt1, dr1):
 
 @pytest.fixture(scope='module')
 def pt_ex3(request, ex3, pt1, dr1):
-    u1, u1_pt = pt1
-    u2, u2_dr = dr1
+    u1, u1_pt, _ = pt1
+    u2, u2_dr, _ = dr1
     _pt_ex = PatientExercise(
         patient_exercise_id=3,
         exercise_id=ex3.exercise_id,

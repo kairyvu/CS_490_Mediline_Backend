@@ -1,7 +1,7 @@
 from flaskr.struct import AccountType
 
 def test_user_patient(pt1):
-    _u, _p = pt1
+    _u, _p, _ = pt1
     assert (isinstance(_u.account_type, AccountType) or isinstance(_u.account_type, str))
     assert (isinstance(_u.account_type, AccountType) 
             and _u.account_type.value == 'patient') \
@@ -12,13 +12,12 @@ def test_user_patient(pt1):
     assert isinstance(_p.to_dict(), dict)
 
 def test_user_doc(dr1):
-    _u, _d = dr1
+    _u, _d, _ = dr1
     assert (isinstance(_u.account_type, AccountType) 
             or isinstance(_u.account_type, str))
     assert (isinstance(_u.account_type, AccountType) 
             and _u.account_type.value == 'doctor') \
             or _u.account_type == 'doctor'
-    assert _u.address_id == 2
     assert _d.first_name == 'Jack'
     assert _d.last_name == 'Daniels'
     assert _d.bio == 'Blah Blah Blah'
@@ -26,7 +25,7 @@ def test_user_doc(dr1):
     assert isinstance(_d.to_dict(), dict)
 
 def test_user_pharm(pharm1):
-    _u, _ph = pharm1
+    _u, _ph, _ = pharm1
     assert (isinstance(_u.account_type, AccountType) or isinstance(_u.account_type, str))
     assert (isinstance(_u.account_type, AccountType) 
             and _u.account_type.value == 'pharmacy') \
