@@ -1,0 +1,38 @@
+Fetch a patient's prescriptions
+---
+tags: 
+  - prescription
+parameters:
+  - name: pharmacy_id
+    in: path
+    type: integer
+    required: true
+    description: pharmacy ID
+responses:
+  200:
+    description: fetch collected prescription number and processing prescription number
+    schema:
+      type: object
+      properties:
+        collected_prescription:
+          type: integer
+        processing_prescription:
+          type: integer
+  404:
+    description: Failed to fetch data
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          enum:
+            - User not found as either patient or doctor
+            - Invalid sort field <sort_by arg>
+  500:
+    description: internal server error
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+

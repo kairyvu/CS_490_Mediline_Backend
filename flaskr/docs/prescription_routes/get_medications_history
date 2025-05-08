@@ -1,0 +1,51 @@
+Fetch a patient's medication history
+---
+tags: 
+  - prescription
+parameters:
+  - name: patient_id
+    in: path
+    type: integer
+    required: true
+    description: patient ID
+responses:
+  200:
+    description: fetch list of medications available in the pharmacy
+    schema:
+      type: array
+      items:
+        type: object
+        properties:
+          prescription_medication_id:
+            type: integer
+          medication_id:
+            type: integer
+          name: 
+            type: string
+          description:
+            type: string
+          dosage:
+            type: string
+          medical_instructions:
+            type: string
+          taken_date:
+            type: string
+            format: date-time
+          medication_name:
+            type: string
+          duration:
+            type: integer
+  404:
+    description: Failed to fetch data
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+  500:
+    description: internal server error
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
