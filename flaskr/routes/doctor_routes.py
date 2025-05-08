@@ -25,13 +25,6 @@ def get_all_doctors():
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
     
-@doctor_bp.route('/<int:doctor_id>/details', methods=['GET'])
-@swag_from('../docs/doctor_routes/get_doctor_details.yml')
-def get_doctor_details(doctor_id):
-    result = doctor_details(doctor_id)
-    if not result:
-        return jsonify({"error": "Doctor not found"}), 404
-    return jsonify(result), 200
 
 @doctor_bp.route('/<int:doctor_id>/ratings', methods=['GET'])
 @swag_from('../docs/doctor_routes/doctor_ratings.yml')
