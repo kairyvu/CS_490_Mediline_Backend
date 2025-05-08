@@ -17,6 +17,7 @@ jobs:
       - run:
           name: Run linters (pylint)
           command: |
+            pip install pylint
             pylint flaskr tests
   test:
     docker:
