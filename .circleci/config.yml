@@ -75,6 +75,7 @@ workflows:
       or:
         - equal: [main, << pipeline.git.branch >>]
         - equal: [sandbox, << pipeline.git.branch >>]
+        - equal: [circleci-project-setup, << pipeline.git.branch >>]
     jobs:
       - build
       - lint:
