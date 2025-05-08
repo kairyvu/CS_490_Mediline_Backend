@@ -52,10 +52,10 @@ jobs:
 workflows:
   build-and-test:
     jobs:
-      - test-python
+      - test
       - deploy:
           requires:
-            - test-python
+            - test
           filters:
             branches:
               only: circleci_project_setuo
