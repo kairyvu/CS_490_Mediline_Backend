@@ -19,6 +19,7 @@ jobs:
           name: Run linters (pylint)
           command: |
             pylint flaskr tests
+
   test-python:
     docker:
       - image: cimg/python:3.12-node
