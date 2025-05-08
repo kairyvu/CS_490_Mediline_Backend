@@ -2,6 +2,23 @@ version: 2.1
 orbs:
   python: circleci/python@2
 jobs:
+  build:
+    docker:
+      - image: cimg/python:3.12-node
+    steps:
+      - checkout
+      - python/install-packages
+
+  lint:
+    docker:
+      - image: cimg/python:3.12-node
+    steps:
+      - checkout
+      - python/install-packages
+      - run:
+          name: Run linters (pylint)
+          command: |
+            pylint flaskr tests
   test-python:
     docker:
       - image: cimg/python:3.12-node
