@@ -36,6 +36,8 @@ jobs:
           name: Set up Google Cloud credentials
           command: |
             echo "$GCLOUD_SERVICE_KEY" > /home/circleci/gcloud-key.json
+            gcloud auth activate-service-account --key-file=/home/circleci/gcloud-key.json
+            gcloud config set project $GCLOUD_PROJECT
       - run:
           name: Debug DEEPSEEK_API_KEY
           command: echo "Key set? ${DEEPSEEK_API_KEY:+yes}"
@@ -44,15 +46,33 @@ jobs:
           command: pytest --junitxml=junit.xml || ((($? == 5)) && echo 'Did not find any tests to run.')
       - store_test_results:
           path: junit.xml
+
   deploy:
     docker:
-      - image: cimg/base:stable
+      - image: google/cloud-sdk:latest
     steps:
+      - checkout
       - run:
-          name: deploy
-          command: "#e.g. ./deploy.sh"
+          name: Set up Google Cloud credentials
+          command: |
+            echo "$GCLOUD_SERVICE_KEY" > /tmp/gcloud-key.json
+            gcloud auth activate-service-account --key-file=/tmp/gcloud-key.json
+            gcloud config set project $GCLOUD_PROJECT_ID
+      - run:
+          name: Deploy to Cloud Run
+          command: |
+            gcloud run deploy $CLOUDRUN_SERVICE \
+              --source . \
+              --region $CLOUDRUN_REGION \
+              --platform managed \
+              --allow-unauthenticated
+
 workflows:
   build-and-test:
+    when:
+      or:
+        - equal: [main, << pipeline.git.branch >>]
+        - equal: [sandbox, << pipeline.git.branch >>]
     jobs:
       - build
       - lint:
