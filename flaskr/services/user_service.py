@@ -3,9 +3,7 @@ from flaskr.extensions import db
 from flaskr.models.user import Doctor, Patient, Pharmacy, User
 from . import patient_info, doctor_details, get_pharmacy_info
 
-def get_user_info_by_id(user_id, requesting_user: User|None=None):
-    if not requesting_user:
-        raise NoAuthorizationError
+def get_user_info_by_id(user_id):
     is_patient = Patient.query.filter_by(user_id=user_id).first() is not None
     is_doctor = Doctor.query.filter_by(user_id=user_id).first() is not None
     is_pharmacy = Pharmacy.query.filter_by(user_id=user_id).first() is not None

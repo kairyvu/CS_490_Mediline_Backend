@@ -11,7 +11,7 @@ user_bp = Blueprint('user_bp', __name__)
 @swag_from('../docs/user_routes/get_user_info_by_id.yml')
 def get_user_by_id(user_id):
     try:
-        user_info = get_user_info_by_id(user_id, requesting_user=current_user)
+        user_info = get_user_info_by_id(user_id)
         return jsonify(user_info), 200
     except NoAuthorizationError:
         return jsonify({"error": "You must be logged in to do this"}), 401
