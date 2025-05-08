@@ -31,11 +31,19 @@ jobs:
   test:
     docker:
       - image: google/cloud-sdk:latest
-    environment:
-      GOOGLE_APPLICATION_CREDENTIALS: /home/circleci/gcloud-key.json
     steps:
       - checkout
       - python/install-packages
+      - run:
+          name: Install Python & pip
+          command: |
+            apt-get update && apt-get install -y python3-venv python3-pip
+      - run:
+          name: Create virtual environment
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install -r requirements.txt
       - run:
           name: Set up Google Cloud credentials
           command: |
