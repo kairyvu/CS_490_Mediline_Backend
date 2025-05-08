@@ -28,10 +28,9 @@ jobs:
       - run:
           name: Run linters (pylint)
           command: pylint flaskr tests || true
-
   test:
     docker:
-      - image: cimg/python:3.12-node
+      - image: google/cloud-sdk:latest
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /home/circleci/gcloud-key.json
     steps:
@@ -48,11 +47,9 @@ jobs:
           command: echo "Key set? ${DEEPSEEK_API_KEY:+yes}"
       - run:
           name: Run tests
-          # command: pytest --junitxml=junit.xml || ((($? == 5)) && echo 'Did not find any tests to run.')
           command: pytest --junitxml=junit.xml || true
       - store_test_results:
           path: junit.xml
-
   build-and-push-docker-image:
     docker:
       - image: google/cloud-sdk:latest
@@ -136,7 +133,6 @@ jobs:
               --region $CLOUDRUN_REGION \
               --platform managed \
               --allow-unauthenticated
-
 workflows:
   build-and-test:
     when:
