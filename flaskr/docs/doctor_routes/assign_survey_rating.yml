@@ -1,0 +1,51 @@
+Assign a rating survey
+---
+tags:
+  - rating
+parameters:
+  - name: doctor_id
+    in: path
+    type: integer
+    required: true
+    description: ID of the doctor assigning the survey
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        patient_id:
+          type: integer
+        stars:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+responses:
+  201:
+    description: Survey assigned successfully
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+        survey_id:
+          type: integer
+        stars:
+          type: integer
+        comment:
+          type: string
+    examples:
+      application/json:
+        message: Survey assigned successfully
+        survey_id: 1
+        stars: 5
+        comment: Great service!
+  400:
+    description: Invalid input
+    schema:
+      type: object
+      properties:
+        error:
+          type: string

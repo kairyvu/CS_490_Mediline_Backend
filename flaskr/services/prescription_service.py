@@ -1,4 +1,4 @@
-from flaskr.models import Prescription, Doctor, Patient, Pharmacy, Inventory, PrescriptionMedication
+from flaskr.models import User, Prescription, Doctor, Patient, Pharmacy, Inventory, PrescriptionMedication
 from flaskr.extensions import db
 from sqlalchemy import func
 from flaskr.struct import PrescriptionStatus
@@ -32,11 +32,29 @@ def get_prescriptions(user_id, sort_by='created_at', order='asc'):
     prescriptions = query.all()
     return [prescription.to_dict() for prescription in prescriptions]
 
-def get_medications_by_prescription(prescription_id):
+def get_medications_by_prescription(prescription_id, requesting_user: User|None=None):
+    from flaskr.services import UnauthorizedError
     prescription = Prescription.query.get(prescription_id)
     if not prescription:
         raise ValueError("Prescription not found")
     medications_list = []
+    if requesting_user:
+        match requesting_user.account_type.name:
+            case 'SuperUser':
+                pass
+            case 'Patient' \
+                if requesting_user.user_id == prescription.patient_id:
+                pass
+            case 'Doctor' \
+                if requesting_user.user_id == prescription.doctor_id:
+                pass
+            case 'Pharmacy' \
+                if requesting_user.user_id == prescription.pharmacy_id:
+                pass
+            case _:
+                return UnauthorizedError
+    else:
+        return UnauthorizedError
 
     for pres_med in prescription.prescription_medications:
         med_details = pres_med.medication.to_dict()

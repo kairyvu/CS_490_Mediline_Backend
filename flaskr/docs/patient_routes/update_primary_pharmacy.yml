@@ -1,0 +1,58 @@
+Update a patient's primary pharmacy
+---
+tags:
+  - patient
+parameters:
+  - name: patient_id
+    in: path
+    required: true
+    type: integer
+    description: ID of the patient
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      required:
+        - pharmacy_id
+      properties:
+        pharmacy_id:
+          type: integer
+    description: Pharmacy ID to assign to the patient
+responses:
+  200:
+    description: Primary pharmacy updated successfully
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+        patient_id:
+          type: integer
+        new_pharmacy_id:
+          type: integer
+    examples:
+      application/json:
+        message: Primary pharmacy updated successfully
+        patient_id: 1
+        new_pharmacy_id: 6
+  400:
+    description: Missing Pharmacy ID
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json:
+        error: Pharmacy ID is required
+  404:
+    description: Patient or Pharmacy not found
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json:
+        error: Patient not found

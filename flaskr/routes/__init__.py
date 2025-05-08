@@ -1,4 +1,4 @@
-from flask import Blueprint, Flask
+from flask import Blueprint, Flask, Response, jsonify
 from .database import database_bp
 from .registration_routes import register_bp
 from .exercise_routes import exercise_bp
@@ -12,6 +12,7 @@ from .auth_routes import auth_bp
 from .patient_routes import patient_bp
 from .doctor_routes import doctor_bp
 from .pharmacy_routes import pharmacy_bp
+from .medication_routes import medication_bp
 from .user_routes import user_bp
 from .request_routes import request_bp
 from .medical_record_routes import medical_record_bp
@@ -32,6 +33,7 @@ def register_routes(app: Flask):
     app.register_blueprint(patient_bp, url_prefix='/patient')
     app.register_blueprint(register_bp, url_prefix='/register')
     app.register_blueprint(pharmacy_bp, url_prefix='/pharmacy')
+    app.register_blueprint(medication_bp, url_prefix='/medication')
     app.register_blueprint(user_bp, url_prefix='/user')
     app.register_blueprint(request_bp, url_prefix='/request')
     app.register_blueprint(medical_record_bp, url_prefix='/medical_record')

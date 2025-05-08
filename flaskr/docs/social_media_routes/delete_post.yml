@@ -1,0 +1,32 @@
+Delete a post
+---
+tags:
+  - social_media
+parameters:
+  - name: user_id
+    in: path
+    required: true
+    type: integer
+    description: ID of the user
+  - name: post_id
+    in: path
+    required: true
+    type: integer
+    description: ID of the post to delete
+responses:
+  200:
+    description: Post deleted successfully
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+        post_id:
+          type: integer
+  404:
+    description: Post not found or unauthorized
+    schema:
+      type: object
+      properties:
+        error:
+          type: string

@@ -1,0 +1,31 @@
+Delete a medical record
+---
+tags:
+  - medical_record
+parameters:
+  - name: medical_record_id
+    in: path
+    type: integer
+    required: true
+    description: ID of the record to delete
+responses:
+  200:
+    description: Record deleted successfully
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+    examples:
+      application/json:
+        message: Medical record deleted successfully
+  404:
+    description: Record not found
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json:
+        error: Medical record not found

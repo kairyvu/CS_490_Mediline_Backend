@@ -1,0 +1,41 @@
+Delete an Invoice
+
+---
+tags:
+  - payment
+parameters:
+  - name: invoice_id
+    in: path
+    type: integer
+    required: true
+    description: Invoice id to delete
+  - name: invoice_details
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        doctor_id:
+          type: integer
+    description: Doctor id that created the invoice and can delete it
+responses:
+  200:
+    description: Invoice deleted successfully
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+    examples:
+      application/json:
+        message: Invoice deleted successfully
+  404:
+    description: Invoice not found or not authorized
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+    examples:
+      application/json:
+        message: Invoice not found or not authorized

@@ -1,0 +1,63 @@
+Create a new post
+---
+tags:
+  - social_media
+parameters:
+  - name: user_id
+    in: path
+    required: true
+    type: integer
+    description: ID of the user creating the post
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+    description: Post details
+responses:
+  201:
+    description: Post created successfully
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+        post:
+          type: object
+          properties:
+            post_id:
+              type: integer
+            user_id:
+              type: integer
+            title:
+              type: string
+            content:
+              type: string
+            created_at:
+              type: string
+            updated_at:
+              type: string
+    examples:
+      application/json:
+        message: Post created successfully
+        post:
+          post_id: 1
+          user_id: 1
+          title: "Post title"
+          content: "post"
+          created_at: ""
+          updated_at: ""
+  400:
+    description: Missing required fields
+    schema:
+      type: object
+      properties:
+        error:
+          type: string

@@ -1,0 +1,48 @@
+Update a comment
+---
+tags:
+  - social_media
+parameters:
+  - name: user_id
+    in: path
+    required: true
+    type: integer
+    description: ID of the user
+  - name: comment_id
+    in: path
+    required: true
+    type: integer
+    description: ID of the comment to update
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        content:
+          type: string
+    description: Comment content to update
+responses:
+  200:
+    description: Comment updated successfully
+    schema:
+      type: object
+      properties:
+        comment_id:
+          type: integer
+        content:
+          type: string
+  400:
+    description: Missing input data
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+  404:
+    description: Comment not found or unauthorized
+    schema:
+      type: object
+      properties:
+        error:
+          type: string

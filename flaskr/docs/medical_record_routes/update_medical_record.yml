@@ -1,0 +1,75 @@
+Update a medical record
+---
+tags:
+  - medical_record
+parameters:
+  - name: medical_record_id
+    in: path
+    type: integer
+    required: true
+    description: ID of the medical record to update
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        description:
+          type: string
+responses:
+  200:
+    description: Medical record updated successfully
+    schema:
+      type: object
+      properties:
+        medical_record_id:
+          type: integer
+        description:
+          type: string
+        created_at:
+          type: string
+        appointment:
+          type: object
+          properties:
+            appointment_id:
+              type: integer
+            doctor_id:
+              type: integer
+            doctor_name:
+              type: string
+            patient_id:
+              type: integer
+            patient_name:
+              type: string
+    examples:
+      application/json:
+        medical_record_id: 404
+        description: description
+        created_at: "YYYY_MM_DD"
+        appointment:
+          appointment_id: 1
+          doctor_id: 1
+          doctor_name: doctor name
+          patient_id: 2
+          patient_name: patient name
+  400:
+    description: Missing description
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json:
+        error: Description is required
+  404:
+    description: Medical record not found
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json:
+        error: Medical record not found
+

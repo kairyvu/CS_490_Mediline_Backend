@@ -3,16 +3,14 @@ Add a request
 tags:
   - request
 parameters:
-  - name: request
-    in: body
+  - name: patient_id
+    in: path
+    type: integer
     required: true
-    description: Request details
-    schema:
-      properties:
-        doctor_id:
-          type: integer
-        patient_id:
-          type: integer
+  - name: doctor_id
+    in: path
+    type: integer
+    required: true
 responses:
   201:
     description: Created a request successfully
