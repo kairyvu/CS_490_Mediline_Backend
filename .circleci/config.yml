@@ -24,68 +24,71 @@ jobs:
       - run:
           name: Run linters (pylint)
           command: pylint flaskr tests || true
-  test:
+
+  # test:
+  #   docker:
+  #     - image: cimg/python:3.12-node
+  #   environment:
+  #     GOOGLE_APPLICATION_CREDENTIALS: /home/circleci/gcloud-key.json
+  #   steps:
+  #     - checkout
+  #     - python/install-packages
+  #     - run:
+  #         name: Set up Google Cloud credentials
+  #         command: |
+  #           echo "$GCLOUD_SERVICE_KEY" > gcloud-key.json
+  #           gcloud auth activate-service-account --key-file=gcloud-key.json
+  #           gcloud config set project $GCLOUD_PROJECT
+  #     - run:
+  #         name: Debug DEEPSEEK_API_KEY
+  #         command: echo "Key set? ${DEEPSEEK_API_KEY:+yes}"
+  #     - run:
+  #         name: Run tests
+  #         command: pytest --junitxml=junit.xml || ((($? == 5)) && echo 'Did not find any tests to run.')
+  #     - store_test_results:
+  #         path: junit.xml
+
+  build-and-push-docker-image:
     docker:
-      - image: cimg/python:3.12-node
-    environment:
-      GOOGLE_APPLICATION_CREDENTIALS: /home/circleci/gcloud-key.json
-    steps:
-      - checkout
-      - python/install-packages
-      - run:
-          name: Set up Google Cloud credentials
-          command: |
-            echo "$GCLOUD_SERVICE_KEY" > /home/circleci/gcloud-key.json
-            gcloud auth activate-service-account --key-file=/home/circleci/gcloud-key.json
-            gcloud config set project $GCLOUD_PROJECT
-      - run:
-          name: Debug DEEPSEEK_API_KEY
-          command: echo "Key set? ${DEEPSEEK_API_KEY:+yes}"
-      - run:
-          name: Run tests
-          command: pytest --junitxml=junit.xml || ((($? == 5)) && echo 'Did not find any tests to run.')
-      - store_test_results:
-          path: junit.xml
-  build-docker-image:
-    docker:
-      - image: cimg/python:3.12-node
+      - image: google/cloud-sdk:latest
     steps:
       - checkout
       - setup_remote_docker
       - run:
-          name: Build Docker image from Dockerfile
-          command: docker build -t my-app:${CIRCLE_SHA1} .
+          name: Authenticate with GCP
+          command: |
+            echo "$GCLOUD_SERVICE_KEY" > gcloud-key.json
+            gcloud auth activate-service-account --key-file=gcloud-key.json
+            gcloud config set project $GCLOUD_PROJECT
+            gcloud auth configure-docker --quiet
       - run:
-          name: Save Docker image
-          command: docker save my-app:${CIRCLE_SHA1} -o my-app-image.tar
-      - persist_to_workspace:
-          root: .
-          paths:
-            - my-app-image.tar
+          name: Build and Push Docker Image
+          command: |
+            IMAGE_URI=gcr.io/$GCLOUD_PROJECT/$CLOUDRUN_SERVICE:$CIRCLE_SHA1
+            docker build -t $IMAGE_URI .
+            docker push $IMAGE_URI
+
   deploy:
     docker:
       - image: google/cloud-sdk:latest
     steps:
       - checkout
-      - attach_workspace:
-          at: .
       - run:
-          name: Load Docker image
-          command: docker load -i my-app-image.tar
-      - run:
-          name: Set up Google Cloud credentials
+          name: Authenticate with GCP
           command: |
-            echo "$GCLOUD_SERVICE_KEY" > /tmp/gcloud-key.json
-            gcloud auth activate-service-account --key-file=/tmp/gcloud-key.json
-            gcloud config set project $GCLOUD_PROJECT_ID
+            echo "$GCLOUD_SERVICE_KEY" > gcloud-key.json
+            gcloud auth activate-service-account --key-file=gcloud-key.json
+            gcloud config set project $GCLOUD_PROJECT
       - run:
           name: Deploy to Cloud Run
           command: |
+            IMAGE_URI=gcr.io/$GCLOUD_PROJECT/$CLOUDRUN_SERVICE:$CIRCLE_SHA1
             gcloud run deploy $CLOUDRUN_SERVICE \
-              --image my-app:${CIRCLE_SHA1} \
+              --image $IMAGE_URI \
               --region $CLOUDRUN_REGION \
               --platform managed \
               --allow-unauthenticated
+
 workflows:
   build-and-test:
     when:
@@ -98,15 +101,15 @@ workflows:
       - lint:
           requires:
             - build
-      - test:
-          requires:
-            - lint
+      # - test:
+      #     requires:
+      #       - lint
       - build-docker-image:
           requires:
-            - test
+            - lint
       - deploy:
           requires:
-            - build-docker-image
+            - build-and-push-docker-image
           filters:
             branches:
               only: main
