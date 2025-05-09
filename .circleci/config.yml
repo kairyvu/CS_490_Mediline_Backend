@@ -22,7 +22,7 @@ jobs:
           name: Install pylint
           command: pip install pylint
       - run:
-          name: Run linters (pylint)
+          name: Run linters
           command: pylint flaskr tests || true
   test:
     docker:
