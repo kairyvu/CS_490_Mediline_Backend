@@ -24,6 +24,7 @@ click-didyoumean==0.3.1
 click-plugins==1.1.1
 click-repl==0.3.0
 cloud-sql-python-connector==1.18.1
+coverage==7.8.0
 cryptography==44.0.2
 decorator==5.2.1
 Deprecated==1.2.18
@@ -108,6 +109,7 @@ PyJWT==2.10.1
 pylint==3.3.7
 PyMySQL==1.1.1
 pytest==8.3.5
+pytest-cov==6.1.1
 pytest-flask-sqlalchemy==1.1.0
 pytest-mock==3.14.0
 python-dateutil==2.9.0.post0
