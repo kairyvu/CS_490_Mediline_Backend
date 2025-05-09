@@ -9,8 +9,8 @@ medical_record_bp = Blueprint('medical_record', __name__)
 @jwt_required()
 @swag_from('../docs/medical_record_routes/get_medical_records.yml')
 def get_medical_records(user_id):
-    sort_by = request.args.get('sort_by')
-    order = request.args.get('order')
+    sort_by = request.args.get('sort_by', 'created_at')
+    order = request.args.get('order', 'desc')
     try:
         medical_records = get_medical_records_by_user(user_id=user_id, 
                                                       sort_by=sort_by, 
