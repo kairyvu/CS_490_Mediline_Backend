@@ -22,7 +22,7 @@ def add_request(patient_id, doctor_id):
         return jsonify({"error": "you can't request yourself..?"}), 400
 
     try:
-        request_data = add_patient_request(patient_id, doctor_id)
+        request_data = update_doctor_by_patient_id(patient_id, doctor_id, requesting_user=_user)
         return jsonify(request_data), 201
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
