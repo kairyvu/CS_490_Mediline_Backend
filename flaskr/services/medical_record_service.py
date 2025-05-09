@@ -10,7 +10,7 @@ def get_medical_records_by_user(user_id, sort_by='created_at', order='desc', req
     if not (is_patient or is_doctor):
         raise ValueError("User not found as either patient or doctor")
     if ((user_id != requesting_user.user_id) 
-        and (requesting_user.account_type.name != 'SuperUser')):
+        and (requesting_user.account_type.name != 'SUPERUSER')):
         raise UnauthorizedError
     query = MedicalRecord.query
     if is_patient:

@@ -224,7 +224,7 @@ def update_doctor_by_patient_id(patient_id, doctor_id, requesting_user=None):
         raise ValueError(f'Doctor with id {doctor_id} not found')
 
     match requesting_user.account_type.name:
-        case 'SuperUser' | 'Doctor' if requesting_user.user_id == doctor_id:
+        case 'SUPERUSER' | 'DOCTOR' if requesting_user.user_id == doctor_id:
             pass
         case _:
             raise UnauthorizedError
