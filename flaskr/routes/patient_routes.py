@@ -28,17 +28,17 @@ def get_patient_info_other_authenticated(user_id):
     print(_user.account_type.name)
     print(set(p.user_id for p in _user.doctor.patients))
     match _user.account_type.name:
-        case 'SuperUser' | 'Patient' if _user_id == user_id:
+        case 'SUPERUSER' | 'PATIENT' if _user_id == user_id:
             pass
-        case 'Patient' if _user_id != user_id:
+        case 'PATIENT' if _user_id != user_id:
             return USER_NOT_AUTHORIZED(_user_id)
-        case 'Doctor':
+        case 'DOCTOR':
             if user_id not in set(
                 [p.user_id for p in _user.doctor.patients]):
                 return USER_NOT_AUTHORIZED(_user_id)
             else:
                 pass
-        case 'Pharmacy':
+        case 'PHARMACY':
             if user_id not in set(
                 [p.user_id for p in _user.pharmacy.patients]):
                 return USER_NOT_AUTHORIZED(_user_id)
@@ -58,9 +58,9 @@ def update_patient_info(user_id):
     _user: User = current_user
     _user_id = _user.user_id
     match _user.account_type.name:
-        case 'SuperUser' | 'Patient' if _user_id == user_id:
+        case 'SUPERUSER' | 'PATIENT' if _user_id == user_id:
             pass
-        case 'Patient' if _user_id != user_id:
+        case 'PATIENT' if _user_id != user_id:
             print('here')
             return USER_NOT_AUTHORIZED(_user_id)
         case _:
@@ -89,7 +89,7 @@ def update_patient_info(user_id):
 @jwt_required()
 @swag_from('../docs/patient_routes/update_primary_pharmacy.yml')
 def primary_pharmacy(patient_id):
-    if ((current_user.account_type.name != 'SuperUser') 
+    if ((current_user.account_type.name != 'SUPERUSER') 
         and (current_user.user_id != patient_id)):
         return USER_NOT_AUTHORIZED(current_user.user_id)
     data = request.get_json()

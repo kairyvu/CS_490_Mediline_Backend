@@ -40,15 +40,15 @@ def get_medications_by_prescription(prescription_id, requesting_user: User|None=
     medications_list = []
     if requesting_user:
         match requesting_user.account_type.name:
-            case 'SuperUser':
+            case 'SUPERUSER':
                 pass
-            case 'Patient' \
+            case 'PATIENT' \
                 if requesting_user.user_id == prescription.patient_id:
                 pass
-            case 'Doctor' \
+            case 'DOCTOR' \
                 if requesting_user.user_id == prescription.doctor_id:
                 pass
-            case 'Pharmacy' \
+            case 'PHARMACY' \
                 if requesting_user.user_id == prescription.pharmacy_id:
                 pass
             case _:

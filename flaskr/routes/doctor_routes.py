@@ -42,7 +42,7 @@ def doctor_ratings(doctor_id):
 @swag_from('../docs/doctor_routes/doctor_patients_count_details.yml')
 def doctor_patients_count_details(doctor_id):
     if (current_user.user_id != doctor_id 
-        and current_user.account_type.name != 'SuperUser'):
+        and current_user.account_type.name != 'SUPERUSER'):
         return USER_NOT_AUTHORIZED(current_user.user_id)
     return jsonify(doctor_patients_count_and_list(doctor_id)), 200
 
@@ -51,7 +51,7 @@ def doctor_patients_count_details(doctor_id):
 @swag_from('../docs/doctor_routes/count_upcoming_appointments.yml')
 def count_upcoming_appointments(doctor_id):
     if (current_user.user_id != doctor_id 
-        and current_user.account_type.name != 'SuperUser'):
+        and current_user.account_type.name != 'SUPERUSER'):
         return USER_NOT_AUTHORIZED(current_user.user_id) 
     return jsonify({"upcoming_appointments_count": upcoming_appointments_count(doctor_id)}), 200
 
@@ -60,7 +60,7 @@ def count_upcoming_appointments(doctor_id):
 @swag_from('../docs/doctor_routes/count_pending_appointments.yml')
 def count_pending_appointments(doctor_id):
     if (current_user.user_id != doctor_id 
-        and current_user.account_type.name != 'SuperUser'):
+        and current_user.account_type.name != 'SUPERUSER'):
         return USER_NOT_AUTHORIZED(current_user.user_id) 
     return jsonify({"pending_appointments_count": pending_appointments_count(doctor_id)}), 200
 
@@ -69,7 +69,7 @@ def count_pending_appointments(doctor_id):
 @swag_from('../docs/doctor_routes/patients_today.yml')
 def patients_today(doctor_id):
     if (current_user.user_id != doctor_id 
-        and current_user.account_type.name != 'SuperUser'):
+        and current_user.account_type.name != 'SUPERUSER'):
         return USER_NOT_AUTHORIZED(current_user.user_id) 
     date = request.args.get('date')
     return jsonify(todays_patient(doctor_id, date)), 200
@@ -79,7 +79,7 @@ def patients_today(doctor_id):
 @swag_from('../docs/doctor_routes/last_completed_appointment.yml')
 def get_last_completed_appointment(patient_id, doctor_id):
     if (current_user.user_id != doctor_id 
-        and current_user.account_type.name != 'SuperUser'):
+        and current_user.account_type.name != 'SUPERUSER'):
         return USER_NOT_AUTHORIZED(current_user.user_id) 
     return jsonify(last_completed_appointment(patient_id, doctor_id)), 200
 
@@ -88,7 +88,7 @@ def get_last_completed_appointment(patient_id, doctor_id):
 @swag_from('../docs/doctor_routes/doctor_general_discussions.yml')
 def get_doctor_general_discussions(doctor_id):
     if (current_user.user_id != doctor_id 
-        and current_user.account_type.name != 'SuperUser'):
+        and current_user.account_type.name != 'SUPERUSER'):
         return USER_NOT_AUTHORIZED(current_user.user_id) 
     return jsonify(doctor_general_discussion(doctor_id)), 200
 
@@ -123,7 +123,7 @@ def assign_survey_rating(doctor_id):
 def get_new_appointment_requests(doctor_id):
     _acct_type = current_user.account_type.name
     match _acct_type:
-        case 'SuperUser' | 'Doctor' if current_user.user_id == doctor_id:
+        case 'SUPERUSER' | 'DOCTOR' if current_user.user_id == doctor_id:
             pass
         case _:
             return USER_NOT_AUTHORIZED(current_user.user_id)
@@ -137,7 +137,7 @@ def get_new_appointment_requests(doctor_id):
 def update_doctor_info(user_id):
     _acct_type = current_user.account_type.name
     match _acct_type:
-        case 'SuperUser' | 'Doctor' if current_user.user_id == user_id:
+        case 'SUPERUSER' | 'DOCTOR' if current_user.user_id == user_id:
             pass
         case _:
             return USER_NOT_AUTHORIZED(current_user.user_id)

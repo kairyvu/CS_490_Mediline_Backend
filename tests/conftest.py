@@ -91,7 +91,7 @@ def addr4(request):
 def pt1(request, addr1):
     _dob = datetime.fromisoformat('2000-01-01')
     addr, _, _ = addr1
-    u1 = User('user1', 'password1', AccountType.Patient, addr.address_id)
+    u1 = User('user1', 'password1', AccountType.PATIENT, addr.address_id)
     u1.address = addr
     pt = Patient(
         first_name='John',
@@ -108,7 +108,7 @@ def pt1(request, addr1):
 def dr1(request, addr2):
     _dob = datetime.fromisoformat('2000-01-01')
     addr, _, _ = addr2
-    u2 = User('doct1', 'password1', AccountType.Doctor, addr.address_id)
+    u2 = User('doct1', 'password1', AccountType.DOCTOR, addr.address_id)
     u2.address = addr
     dr = Doctor(
         first_name='Jack',
@@ -128,7 +128,7 @@ def dr1(request, addr2):
 @pytest.fixture(scope='module')
 def pharm1(request, addr3):
     addr, _, _ = addr3
-    u3 = User('pharm', 'password1', AccountType.Pharmacy, addr.address_id)
+    u3 = User('pharm', 'password1', AccountType.PHARMACY, addr.address_id)
     u3.address = addr
     pharm = Pharmacy(
         pharmacy_name='Walgreens',

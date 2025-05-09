@@ -50,7 +50,7 @@ def test_get_current_chat(monkeypatch, database_session):
     monkeypatch.setattr(Chat, 'appointment_id', 1)
     monkeypatch.setattr(Chat, 'appointment', Appointment)
     monkeypatch.setattr(Chat, 'messages', MessageList)
-    monkeypatch.setattr(User, 'account_type', AccountType.SuperUser)
+    monkeypatch.setattr(User, 'account_type', AccountType.SUPERUSER)
     monkeypatch.setattr(Chat, 'query', mock_query)
     monkeypatch.setattr(Chat, 'to_dict', mock_to_dict)
 

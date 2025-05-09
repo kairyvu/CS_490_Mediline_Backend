@@ -14,7 +14,7 @@ prescription_bp = Blueprint("prescription", __name__)
 def get_prescription_by_user(user_id):
     _user_id = current_user.user_id
     _acct_type = current_user.account_type.name
-    if (_user_id != user_id) and (_acct_type != 'SuperUser'):
+    if (_user_id != user_id) and (_acct_type != 'SUPERUSER'):
         return USER_NOT_AUTHORIZED(_user_id)
     sort_by = request.args.get('sort_by', 'created_at')
     order = request.args.get('order', 'asc')
@@ -46,7 +46,7 @@ def get_medication_list(prescription_id):
 def get_prescription_count(pharmacy_id):
     _user_id = current_user.user_id
     _acct_type = current_user.account_type.name
-    if (_user_id != pharmacy_id) and (_acct_type != 'SuperUser'):
+    if (_user_id != pharmacy_id) and (_acct_type != 'SUPERUSER'):
         return USER_NOT_AUTHORIZED(_user_id)
     try:
         count = get_prescription_count_by_pharmacy(pharmacy_id)
@@ -62,7 +62,7 @@ def get_prescription_count(pharmacy_id):
 def get_pharmacy_inventory(pharmacy_id):
     _user_id = current_user.user_id
     _acct_type = current_user.account_type.name
-    if (_user_id != pharmacy_id) and (_acct_type != 'SuperUser'):
+    if (_user_id != pharmacy_id) and (_acct_type != 'SUPERUSER'):
         return USER_NOT_AUTHORIZED(_user_id)
     try:
         inventory = get_pharmacy_medications_inventory(pharmacy_id)
@@ -80,12 +80,12 @@ def get_medications_history(patient_id):
     _user_id = _user.user_id
     _acct_type = _user.account_type.name
     match _acct_type:
-        case 'SuperUser' | 'Patient' if _user_id == patient_id:
+        case 'SUPERUSER' | 'PATIENT' if _user_id == patient_id:
             pass
-        case 'Doctor' if patient_id in set([
+        case 'DOCTOR' if patient_id in set([
             p.user_id for p in _user.doctor.patients]):
             pass
-        case 'Pharmacy' if patient_id in set([
+        case 'PHARMACY' if patient_id in set([
             p.user_id for p in _user.pharmacy.patients]):
             pass
         case _:

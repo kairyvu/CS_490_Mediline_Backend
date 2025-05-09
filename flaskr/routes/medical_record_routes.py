@@ -28,7 +28,7 @@ def get_medical_records(user_id):
 @jwt_required()
 @swag_from('../docs/medical_record_routes/insert_medical_record.yml')
 def insert_medical_record(patient_id):
-    if ((current_user.account_type.name != 'SuperUser') 
+    if ((current_user.account_type.name != 'SUPERUSER') 
         and (current_user.user_id != patient_id)):
         return USER_NOT_AUTHORIZED(current_user.user_id)
     data = request.get_json()

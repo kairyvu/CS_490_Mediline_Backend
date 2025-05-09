@@ -14,7 +14,7 @@ def get_invoices_by_user_route(user_id):
     _user_id = _user.user_id
     _acct_type = _user.account_type.name
     match _acct_type:
-        case 'SuperUser' | 'Patient' if _user_id == user_id:
+        case 'SUPERUSER' | 'PATIENT' if _user_id == user_id:
             pass
         case _:
             return USER_NOT_AUTHORIZED(_user_id)
@@ -34,7 +34,7 @@ def update_invoice_status_put(patient_id, invoice_id):
     data = request.get_json()
     if not data:
         return jsonify({"error": "no input data provided"}), 400
-    if ((current_user.account_type.name != 'SuperUser') 
+    if ((current_user.account_type.name != 'SUPERUSER') 
         and (current_user.user_id != patient_id)):
         return USER_NOT_AUTHORIZED(current_user.user_id)
     
@@ -71,7 +71,7 @@ def assign_invoice():
 def delete_invoices(invoice_id):
     data = request.get_json()
     doctor_id = data.get('doctor_id')
-    if ((current_user.account_type.name != 'SuperUser') 
+    if ((current_user.account_type.name != 'SUPERUSER') 
         and (current_user.user_id != doctor_id)):
         return USER_NOT_AUTHORIZED(current_user.user_id)
     
