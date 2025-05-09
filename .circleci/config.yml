@@ -102,26 +102,7 @@ jobs:
             pytest --junitxml=junit.xml || true
       - store_test_results:
           path: junit.xml
-  build-and-push-docker-image:
-    docker:
-      - image: google/cloud-sdk:latest
-    steps:
-      - checkout
-      - setup_remote_docker
-      - run:
-          name: Authenticate with GCP
-          command: |
-            echo "$GCLOUD_SERVICE_KEY" > gcloud-key.json
-            gcloud auth activate-service-account --key-file=gcloud-key.json
-            gcloud config set project $GCLOUD_PROJECT
-            gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
-      - run:
-          name: Build and Push Docker Image to Artifact Registry
-          command: |
-            IMAGE_URI=us-central1-docker.pkg.dev/$GCLOUD_PROJECT/cloudrun-services/$CLOUDRUN_SERVICE:$CIRCLE_SHA1
-            echo "IMAGE_URI=$IMAGE_URI" >> $BASH_ENV
-            docker build -t $IMAGE_URI .
-            docker push $IMAGE_URI
+
   deploy:
     docker:
       - image: google/cloud-sdk:latest
