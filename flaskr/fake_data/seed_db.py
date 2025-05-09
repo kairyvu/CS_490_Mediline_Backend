@@ -262,11 +262,13 @@ def seed_medical_records():
 
 def seed_prescriptions(n=400):
     for _ in range(n):
+        patient_id = faker.random_element(tuple(users["patients"]))
+        pharmacy_id = user_relationship[patient_id][1]
         prescription = Prescription(
-            patient_id=faker.random_element(tuple(users["patients"])),
+            patient_id=patient_id,
             doctor_id=faker.random_element(tuple(users["doctors"])),
             amount=faker.random_number(digits=3, fix_len=False),
-            pharmacy_id=faker.random_element(tuple(users["pharmacies"])),
+            pharmacy_id=pharmacy_id,
             status=faker.random_element([PrescriptionStatus.PAID, PrescriptionStatus.UNPAID]),
             created_at=faker.date_time_this_year(),
         )
