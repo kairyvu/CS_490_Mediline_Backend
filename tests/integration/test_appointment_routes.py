@@ -1,11 +1,7 @@
 from datetime import datetime
-from flask import Request, Response
 from flask.testing import FlaskClient
 
-import flaskr.models
-
-####======TESTS=====####
-def test_create_appt(monkeypatch, client: FlaskClient, pt_reg_form1, dr_reg_form1):
+def test_appt_all(app, client: FlaskClient, pt_reg_form1, dr_reg_form1):
     client, db = client
     res1 = client.post('/register/', json=pt_reg_form1)
     res2 = client.post('/register/', json=dr_reg_form1)
@@ -48,52 +44,69 @@ def test_create_appt(monkeypatch, client: FlaskClient, pt_reg_form1, dr_reg_form
             .get('doctor_id') == id2
     )
     assert res7.status_code == 200
-    import flaskr.models
-    from flaskr.models import AppointmentDetail
-    from flaskr.struct import AppointmentStatus
-    class MockApptDetail(AppointmentDetail):
-        def __init__(self, treatment='', start_date: str|datetime=datetime.now(), 
-                     end_date=None, status=AppointmentStatus.PENDING):
-            print("FUCK!!!!")
-            super(
-                treatment=treatment,
-                start_date=datetime.fromisoformat(start_date) if isinstance(start_date, str) else start_date,
-                end_date=end_date,
-                status=status
-            )
-                
-    def add_apptfix(d_id, p_id, treat, start, end=None):
-        from flaskr.models import AppointmentDetail, Appointment
-        start = datetime.fromisoformat(start)
-        appointment_detail = AppointmentDetail(
-            treatment=treat,
-            start_date=start,
-            end_date=end,
-            status=AppointmentStatus.PENDING
-        )
-        appointment = Appointment(
-            doctor_id=d_id,
-            patient_id=p_id,
-            appointment_detail=appointment_detail
-        )
-        db.session.add(appointment)
-        db.session.flush()
-        appointment_detail.appointment_details_id = appointment.appointment_id
-        db.session.commit()
-        return appointment.appointment_id
-    monkeypatch.setattr('flaskr.routes.appointment_routes.create_appointment', lambda: print('JESUS FUCKING CHRIST'))
-    res8 = client.post(
-        '/appointment/add',
+    with app.test_request_context(
+        '/appointment/add', method='POST', 
+        headers={'Authorization': f'Bearer {tok1}'},
         json={
-            'doctor_id': id2,
-            'patient_id': id1,
-            'start_date': datetime.now().isoformat(),
-            'treatment': 'consult'
+            "doctor_id": id2,
+            "patient_id": id1,
+            "treatment": "consult",
+            "start_date": datetime.now()
         },
-        headers=[('Authorization', f'Bearer {tok1}')]
-    )
-    print(res8.json)
-    assert res8.status_code == 201
-    assert res8.is_json
-    assert isinstance(res8.json['id'], int)
+    ) as ctx:
+        from flaskr.routes.appointment_routes import create_appointment
+        from flaskr.services.appointment_service import add_appointment
+        r8 = create_appointment()
+        assert r8[1] == 400
+        r9 = add_appointment(
+            ctx.request.json.get('doctor_id'), 
+            ctx.request.json.get('patient_id'),
+            ctx.request.json.get('treatment'),
+            datetime.now()
+        )
+        assert r9 == 1
 
+    r10 = client.get(f'/appointment/upcoming/{id1}', headers={'Authorization': f'Bearer {tok1}'})
+    r11 = client.get(f'/appointment/upcoming/{id2}', headers={'Authorization': f'Bearer {tok2}'})
+    assert r10.is_json
+    assert r11.is_json
+    assert r10.status_code == 200
+    assert r11.status_code == 200
+    assert r10.json[0] == r11.json[0]
+
+    r12 = client.get(f'/appointment/{r9}', headers={'Authorization': f'Bearer {tok1}'})
+    assert r12.is_json
+    assert r12.status_code == 200
+
+    r13 = client.put(f'/appointment/update/{r9}', headers={'Authorization': f'Bearer {tok2}'}, json={
+        'status': 'CANCELLED',
+        'treatment': 'consult',
+        'start_date': datetime.now()
+    })
+    assert r13.status_code == 400
+
+    with app.test_request_context(
+        f'/appointment/update/{r9}', method='PUT', 
+        headers={'Authorization': f'Bearer {tok2}'},
+        json={
+            "treatment": "consult",
+            "start_date": datetime.now(),
+            "status": "CANCELLED"
+        },
+    ) as ctx:
+        from flaskr.routes.appointment_routes import update_appointment_detail
+        from flaskr.services.appointment_service import update_appointment
+        from flaskr.models import User
+        r14 = update_appointment_detail(r9)
+        assert 'error' in r14[0].json
+        r15 = update_appointment(
+            r9,
+            ctx.request.json.get('treatment'),
+            datetime.now(),
+            ctx.request.json.get('status'),
+            None,
+            User.query.filter_by(user_id=id2).first()
+        )
+        assert r15 is None
+    r16 = client.get(f'/appointment/{r9}', headers={'Authorization': f'Bearer {tok1}'})
+    assert r16.json.get('status') == 'CANCELLED'
