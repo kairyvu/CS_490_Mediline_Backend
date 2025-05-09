@@ -21,9 +21,10 @@ def get_all_upcoming_appointments(user_id):
         case 'SuperUser':
             pass
         case 'Doctor':
-            target_user = User.query.filter_by(user_id=user_id).first()
-            if not target_user or target_user.account_type.name != 'Patient':
-                return USER_NOT_AUTHORIZED(_user_id)
+            if _user_id != user_id:
+                target_user = User.query.filter_by(user_id=user_id).first()
+                if not target_user or target_user.account_type.name != 'Patient':
+                    return USER_NOT_AUTHORIZED(_user_id)
         case 'Patient':
             if _user_id != user_id:
                 return USER_NOT_AUTHORIZED(_user_id)
