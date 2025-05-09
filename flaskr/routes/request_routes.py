@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, current_user
 from flaskr.services import add_patient_request, delete_patient_request, \
-    get_patient_requests_by_doctor_id, update_doctor_by_patient_id, USER_NOT_AUTHORIZED, UnauthorizedError
+    get_patient_requests_by_user_id, update_doctor_by_patient_id, USER_NOT_AUTHORIZED, UnauthorizedError
 from flaskr.models import User
 from flasgger import swag_from
 
@@ -66,22 +66,25 @@ def delete_request(request_id):
         
     return jsonify({"error": "Invalid request"}), 400
 
-@request_bp.route('/<int:doctor_id>', methods=['GET'])
+@request_bp.route('/<int:user_id>', methods=['GET'])
 @jwt_required()
-@swag_from('../docs/request_routes/get_request_by_doctor_id.yml')
-def get_request_by_doctor_id(doctor_id, sort_by='created_at', order='desc'):
+@swag_from('../docs/request_routes/get_request_by_user_id.yml')
+def get_request_by_user_id(user_id, sort_by='created_at', order='desc'):
     _user: User = current_user
     _user_id = _user.user_id
-    match _user_id, _user.account_type.name:
-        case (_, 'SUPERUSER') | (_, 'DOCTOR') if _user_id == doctor_id:
-            pass
-        case _:
+    account_type = _user.account_type.name
+    
+    if account_type in ('SUPERUSER', 'DOCTOR', 'PATIENT'):
+        if account_type != 'SUPERUSER' and _user_id != user_id:
             return USER_NOT_AUTHORIZED(_user_id)
+    else:
+        return USER_NOT_AUTHORIZED(_user_id)
+    
     sort_by = request.args.get('sort_by', sort_by)
     order = request.args.get('order', order)
 
     try:
-        requests = get_patient_requests_by_doctor_id(doctor_id, sort_by=sort_by, order=order)
+        requests = get_patient_requests_by_user_id(_user_id, sort_by=sort_by, order=order)
         return jsonify(requests), 200
     except ValueError as e:
         return jsonify({"error": str(e)}), 400

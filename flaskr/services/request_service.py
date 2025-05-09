@@ -35,7 +35,11 @@ def delete_patient_request(request_id, requesting_user=None):
     db.session.commit()
     return request.to_dict()
 
-def get_patient_requests_by_doctor_id(doctor_id, sort_by='created_at', order='desc'):
+def get_patient_requests_by_user_id(user_id, sort_by='created_at', order='desc'):
+    is_doctor = Doctor.query.filter_by(user_id=user_id).first()
+    is_patient = Patient.query.filter_by(user_id=user_id).first()
+    if not is_doctor and not is_patient:
+        raise ValueError(f'User with ID: {user_id} is neither a doctor nor a patient')
     if not hasattr(PatientRequest, sort_by):
         raise ValueError(f"Invalid sort field: {sort_by}")
     column = getattr(PatientRequest, sort_by)
@@ -45,5 +49,8 @@ def get_patient_requests_by_doctor_id(doctor_id, sort_by='created_at', order='de
         column = column.asc()
     else:
         raise ValueError(f"Invalid order: {order}")
-    requests = PatientRequest.query.filter_by(doctor_id=doctor_id).order_by(column).all()
+    if is_doctor:
+        requests = PatientRequest.query.filter_by(doctor_id=user_id).order_by(column).all()
+    elif is_patient:
+        requests = PatientRequest.query.filter_by(patient_id=user_id).order_by(column).all()
     return [request.to_dict() for request in requests]

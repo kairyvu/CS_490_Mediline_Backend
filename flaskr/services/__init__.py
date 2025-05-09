@@ -20,7 +20,7 @@ from .patient_service import patient_info, update_patient, update_primary_pharma
 from .registration_service import add_user
 from .medication_service import medication_info
 from .user_service import get_user_info_by_id
-from .request_service import add_patient_request, delete_patient_request, get_patient_requests_by_doctor_id
+from .request_service import add_patient_request, delete_patient_request, get_patient_requests_by_user_id
 from .medical_record_service import get_medical_records_by_user, create_medical_record, update_medical_record, delete_medical_record
 
 
@@ -39,7 +39,7 @@ __all__ = [
     'add_user', 'new_appointments_request', 'update_doctor', 'assign_survey',
     'medication_info',
     'get_user_info_by_id',
-    'add_patient_request', 'delete_patient_request', 'get_patient_requests_by_doctor_id',
+    'add_patient_request', 'delete_patient_request', 'get_patient_requests_by_user_id',
     'get_medical_records_by_user', 'create_medical_record', 'update_medical_record', 'delete_medical_record'
 ]
 

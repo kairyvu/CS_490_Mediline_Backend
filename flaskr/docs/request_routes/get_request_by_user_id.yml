@@ -1,13 +1,13 @@
-Get requests by doctor_id
+Get requests by user_id
 ---
 tags:
   - request
 parameters:
-  - name: doctor_id
+  - name: user_id
     in: path
     type: integer
     required: true
-    description: Doctor ID to get requests for
+    description: User ID to get requests for
   - name: sort_by
     in: query
     type: string
