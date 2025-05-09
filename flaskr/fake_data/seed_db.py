@@ -41,7 +41,7 @@ def generate_user(account_type: AccountType) -> User:
     uniq_user.add(username)
     user = User(
         username=username,
-        password=faker.password(),
+        password="password123",
         account_type=account_type,
         address_id=faker.random_element(tuple(users["addresses"])) if users["addresses"] else None
     )
