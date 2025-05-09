@@ -27,46 +27,46 @@ def get_user_info_by_id_bad(user_id, requesting_user: User|None=None):
     _acct_type = requesting_user.account_type.name
 
     match _acct_type:
-        case 'SuperUser':
-            if acct_type == 'Patient':
+        case 'SUPERUSER':
+            if acct_type == 'PATIENT':
                 return patient_info(user_id)
-            if acct_type == 'Doctor':
+            if acct_type == 'DOCTOR':
                 return doctor_details(user_id)
-            if acct_type == 'Pharmacy':
+            if acct_type == 'PHARMACY':
                 return get_pharmacy_info(user_id)
-            if acct_type == 'SuperUser':
+            if acct_type == 'SUPERUSER':
                 return user.to_dict()
-        case 'Patient':
-            if ((acct_type == 'Patient') 
+        case 'PATIENT':
+            if ((acct_type == 'PATIENT') 
                 and (user_id == requesting_user.user_id)):
                 return patient_info(user_id)
-            if acct_type == 'Doctor':
+            if acct_type == 'DOCTOR':
                 return doctor_details(user_id)
-            if acct_type == 'Pharmacy':
+            if acct_type == 'PHARMACY':
                 return get_pharmacy_info(user_id)
             else:
                 raise UnauthorizedError
-        case 'Doctor':
+        case 'DOCTOR':
             _pts = requesting_user.doctor.patients
-            if ((acct_type == 'Patient') 
+            if ((acct_type == 'PATIENT') 
                 and (user_id in {p.user_id for p in _pts})):
                 # Doctor can only get patient info of patients they take care of
                 return patient_info(user_id)
-            if acct_type == 'Doctor':
+            if acct_type == 'DOCTOR':
                 return doctor_details(user_id)
-            if acct_type == 'Pharmacy':
+            if acct_type == 'PHARMACY':
                 return get_pharmacy_info(user_id)
             else:
                 raise UnauthorizedError
-        case 'Pharmacy':
+        case 'PHARMACY':
             _pts = requesting_user.pharmacy.patients
-            if ((acct_type == 'Patient') 
+            if ((acct_type == 'PATIENT') 
                 and (user_id in {p.user_id for p in _pts})):
                 # Pharmacy can only get patient info of patients they take care of
                 return patient_info(user_id)
-            if acct_type == 'Doctor':
+            if acct_type == 'DOCTOR':
                 return doctor_details(user_id)
-            if acct_type == 'Pharmacy':
+            if acct_type == 'PHARMACY':
                 return get_pharmacy_info(user_id)
             else:
                 raise UnauthorizedError

@@ -69,7 +69,7 @@ def update_appointment(appointment_id, treatment, start_date,
     _appt_dr = appointment_detail.appointment.doctor_id
     _appt_pt = appointment_detail.appointment.patient_id
     if (requesting_user.user_id not in {_appt_dr, _appt_pt}
-        and requesting_user.account_type.name != 'SuperUser'):
+        and requesting_user.account_type.name != 'SUPERUSER'):
         raise NoAuthorizationError
     if appointment_detail.status not in [AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED]:
         raise ValueError("Only appointments with PENDING or CONFIRMED status can be updated")

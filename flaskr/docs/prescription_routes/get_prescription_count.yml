@@ -35,4 +35,3 @@ responses:
       properties:
         error:
           type: string
-

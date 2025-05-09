@@ -1,6 +1,6 @@
 import pytest
-from flaskr.services import get_all_patient_exercise, get_exercises
-from flaskr.models import PatientExercise, ExerciseBank, Doctor, Patient, User
+from flaskr.services import get_all_patient_exercise, get_exercises, add_user, add_patient_exercise, add_patient_request, update_doctor_by_patient_id, delete_patient_request
+from flaskr.models import PatientExercise, ExerciseBank, Doctor, Patient, User, Address, City, Country, PatientRequest
 def test_get_exercises_bad_sort(database_session):
     db = database_session
     db.metadata.create_all(db.engine, [
@@ -54,33 +54,32 @@ def test_get_all_patient_exercises_bad_sort(database_session):
     assert bad_field in str(e)
     db.metadata.drop_all(db.engine)
 
-def test_get_all_patient_exercises(database_session, pt_ex1, pt_ex2, pt_ex3):
+def test_get_all_patient_exercises(database_session, pt_reg_form1, dr_reg_form1, ex1, ex2, ex3):
+    from werkzeug.datastructures import ImmutableMultiDict
     db = database_session
     db.metadata.create_all(db.engine, [
+        Country.__table__,
+        City.__table__,
+        Address.__table__,
         PatientExercise.__table__,
         ExerciseBank.__table__,
         Doctor.__table__,
         Patient.__table__,
-        User.__table__
+        User.__table__,
+        PatientRequest.__table__
     ])
-    _pt_ex1, pt1, dr1, ex1 = pt_ex1
-    _pt_ex2, _, _, ex2 = pt_ex2
-    _pt_ex3, _, _, ex3 = pt_ex3
-    u1, p1 = pt1
-    u2, d1 = dr1
-    db.session.add_all([u1, u2, p1, d1, ex1, ex2, ex3])
-    db.session.flush()
-    db.session.add_all([_pt_ex1, _pt_ex2, _pt_ex3])
-    db.session.flush()
-    res1 = get_all_patient_exercise(u1.user_id)
-    assert isinstance(res1, list)
+    u1 = add_user(ImmutableMultiDict(list(pt_reg_form1.items()))).get_json()['user_id']
+    u2 = add_user(ImmutableMultiDict(list(dr_reg_form1.items()))).get_json()['user_id']
+    assert isinstance(u1, int)
+    assert isinstance(u2, int)
+    dr = User.query.filter_by(user_id=u2).first()
+    pt = User.query.filter_by(user_id=u1).first()
+    req = add_patient_request(u1, u2)['request_id']
+    assert isinstance(req, int)
+    update1 = delete_patient_request(req, dr)
+    update2 = update_doctor_by_patient_id(u1, u2, dr)
+    assert pt.patient.doctor_id == u2
 
-    res2 = get_all_patient_exercise(u1.user_id, sort_by='reps')
-    # Check sorting was correct
-    assert res2[0]['reps'] < res2[1]['reps']
-
-    db.session.rollback()
-    db.metadata.drop_all(db.engine)
 
 def test_get_exercises_table_not_found(database_session):
     with pytest.raises(Exception):

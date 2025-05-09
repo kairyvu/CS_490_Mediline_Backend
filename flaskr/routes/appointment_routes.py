@@ -18,14 +18,14 @@ def get_all_upcoming_appointments(user_id):
     _user_id = _user.user_id
     _role = _user.account_type.name
     match _role:
-        case 'SuperUser':
+        case 'SUPERUSER':
             pass
-        case 'Doctor':
+        case 'DOCTOR':
             if _user_id != user_id:
                 target_user = User.query.filter_by(user_id=user_id).first()
                 if not target_user or target_user.account_type.name != 'Patient':
                     return USER_NOT_AUTHORIZED(_user_id)
-        case 'Patient':
+        case 'PATIENT':
             if _user_id != user_id:
                 return USER_NOT_AUTHORIZED(_user_id)
         case _:
@@ -76,7 +76,7 @@ def create_appointment():
     _user: User = current_user
     _user_id = _user.user_id
     match _user.account_type.name:
-        case ('SuperUser' | 'Patient' | 'Doctor') as _acct_type:
+        case ('SUPERUSER' | 'PATIENT' | 'DOCTOR') as _acct_type:
             pass
         case _:
             return USER_NOT_AUTHORIZED()
@@ -128,7 +128,7 @@ def get_appointment_by_id(appointment_id):
     _user_id = current_user.user_id
     try:
         appointment = get_appointment(appointment_id)
-        if not (_acct_type in {'SuperUser', 'Doctor', 'Patient'} 
+        if not (_acct_type in {'SUPERUSER', 'DOCTOR', 'PATIENT'} 
                 and _user_id in {appointment['doctor_id'], 
                                  appointment['patient_id']}):
             return USER_NOT_AUTHORIZED(_user_id)
