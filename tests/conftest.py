@@ -18,7 +18,7 @@ def app():
         "SQLALCHEMY_DATABASE_URI": "sqlite:///tests.db",
         "FLASK_ENV": "testing"
     })
-
+    app.config['SQLALCHEMY_EXPIRE_ON_COMMIT'] = False
     with app.app_context():
         yield app
 
