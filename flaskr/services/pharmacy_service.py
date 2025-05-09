@@ -62,18 +62,34 @@ def validate_rx(data: dict) -> Response|tuple[int, int, list]:
             return jsonify({
                 'error': f'medication {med} has missing attributes'
             }), 400
+    return patient_id, doctor_id, medications
 
-def add_pt_rx(pharmacy_id, patient_id, doctor_id, medications): # TODO - need to do with RabbitMQ
+def add_pt_rx(pharmacy_id, patient_id, doctor_id, medications):
     import os
-    from google.cloud import pubsub_v1
-    publisher = pubsub_v1.PublisherClient()
-    topic_path = publisher.topic_path(os.environ.get())
+    import json
+    from google.cloud.pubsub_v1 import PublisherClient
+    from google.api_core.exceptions import NotFound
 
-    for n in range(1, 10):
-        data_str = f'Msg # {n}'
+    publisher = PublisherClient()
+    topic_path = publisher.topic_path(
+        os.environ.get('GCLOUD_PROJECT_ID'),
+        os.environ.get('GCLOUD_TOPIC_ID'))
+
+    payload = {
+        "pharmacy_id": pharmacy_id,
+        "doctor_id": doctor_id,
+        "patient_id": patient_id,
+        "medications": medications
+    }
+    try:
+        data_str = json.dumps(payload)
         data = data_str.encode('utf-8')
         future = publisher.publish(topic_path, data)
-        print(future.result())
+        return future
+    except NotFound as e:
+        raise e
+    except Exception as e:
+        raise e
 
 def get_pharmacy_info(pharmacy_id):
     pharmacy = Pharmacy.query.filter_by(user_id=pharmacy_id).first()

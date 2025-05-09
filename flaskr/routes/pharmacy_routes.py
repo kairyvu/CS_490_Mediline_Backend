@@ -37,6 +37,7 @@ def post_patient_prescription(pharmacy_id):
         res = add_pt_rx(pharmacy_id, patient_id, doctor_id, medications)
     except Exception as e:
         print(type(e))
+        print(str(e))
         return jsonify({'error': f'{str(e)}'}), 500
     if res:
         return jsonify({
