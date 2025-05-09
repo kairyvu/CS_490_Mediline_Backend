@@ -55,9 +55,9 @@ jobs:
           command: |
             export GOOGLE_APPLICATION_CREDENTIALS=gcloud-key.json
             . venv/bin/activate
-            pytest --junitxml=junit.xml || ((($? == 5)) && echo 'Did not find any tests to run.')
-      # - store_test_results:
-      #     path: junit.xml
+            pytest --cov --junitxml=junit.xml || ((($? == 5)) && echo 'Did not find any tests to run.')
+      - store_test_results:
+          path: junit.xml
   build-and-push-docker-image:
     docker:
       - image: google/cloud-sdk:latest
