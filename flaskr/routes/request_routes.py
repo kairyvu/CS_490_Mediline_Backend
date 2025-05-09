@@ -9,8 +9,8 @@ request_bp = Blueprint("request", __name__)
 
 @request_bp.route('/patient/<int:patient_id>/doctor/<int:doctor_id>', methods=['POST'])
 @jwt_required()
-@swag_from('../docs/request_routes/add_request.yml')
-def add_request(patient_id, doctor_id):
+@swag_from('../docs/request_routes/select_doctor.yml')
+def select_doctor(patient_id, doctor_id):
     _user: User = current_user
     _user_id = _user.user_id
     match _user_id, _user.account_type.name:
