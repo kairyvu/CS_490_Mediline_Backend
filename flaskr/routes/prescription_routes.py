@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, current_user
+from flask_jwt_extended.exceptions import NoAuthorizationError
 from flaskr.models import User, Patient
 from flaskr.services import get_medications_by_prescription, get_prescriptions, \
     get_prescription_count_by_pharmacy, get_pharmacy_medications_inventory, \
@@ -86,15 +87,12 @@ def get_medications_history(patient_id):
     _user_id = _user.user_id
     _acct_type = _user.account_type.name
     match _acct_type:
-        case 'SuperUser':
+        case 'SuperUser' | 'Pharmacy':
             pass
         case 'Patient' if _user_id == patient_id:
             pass
         case 'Doctor' if patient_id in set([
             p.user_id for p in _user.doctor.patients]):
-            pass
-        case 'Pharmacy' if patient_id in set([
-            p.user_id for p in _user.pharmacy.patients]):
             pass
         case _:
             return USER_NOT_AUTHORIZED(_user_id)
@@ -103,6 +101,10 @@ def get_medications_history(patient_id):
         return jsonify(history), 200
     except ValueError as e:
         return jsonify({'error': str(e)}), 404
+    except NoAuthorizationError:
+        return USER_NOT_AUTHORIZED()
+    except UnauthorizedError:
+        return USER_NOT_AUTHORIZED(_user_id)
     except Exception as e:
         return jsonify({'error': 'An error occurred while fetching the medications history'}), 500
 
