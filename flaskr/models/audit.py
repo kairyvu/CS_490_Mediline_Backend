@@ -1,16 +1,5 @@
 from flaskr.extensions import db
-import enum
-
-class AccountType(enum.Enum):
-    Patient = 'patient'
-    Doctor = 'doctor'
-    Pharmacy = 'pharmacy'
-    SuperUser = 'super_user'
-
-class Action(enum.Enum):
-    CREATE = 'create'
-    UPDATE = 'update'
-    DELETE = 'delete'
+from flaskr.struct import Action, AccountType
 
 class UserAudit(db.Model):
     __tablename__ = 'user_audit'
