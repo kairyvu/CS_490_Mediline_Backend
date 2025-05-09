@@ -30,7 +30,6 @@ def all_doctors(sort_by='user_id', order='asc'):
             Doctor.last_name,
             Doctor.specialization,
             Doctor.gender,
-            Doctor.accepting_patients,
         )
         .order_by(column)
         .all()
@@ -41,7 +40,6 @@ def all_doctors(sort_by='user_id', order='asc'):
             "name": f"{doc.first_name} {doc.last_name}",
             "specialization": doc.specialization,
             "gender": doc.gender.value if isinstance(doc.gender, Gender) else doc.gender,
-            "is_accepting_patients": doc.accepting_patients,
         }
         for doc in doctors
     ]

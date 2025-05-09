@@ -14,7 +14,7 @@ def add_request(patient_id, doctor_id):
     _user: User = current_user
     _user_id = _user.user_id
     match _user_id, _user.account_type.name:
-        case (_, 'SUPERUSER') | (_, 'PATIENT') if _user_id == patient_id:
+        case (_, 'SuperUser') | (_, 'Patient') if _user_id == patient_id:
             pass
         case _:
             return USER_NOT_AUTHORIZED(_user_id)
@@ -74,8 +74,8 @@ def get_request_by_user_id(user_id, sort_by='created_at', order='desc'):
     _user_id = _user.user_id
     account_type = _user.account_type.name
     
-    if account_type in ('SUPERUSER', 'DOCTOR', 'PATIENT'):
-        if account_type != 'SUPERUSER' and _user_id != user_id:
+    if account_type in ('SuperUser', 'Doctor', 'Patient'):
+        if account_type != 'SuperUser' and _user_id != user_id:
             return USER_NOT_AUTHORIZED(_user_id)
     else:
         return USER_NOT_AUTHORIZED(_user_id)

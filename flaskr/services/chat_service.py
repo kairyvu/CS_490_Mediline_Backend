@@ -11,11 +11,11 @@ def get_current_chat(appointment_id, requesting_user: User|None=None):
     chat_dr = chat.appointment.doctor_id
     if requesting_user:
         match requesting_user.account_type.name:
-            case 'SUPERUSER':
+            case 'SuperUser':
                 pass
-            case 'PATIENT' if requesting_user.user_id == chat_pt:
+            case 'Patient' if requesting_user.user_id == chat_pt:
                 pass
-            case 'DOCTOR' if requesting_user.user_id == chat_dr:
+            case 'Doctor' if requesting_user.user_id == chat_dr:
                 pass
             case _:
                 raise UnauthorizedError

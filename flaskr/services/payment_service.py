@@ -35,7 +35,7 @@ def assign_invoice_appoinmtnet(doctor_id, appointment_id, patient_id, requesting
     if not appointment:
         return jsonify({"error": "Appointment Not found"}), 404
 
-    if ((requesting_user.account_type.name != 'SUPERUSER') 
+    if ((requesting_user.account_type.name != 'SuperUser') 
         and (requesting_user.user_id != doctor_id)):
         return USER_NOT_AUTHORIZED(requesting_user.user_id)
     

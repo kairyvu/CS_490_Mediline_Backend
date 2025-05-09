@@ -14,9 +14,9 @@ def get_report_by_user(user_id):
     _user_id = _user.user_id
     _acct_type = _user.account_type.name
     match _acct_type:
-        case 'SUPERUSER' | 'PATIENT' if _user_id == user_id:
+        case 'SuperUser' | 'Patient' if _user_id == user_id:
             pass
-        case 'DOCTOR' if user_id in set([
+        case 'Doctor' if user_id in set([
             p.user_id for p in _user.doctor.patients]):
             pass
         case _:
@@ -36,7 +36,7 @@ def get_report_by_user(user_id):
 def add_report(user_id):
     _user_id = current_user.user_id
     _acct_type = current_user.account_type.name
-    if (_user_id != user_id) and (_acct_type != 'SUPERUSER'):
+    if (_user_id != user_id) and (_acct_type != 'SuperUser'):
         return USER_NOT_AUTHORIZED(_user_id)
 
     data = request.get_json()

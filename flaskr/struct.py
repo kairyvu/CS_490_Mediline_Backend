@@ -1,10 +1,10 @@
 import enum
 
 class AccountType(enum.Enum):
-    PATIENT = 'patient'
-    DOCTOR = 'doctor'
-    PHARMACY = 'pharmacy'
-    SUPERUSER = 'super_user'
+    Patient = 'patient'
+    Doctor = 'doctor'
+    Pharmacy = 'pharmacy'
+    SuperUser = 'super_user'
 
 class ReportType(enum.Enum):
     DAILY = 'daily'
@@ -32,8 +32,3 @@ class PrescriptionStatus(enum.Enum):
 class Gender(enum.Enum):
     MALE = 'male'
     FEMALE = 'female'
-
-class Action(enum.Enum):
-    CREATE = 'create'
-    UPDATE = 'update'
-    DELETE = 'delete'

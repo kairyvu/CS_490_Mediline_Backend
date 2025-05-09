@@ -3,6 +3,22 @@ from flask import Request, Response
 from flask.testing import FlaskClient
 
 ####======TESTS=====####
+def test_register_add_user(client: FlaskClient, pt_reg_form1):
+    client, db = client
+    response = client.post(
+        '/register/',
+        follow_redirects=True,
+        json=pt_reg_form1
+    )
+    assert response.json.get('user_id')
+
+def test_register_add_duplicate_user(client: FlaskClient, pt_reg_form1):
+    client, db = client
+    response = client.post('/register/', json=pt_reg_form1)
+    assert response.json.get('user_id')
+    response = client.post('/register/', json=pt_reg_form1)
+    assert response.status_code == 400
+
 def test_register_incomplete(client: FlaskClient, pt_reg_form1):
     client, db = client
     USER1_CPY = copy.deepcopy(pt_reg_form1)
