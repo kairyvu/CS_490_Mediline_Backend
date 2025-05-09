@@ -1,4 +1,4 @@
-from flaskr.models import Invoice, Appointment, AppointmentDetail
+from flaskr.models import Invoice, Appointment, AppointmentDetail, User
 from flaskr.extensions import db
 from datetime import datetime, timedelta
 from flaskr.struct import PaymentStatus, AppointmentStatus
@@ -29,10 +29,15 @@ def update_invoice_status(patient_id, invoice_id, new_status):
     db.session.commit()
     return invoice.to_dict()
 
-def assign_invoice_appoinmtnet(doctor_id, appointment_id, patient_id):
+def assign_invoice_appoinmtnet(doctor_id, appointment_id, patient_id, requesting_user: User|None=None):
+    from flaskr.services import USER_NOT_AUTHORIZED
     appointment = Appointment.query.filter_by(doctor_id = doctor_id, patient_id = patient_id, appointment_id = appointment_id).first()
     if not appointment:
         return jsonify({"error": "Appointment Not found"}), 404
+
+    if ((requesting_user.account_type.name != 'SuperUser') 
+        and (requesting_user.user_id != doctor_id)):
+        return USER_NOT_AUTHORIZED(requesting_user.user_id)
     
     appointment_detail = appointment.appointment_detail
     if appointment_detail.status == AppointmentStatus.COMPLETED:
@@ -48,7 +53,7 @@ def assign_invoice_appoinmtnet(doctor_id, appointment_id, patient_id):
     appointment_detail.status = AppointmentStatus.COMPLETED
     db.session.add(result)
     db.session.commit()
-    return{
+    return jsonify({
         "Message": "Invoice Added Successfully",
         "invoice_id": result.invoice_id,
         "patient_id": result.patient_id,
@@ -56,7 +61,7 @@ def assign_invoice_appoinmtnet(doctor_id, appointment_id, patient_id):
         "status": result.status.name,
         "pay_date": result.pay_date,
         "created_at": result.created_at.strftime("%Y-%m-%d %I:%M %p")
-    }
+    }), 201
 
 def delete_invoice(doctor_id, invoice_id):
     invoice = Invoice.query.filter_by(invoice_id=invoice_id, doctor_id=doctor_id).first()

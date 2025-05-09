@@ -2,17 +2,14 @@ from datetime import date, datetime
 from werkzeug.datastructures import ImmutableMultiDict
 from flask import jsonify
 from sqlalchemy import select, update
-
 from sqlalchemy.exc import OperationalError, IntegrityError
+from flask_jwt_extended.exceptions import NoAuthorizationError
+
 from flaskr.models import User, Doctor, Patient, Appointment, AppointmentDetail, RatingSurvey, Chat, Message, City, Country, Address
 from flaskr.extensions import db
-from flaskr.struct import AppointmentStatus
+from flaskr.struct import AppointmentStatus, Gender
 
 from .forms import DrRegForm
-
-
-from flaskr.struct import Gender
-
 
 def all_doctors(sort_by='user_id', order='asc'):
     if not hasattr(Doctor, sort_by):
@@ -54,17 +51,30 @@ def doctor_details(doctor_id):
 
     return doctor.to_dict()
 
-def total_patients(doctor_id):
-    return Patient.query.filter_by(doctor_id=doctor_id).count()
 def upcoming_appointments_count(doctor_id):
     upcoming_count = Appointment.query.filter_by(doctor_id=doctor_id).join(AppointmentDetail).filter(AppointmentDetail.status == "CONFIRMED").count()
     return (upcoming_count)
 def pending_appointments_count(doctor_id):
     pending_count = Appointment.query.filter_by(doctor_id=doctor_id).join(AppointmentDetail).filter(AppointmentDetail.status == "PENDING").count()
     return (pending_count)
-def doctor_patients_count(doctor_id):
-    patients_count = Patient.query.filter_by(doctor_id=doctor_id).count()
-    return (patients_count)
+def doctor_patients_count_and_list(doctor_id):
+    patients = Patient.query.filter_by(doctor_id=doctor_id).all()
+    return {
+        "doctor_patients_count": len(patients),
+        "patients": [
+            {
+                "patient_id": patient.user_id,
+                "first_name": patient.first_name,
+                "last_name": patient.last_name,
+                "email": patient.email,
+                "dob": patient.dob,
+                "phone": patient.phone,
+                "gender": patient.gender.value
+            }
+            for patient in patients
+        ]
+    }
+
 def todays_patient(doctor_id, date):
     try:
         query_date = datetime.strptime(date, '%Y-%m-%d').date() if date else datetime.today().date()
@@ -82,11 +92,12 @@ def todays_patient(doctor_id, date):
 
         if patient:
             result.append({
+                "patient_id": patient.user_id,
                 "first_name": patient.first_name,
                 "last_name": patient.last_name,
                 "gender": patient.gender.value if isinstance(patient.gender, Gender) else patient.gender,
-                "visit_time": detail.start_date.strftime("%I:%M %p"),
-                "dob": patient.dob,
+                "visit_time": detail.start_date.isoformat(),
+                "dob": patient.dob.isoformat(),
                 "treatment": detail.treatment,
                 "status": detail.status.name,
                 "email": patient.email,
@@ -177,38 +188,6 @@ def doctor_general_discussion(doctor_id):
             })
     return result
 
-def select_doctor(doctor_id, patient_id, requesting_user: User|None=None):
-    # Creates relationship between doctor and patient
-    # The doctor does not need to manually go through each patient and accept 
-    # them so long as they are accepting new patients
-    from flaskr.services import UnauthorizedError
-    if (requesting_user
-        and requesting_user.account_type.name not in {'Patient', 'SuperUser'}):
-        raise UnauthorizedError
-    pt: Patient = Patient.query.filter_by(user_id=patient_id).first()
-    if not pt:
-        raise ValueError(f'patient with id {patient_id} not found')
-    
-    dr: Doctor = Doctor.query.filter_by(user_id=doctor_id).first()
-    if not dr: 
-        raise ValueError(f'doctor with id {doctor_id} not found')
-    if not dr.accepting_patients:
-        raise ValueError(f'doctor is not accepting patients')
-    
-    if pt.doctor_id and pt.doctor_id == doctor_id:
-        raise ValueError(f'patient already has this doctor')
-    pt.doctor_id = doctor_id
-    pt.doctor = dr
-    # Automatically append pt to doctor's patients list
-    dr.patients.append(pt)
-    db.session.add_all((pt, dr))
-    try:
-        db.session.commit()
-    except Exception as e:
-        raise e
-
-    return
-
 def new_appointments_request(doctor_id):
     appointments = (Appointment.query
         .filter_by(doctor_id=doctor_id)
@@ -240,7 +219,9 @@ def update_doctor(user_id, updates: dict) -> dict:
         return {"error": "Doctor not found"}
     
     address_attr = {'address1', 'address2', 'state', 'zipcode'}
-    doctor_attr = {'first_name', 'last_name', 'email', 'phone', 'dob', 'specialization', 'fee', 'license_id', 'profile_picture', 'email'}
+    doctor_attr = {'first_name', 'last_name', 'email', 'phone', 'dob', 
+                   'specialization', 'fee', 'license_id', 'profile_picture', 
+                   'bio', 'accepting_patients', 'gender'}
 
     invalid_attrs = set(updates) - (doctor_attr 
                                     | address_attr 
@@ -252,6 +233,9 @@ def update_doctor(user_id, updates: dict) -> dict:
         }
 
     curr_doctor_info = doctor.doctor.to_dict()
+    # cast 'accepting_patients' in current doctor attribute
+    # to string to allow comparison with updated value
+    curr_doctor_info['accepting_patients'] = str(curr_doctor_info['accepting_patients'])
     curr_addr_info = doctor.address.to_dict()
     curr_city = db.session.scalar( 
         select(City)
@@ -264,6 +248,17 @@ def update_doctor(user_id, updates: dict) -> dict:
     _city = {'city': updates.get('city') or curr_city.city}
     _country = {'country': updates.get('country') or curr_country.country}
 
+    if isinstance(updates.get('accepting_patients'), bool):
+        updates['accepting_patients'] = str(updates['accepting_patients'])
+    elif isinstance(updates.get('accepting_patients'), str):
+        if updates['accepting_patients']  == 'false':
+            updates['accepting_patients'] = 'False'
+        elif updates['accepting_patients'] == 'true':
+            updates['accepting_patients'] = 'True'
+        elif updates['accepting_patients'] in ['True', 'False']:
+            pass
+        else:
+            raise Exception(f"updates['accepting_patients'] is {updates['accepting_patients']}")
     doctor_info_updates = {
         attr: 
             updates.get(attr) 
@@ -353,6 +348,13 @@ def update_doctor(user_id, updates: dict) -> dict:
         doctor.address_id = new_addr.address_id
         db.session.flush()
     if (doctor_diff):
+        if isinstance(doctor_info_updates.get('accepting_patients'), str):
+            if doctor_info_updates['accepting_patients'] in ['false', 'False']:
+                doctor_info_updates['accepting_patients'] = False
+            elif doctor_info_updates['accepting_patients'] in ['true', 'True']:
+                doctor_info_updates['accepting_patients'] = True
+            else:
+                raise Exception(f"doctor_info_updates['accepting_patients'] is {doctor_info_updates['accepting_patients']}")
         try:
             db.session.execute(
                 update(Doctor)
@@ -368,9 +370,16 @@ def update_doctor(user_id, updates: dict) -> dict:
         raise e
     return {"message": "Doctor updated successfully"}
 
-def assign_survey(doctor_id, patient_id, stars, comment=None):
+def assign_survey(doctor_id, patient_id, stars, comment=None, requesting_user: User|None=None):
+    if not requesting_user:
+        raise NoAuthorizationError('must be authenticated')
     if stars < 1 or stars > 5:
-        return {"error": "Rating must be between 1 and 5"}
+        raise ValueError("Rating must be between 1 and 5")
+
+    dr_pts = Doctor.query.filter_by(user_id=doctor_id).first().patients
+    if requesting_user.user_id not in {pt.user_id for pt in dr_pts}:
+        raise NoAuthorizationError(f'User with ID: {requesting_user.user_id} is not authorized')
+
     new_survvey = RatingSurvey(
         doctor_id = doctor_id,
         patient_id = patient_id,
@@ -379,7 +388,10 @@ def assign_survey(doctor_id, patient_id, stars, comment=None):
     )
 
     db.session.add(new_survvey)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except Exception as e:
+        raise e
 
     return {
         "message": "Survey Assigned successfully",

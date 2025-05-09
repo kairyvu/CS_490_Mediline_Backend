@@ -93,11 +93,13 @@ responses:
         country: Country
         zipcode: 01122
         doctor:
+          doctor_id: 22
           first_name: docfname
           last_name: doclname
           specialization: blah blah blah
           fee: 22.48
         pharmacy:
+          pharmacy_id: 88
           pharmacy_name: pharmaname
           email: pharrma_email@email.com
           hours: 12:00am-12:00pm

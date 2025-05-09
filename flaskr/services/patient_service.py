@@ -1,5 +1,6 @@
 from werkzeug.datastructures import ImmutableMultiDict
 from sqlalchemy import select, update
+from flask_jwt_extended.exceptions import NoAuthorizationError
 from flaskr.models import Patient, Doctor, Pharmacy, User, Address, City, Country
 from flaskr.models import MedicalRecord
 from flaskr.extensions import db
@@ -27,6 +28,7 @@ def patient_info(user_id):
         "phone": patient.phone,
         "dob": str(patient.dob),
         "doctor": {
+            "doctor_id": doctor.user_id,
             "first_name": doctor.first_name,
             "last_name": doctor.last_name,
             "gender": doctor.gender.value if isinstance(doctor.gender, Gender) else doctor.gender,
@@ -36,6 +38,7 @@ def patient_info(user_id):
             "email": doctor.email
         } if doctor else None,
         "pharmacy": {
+            "pharmacy_id": pharmacy.user_id,
             "pharmacy_name": pharmacy.pharmacy_name,
             "phone": pharmacy.phone,
             "email": pharmacy.email,
@@ -66,7 +69,7 @@ def update_patient(user_id, updates: dict) -> dict:
 
     # Attributes that can be edited through this route
     address_attr = {'address1', 'address2', 'state', 'zipcode'}
-    patient_attr = {'first_name', 'last_name', 'email', 'phone', 'dob'}
+    patient_attr = {'first_name', 'last_name', 'email', 'phone', 'dob', 'gender'}
 
     # Check provided updates payload if it's a subset of the allowed attributes
     invalid_attrs = set(updates) - (patient_attr 
@@ -196,45 +199,6 @@ def update_patient(user_id, updates: dict) -> dict:
         raise e
     return {"message": "Patient updated successfully"}
 
-def patient_medical_history(patient_id):
-    patient = Patient.query.filter_by(user_id = patient_id).first()
-    if not patient:
-        return None
-    
-    records = MedicalRecord.query.filter_by(patient_id = patient_id).order_by(MedicalRecord.created_at.desc()).all()
-
-    return{
-        "patient_name": f"{patient.first_name} {patient.last_name}",
-        "medical_record":[
-            {
-                "record_id": r.medical_record_id,
-                "description": r.description,
-                "creadted_at": r.created_at.strftime("%Y-%m-%d %I:%M %p")
-            }
-            for r in records
-        ]
-    }
-
-def create_medical_record(patient_id, description):
-    patient =Patient.query.filter_by(user_id = patient_id).first()
-    if not patient:
-        return None
-    
-    record = MedicalRecord(
-        patient_id = patient_id,
-        description = description,
-        created_at = datetime.now()
-    )
-
-    db.session.add(record)
-    db.session.commit()
-    return{
-        "record_id": record.medical_record_id,
-        "patient_name": f"{patient.first_name} {patient.last_name}",
-        "description": record.description,
-        "created_at": record.created_at.strftime("%Y-%m-%d %I:%M %p")
-    }
-
 def update_primary_pharmacy(patient_id, pharmacy_id):
     patient = Patient.query.filter_by(user_id=patient_id).first()
     if not patient:
@@ -251,10 +215,19 @@ def update_primary_pharmacy(patient_id, pharmacy_id):
         "new_pharmacy_id": pharmacy_id
     }
 # This function is restricted to use directly
-def update_doctor_by_patient_id(patient_id, doctor_id):
+def update_doctor_by_patient_id(patient_id, doctor_id, requesting_user=None):
+    from flaskr.services import UnauthorizedError
+    if not requesting_user:
+        return NoAuthorizationError
     doctor = Doctor.query.filter_by(user_id=doctor_id).first()
     if not doctor:
         raise ValueError(f'Doctor with id {doctor_id} not found')
+
+    match requesting_user.account_type.name:
+        case 'SuperUser' | 'Doctor' if requesting_user.user_id == doctor_id:
+            pass
+        case _:
+            raise UnauthorizedError
     patient = Patient.query.filter_by(user_id=patient_id).first()
     if not patient:
         raise ValueError(f'Patient with id {patient_id} not found')

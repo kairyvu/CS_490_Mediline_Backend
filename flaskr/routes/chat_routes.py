@@ -18,8 +18,9 @@ def get_chat(appointment_id):
         return USER_NOT_AUTHORIZED(current_user.user_id)
     
 
-## TODO: Documentation
 @chat_bp.route('/appointment/<int:appointment_id>', methods=['PUT'])
+@jwt_required()
+@swag_from('../docs/chat_routes/put_message.yml')
 def put_message(appointment_id):
     data = request.get_json()
     user_id = data.get("user_id")

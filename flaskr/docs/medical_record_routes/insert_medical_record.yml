@@ -1,7 +1,7 @@
-Insert a new medical record for a patient
+insert a new medical record for a patient
 ---
 tags:
-  - patient
+  - medical_record
 parameters:
   - name: patient_id
     in: path
@@ -16,7 +16,9 @@ parameters:
       properties:
         description:
           type: string
-    description: Medical record details
+        appointment_id: 
+          type: integer
+    description: Medical record details plus appointment id
 responses:
   201:
     description: Record created successfully
@@ -36,7 +38,7 @@ responses:
         record_id: 5
         patient_name: firstname lastname
         description: Medical Description
-        created_at: "2025-04-15 07:30 PM"
+        created_at: "YYYY-MM-DD"
   400:
     description: Missing description field
     schema:
@@ -47,8 +49,8 @@ responses:
     examples:
       application/json:
         error: Description is required
-  404:
-    description: Patient not found
+  400:
+    description: Missing Appointment Id
     schema:
       type: object
       properties:
@@ -56,4 +58,14 @@ responses:
           type: string
     examples:
       application/json:
-        error: Patient not found
+        error: Appointment ID is required
+  404:
+    description: Appointment not found
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    examples:
+      application/json:
+        error: Appointment not found

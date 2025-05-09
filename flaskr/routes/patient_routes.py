@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, current_user
 from flaskr.models import User
-from flaskr.services import patient_info, update_patient, patient_medical_history, create_medical_record, update_primary_pharmacy, USER_NOT_AUTHORIZED
+from flaskr.services import patient_info, update_patient, update_primary_pharmacy, USER_NOT_AUTHORIZED
 from flasgger import swag_from
 
 from sqlalchemy.exc import OperationalError, IntegrityError
@@ -80,38 +80,18 @@ def update_patient_info(user_id):
         return jsonify({"error": error_msg}), 504
     except IntegrityError as e:
         error_msg = str((str(e.args[0]).split(maxsplit=1))[1]).split(',')[1].strip().strip(')"\\')
-        return jsonify({"error", error_msg}), 400
+        return jsonify({"error": error_msg}), 400
     if "error" not in result:
         return jsonify(result), 200
     return jsonify(result), 404
 
-@patient_bp.route('/<int:patient_id>/medical_history', methods=['GET'])
-@swag_from('../docs/patient_routes/medical_history.yml')
-def medical_history(patient_id):
-    result = patient_medical_history(patient_id)
-    if not result:
-        return jsonify({"error": "Patient not Found"}), 404
-    return jsonify(result), 200
-
-@patient_bp.route('/<int:patient_id>/medical_history', methods=['POST'])
-@swag_from('../docs/patient_routes/insert_medical_record.yml')
-def insert_medical_record(patient_id):
-    data = request.get_json()
-    if not data:
-        return jsonify({"error": "no input data provided"}), 400
-    
-    description = data.get("description")
-    if not description:
-        return jsonify({"error": "Description is required"}), 400
-    result = create_medical_record(patient_id, description)
-    if result is None:
-        return jsonify({"error": "Patient not found"}), 404
-    
-    return jsonify(result), 201
-
 @patient_bp.route('/<int:patient_id>/pharmacy', methods=['PUT'])
+@jwt_required()
 @swag_from('../docs/patient_routes/update_primary_pharmacy.yml')
 def primary_pharmacy(patient_id):
+    if ((current_user.account_type.name != 'SuperUser') 
+        and (current_user.user_id != patient_id)):
+        return USER_NOT_AUTHORIZED(current_user.user_id)
     data = request.get_json()
     pharmacy_id = data.get("pharmacy_id")
     if not pharmacy_id:

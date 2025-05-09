@@ -1,0 +1,43 @@
+Fetch a pharmacy's inventory
+---
+tags: 
+  - prescription
+parameters:
+  - name: pharmacy_id
+    in: path
+    type: integer
+    required: true
+    description: pharmacy ID
+responses:
+  200:
+    description: fetch list of medications available in the pharmacy
+    schema:
+      type: array
+      items:
+        type: object
+        properties:
+          inventory_id:
+            type: integer
+          medication_id:
+            type: integer
+          quantity:
+            type: integer
+          expiration_date:
+            type: string
+            format: date-time
+          medication_name:
+            type: string
+  404:
+    description: Failed to fetch data
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+  500:
+    description: internal server error
+    schema:
+      type: object
+      properties:
+        error:
+          type: string

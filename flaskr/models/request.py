@@ -16,5 +16,5 @@ class PatientRequest(db.Model):
             "request_id": self.request_id,
             "doctor_id": self.doctor_id,
             "patient_id": self.patient_id,
-            "request_date": self.request_date.isoformat() if self.request_date else None
+            "request_date": self.created_at.isoformat() if self.created_at else None
         }
