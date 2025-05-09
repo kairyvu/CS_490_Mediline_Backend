@@ -57,10 +57,7 @@ responses:
           status:
             type: string
             enum:
-              - PENDING
               - CONFIRMED
-              - CANCELLED
-              - COMPLETED
           treatment:
             type: string
     examples:

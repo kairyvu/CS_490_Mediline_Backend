@@ -20,7 +20,7 @@ def get_upcoming_appointments(user_id, sort_by='start_date', order='desc'):
         query = query.filter(Appointment.doctor_id == user_id)
     
     query = query.filter(
-        AppointmentDetail.status.in_([AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED])
+        AppointmentDetail.status.in_([AppointmentStatus.CONFIRMED])
     )
     
     if not hasattr(AppointmentDetail, sort_by):
