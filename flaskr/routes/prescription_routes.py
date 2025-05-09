@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, current_user
-from flaskr.models import User
+from flaskr.models import User, Patient
 from flaskr.services import get_medications_by_prescription, get_prescriptions, \
     get_prescription_count_by_pharmacy, get_pharmacy_medications_inventory, \
     get_medications_history_by_patient, USER_NOT_AUTHORIZED, UnauthorizedError, update_prescription_status
@@ -14,7 +14,13 @@ prescription_bp = Blueprint("prescription", __name__)
 def get_prescription_by_user(user_id):
     _user_id = current_user.user_id
     _acct_type = current_user.account_type.name
-    if (_user_id != user_id) and (_acct_type != 'SuperUser'):
+    if _acct_type == 'SuperUser' or _user_id == user_id:
+        pass
+    elif _acct_type == 'Pharmacy':
+        belongs = Patient.query.filter_by(user_id=user_id, pharmacy_id=_user_id).first()
+        if not belongs:
+            return USER_NOT_AUTHORIZED(_user_id)
+    else:
         return USER_NOT_AUTHORIZED(_user_id)
     sort_by = request.args.get('sort_by', 'created_at')
     order = request.args.get('order', 'asc')
