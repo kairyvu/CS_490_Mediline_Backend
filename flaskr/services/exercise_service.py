@@ -61,8 +61,9 @@ def update_patient_exercise(exercise_id, status, reps,
     
     if requesting_user:
         match requesting_user.account_type.name:
-            case 'SuperUser' | 'Patient' \
-                if exercise.patient_id == requesting_user.user_id:
+            case 'SuperUser':
+                pass
+            case'Patient' if exercise.patient_id == requesting_user.user_id:
                 pass
             case 'Doctor' if exercise.patient_id in set([
                 p.user_id for p in requesting_user.doctor.patients]):

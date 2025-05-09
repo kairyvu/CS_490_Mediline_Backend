@@ -14,7 +14,9 @@ def get_invoices_by_user_route(user_id):
     _user_id = _user.user_id
     _acct_type = _user.account_type.name
     match _acct_type:
-        case 'SuperUser' | 'Patient' if _user_id == user_id:
+        case 'SuperUser':
+            pass
+        case 'Patient' if _user_id == user_id:
             pass
         case _:
             return USER_NOT_AUTHORIZED(_user_id)

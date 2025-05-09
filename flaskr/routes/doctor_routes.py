@@ -123,7 +123,9 @@ def assign_survey_rating(doctor_id):
 def get_new_appointment_requests(doctor_id):
     _acct_type = current_user.account_type.name
     match _acct_type:
-        case 'SuperUser' | 'Doctor' if current_user.user_id == doctor_id:
+        case 'SuperUser':
+            pass
+        case 'Doctor' if current_user.user_id == doctor_id:
             pass
         case _:
             return USER_NOT_AUTHORIZED(current_user.user_id)
@@ -137,7 +139,9 @@ def get_new_appointment_requests(doctor_id):
 def update_doctor_info(user_id):
     _acct_type = current_user.account_type.name
     match _acct_type:
-        case 'SuperUser' | 'Doctor' if current_user.user_id == user_id:
+        case 'SuperUser':
+            pass
+        case 'Doctor' if current_user.user_id == user_id:
             pass
         case _:
             return USER_NOT_AUTHORIZED(current_user.user_id)

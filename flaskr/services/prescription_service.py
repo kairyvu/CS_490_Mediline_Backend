@@ -91,13 +91,13 @@ def get_pharmacy_medications_inventory(pharmacy_id):
         medications_list.append(item.to_dict())
     return medications_list
 
-def get_medications_history_by_patient(patient_id):
+def get_medications_history_by_patient(patient_id, requesting_user: User|None=None):
     prescriptions = Prescription.query.filter_by(patient_id=patient_id).all()
     if not prescriptions:
         raise ValueError("No prescriptions found for the patient")
     medications_history = []
     for prescription in prescriptions:
-        medications = get_medications_by_prescription(prescription.prescription_id)
+        medications = get_medications_by_prescription(prescription.prescription_id, requesting_user=requesting_user)
         medications_history.append(medications)
     return medications_history
 

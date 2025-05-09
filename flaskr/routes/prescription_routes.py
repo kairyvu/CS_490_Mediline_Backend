@@ -80,7 +80,9 @@ def get_medications_history(patient_id):
     _user_id = _user.user_id
     _acct_type = _user.account_type.name
     match _acct_type:
-        case 'SuperUser' | 'Patient' if _user_id == patient_id:
+        case 'SuperUser':
+            pass
+        case 'Patient' if _user_id == patient_id:
             pass
         case 'Doctor' if patient_id in set([
             p.user_id for p in _user.doctor.patients]):
@@ -91,7 +93,7 @@ def get_medications_history(patient_id):
         case _:
             return USER_NOT_AUTHORIZED(_user_id)
     try:
-        history = get_medications_history_by_patient(patient_id)
+        history = get_medications_history_by_patient(patient_id, requesting_user=_user)
         return jsonify(history), 200
     except ValueError as e:
         return jsonify({'error': str(e)}), 404
