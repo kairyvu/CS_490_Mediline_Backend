@@ -16,8 +16,6 @@ responses:
             type: string
           specialization:
             type: string
-          is_accepting_patients:
-            type: boolean
     examples:
       application/json:
         [
@@ -25,6 +23,5 @@ responses:
             "user_id": "1",
             "name": "FirstName LastName",
             "specialization": "SpecializationString",
-            "is_accepting_patients": "TRUE",
           }
         ]

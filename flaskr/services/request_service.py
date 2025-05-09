@@ -27,7 +27,7 @@ def delete_patient_request(request_id, requesting_user=None):
     request = PatientRequest.query.filter_by(request_id=request_id).first()
     if not request:
         return None
-    if not (requesting_user.account_type.name != 'SUPERUSER' 
+    if not (requesting_user.account_type.name != 'SuperUser' 
             and request.doctor_id == requesting_user.user_id):
         raise UnauthorizedError
 

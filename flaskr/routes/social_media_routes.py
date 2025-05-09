@@ -33,7 +33,7 @@ def get_post_comments(post_id):
 @jwt_required()
 @swag_from('../docs/social_media_routes/delete_post.yml')
 def delete_posts(user_id, post_id):
-    if ((current_user.account_type.name != 'SUPERUSER') 
+    if ((current_user.account_type.name != 'SuperUser') 
         and (current_user.user_id != user_id)):
         return USER_NOT_AUTHORIZED(current_user.user_id)
 
@@ -46,7 +46,7 @@ def delete_posts(user_id, post_id):
 @jwt_required()
 @swag_from('../docs/social_media_routes/delete_comment.yml')
 def delete_comments(user_id, comment_id):
-    if ((current_user.account_type.name != 'SUPERUSER') 
+    if ((current_user.account_type.name != 'SuperUser') 
         and (current_user.user_id != user_id)):
         return USER_NOT_AUTHORIZED(current_user.user_id)
     result = delete_comment(user_id, comment_id)
@@ -58,7 +58,7 @@ def delete_comments(user_id, comment_id):
 @jwt_required()
 @swag_from('../docs/social_media_routes/update_post.yml')
 def update_posts(user_id, post_id):
-    if ((current_user.account_type.name != 'SUPERUSER') 
+    if ((current_user.account_type.name != 'SuperUser') 
         and (current_user.user_id != user_id)):
         return USER_NOT_AUTHORIZED(current_user.user_id)
     data = request.get_json()
@@ -75,7 +75,7 @@ def update_posts(user_id, post_id):
 @jwt_required()
 @swag_from('../docs/social_media_routes/update_comment.yml')
 def update_comments(user_id, comment_id):
-    if ((current_user.account_type.name != 'SUPERUSER') 
+    if ((current_user.account_type.name != 'SuperUser') 
         and (current_user.user_id != user_id)):
         return USER_NOT_AUTHORIZED(current_user.user_id)
     data = request.get_json()
@@ -92,7 +92,7 @@ def update_comments(user_id, comment_id):
 @jwt_required()
 @swag_from('../docs/social_media_routes/create_posts.yml')
 def create_posts(user_id):
-    if ((current_user.account_type.name != 'SUPERUSER') 
+    if ((current_user.account_type.name != 'SuperUser') 
         and (current_user.user_id != user_id)):
         return USER_NOT_AUTHORIZED(current_user.user_id)
     data = request.get_json()
@@ -112,7 +112,7 @@ def create_posts(user_id):
 @jwt_required()
 @swag_from('../docs/social_media_routes/create_comments.yml')
 def create_comments(user_id, post_id):
-    if ((current_user.account_type.name != 'SUPERUSER') 
+    if ((current_user.account_type.name != 'SuperUser') 
         and (current_user.user_id != user_id)):
         return USER_NOT_AUTHORIZED(current_user.user_id)
     data = request.get_json()
