@@ -1,3 +1,4 @@
+from flask_jwt_extended.exceptions import NoAuthorizationError
 from flaskr.models import User, Prescription, Doctor, Patient, Pharmacy, Inventory, PrescriptionMedication
 from flaskr.extensions import db
 from sqlalchemy import func
@@ -38,23 +39,20 @@ def get_medications_by_prescription(prescription_id, requesting_user: User|None=
     if not prescription:
         raise ValueError("Prescription not found")
     medications_list = []
-    if requesting_user:
-        match requesting_user.account_type.name:
-            case 'SuperUser':
-                pass
-            case 'Patient' \
-                if requesting_user.user_id == prescription.patient_id:
-                pass
-            case 'Doctor' \
-                if requesting_user.user_id == prescription.doctor_id:
-                pass
-            case 'Pharmacy' \
-                if requesting_user.user_id == prescription.pharmacy_id:
-                pass
-            case _:
-                raise UnauthorizedError
-    else:
-        raise UnauthorizedError
+    if not requesting_user:
+        raise NoAuthorizationError
+    match requesting_user.account_type.name:
+        case 'SuperUser' | 'Pharmacy':
+            # "Have pharmacy be allowed to view a patient's prescription history"
+            pass
+        case 'Patient' \
+            if requesting_user.user_id == prescription.patient_id:
+            pass
+        case 'Doctor' \
+            if requesting_user.user_id == prescription.doctor_id:
+            pass
+        case _:
+            raise UnauthorizedError
 
     for pres_med in prescription.prescription_medications:
         med_details = pres_med.medication.to_dict()
