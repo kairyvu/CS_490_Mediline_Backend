@@ -203,7 +203,9 @@ def handle_rx_request(pharmacy_id, rx_id, status):
         id = accept_prescription(pharmacy_id, request.notification_content)
     db.session.delete(request)
     db.session.commit()
-    return id if did_accept else None
+    if did_accept:
+        return id
+    return None
 
 def validate_body(body: dict) -> tuple[bool, Response] | tuple[int, str]:
     if 'notification_id' not in body:

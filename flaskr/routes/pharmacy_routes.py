@@ -82,4 +82,6 @@ def get_new_prescriptions(pharmacy_id):
         except Exception as e:
             print(e)
             return jsonify({'error': str(e)}), 500
-        return jsonify({'msg': 'deleted'}), 204 if not res2 else jsonify({"prescription_id": res2}), 200
+        was_deleted = res2 == None
+
+        return (jsonify({'msg': 'deleted'}), 204) if was_deleted else (jsonify({"prescription_id": res2}), 200)
