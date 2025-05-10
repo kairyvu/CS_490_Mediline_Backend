@@ -27,7 +27,7 @@ def get_prescription_by_user(user_id):
     order = request.args.get('order', 'asc')
 
     try:
-        prescriptions = get_prescriptions(user_id=user_id, sort_by=sort_by, order=order)
+        prescriptions = get_prescriptions(user_id=user_id, requesting_user=current_user, sort_by=sort_by, order=order)
         return jsonify(prescriptions), 200
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
