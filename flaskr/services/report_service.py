@@ -29,3 +29,7 @@ def add_patient_report(report_id, patient_id, doctor_id, height=None, weight=Non
     )
     db.session.add(new_report)
     db.session.commit()
+
+def get_latest_report_by_user(user_id):
+    report = PatientReport.query.filter_by(patient_id=user_id).order_by(PatientReport.created_at.desc()).first()
+    return report.to_dict() if report else None

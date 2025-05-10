@@ -1,9 +1,18 @@
+from flask_jwt_extended.exceptions import NoAuthorizationError
 from flaskr.models import User, Prescription, Doctor, Patient, Pharmacy, Inventory, PrescriptionMedication
 from flaskr.extensions import db
 from sqlalchemy import func
 from flaskr.struct import PrescriptionStatus
 
-def get_prescriptions(user_id, sort_by='created_at', order='asc'):
+def get_prescriptions(user_id, requesting_user=None, sort_by='created_at', order='asc'):
+    pharmacy_check = False
+    if requesting_user and requesting_user.account_type.name == 'Pharmacy':
+        belongs = Prescription.query.filter_by(pharmacy_id=requesting_user.user_id, patient_id=user_id).first()
+        is_self = user_id == requesting_user.user_id
+        if (not belongs and (not is_self)):
+            raise ValueError("User not authorized to view this prescription")
+        pharmacy_check = True
+    
     is_patient = Patient.query.filter_by(user_id=user_id).first() is not None
     is_doctor = Doctor.query.filter_by(user_id=user_id).first() is not None
     is_pharmacy = Pharmacy.query.filter_by(user_id=user_id).first() is not None
@@ -14,6 +23,8 @@ def get_prescriptions(user_id, sort_by='created_at', order='asc'):
     query = Prescription.query
     if is_patient:
         query = query.filter(Prescription.patient_id == user_id)
+        if pharmacy_check:
+            query = query.filter(Prescription.pharmacy_id == requesting_user.user_id)
     elif is_doctor:
         query = query.filter(Prescription.doctor_id == user_id)
     elif is_pharmacy:
@@ -37,32 +48,25 @@ def get_medications_by_prescription(prescription_id, requesting_user: User|None=
     prescription = Prescription.query.get(prescription_id)
     if not prescription:
         raise ValueError("Prescription not found")
-    medications_list = []
-    if requesting_user:
-        match requesting_user.account_type.name:
-            case 'SuperUser':
-                pass
-            case 'Patient' \
-                if requesting_user.user_id == prescription.patient_id:
-                pass
-            case 'Doctor' \
-                if requesting_user.user_id == prescription.doctor_id:
-                pass
-            case 'Pharmacy' \
-                if requesting_user.user_id == prescription.pharmacy_id:
-                pass
-            case _:
-                raise UnauthorizedError
-    else:
-        raise UnauthorizedError
+    if not requesting_user:
+        raise NoAuthorizationError
+    match requesting_user.account_type.name:
+        case 'SuperUser' | 'Pharmacy':
+            # "Have pharmacy be allowed to view a patient's prescription history"
+            pass
+        case 'Patient' \
+            if requesting_user.user_id == prescription.patient_id:
+            pass
+        case 'Doctor' \
+            if requesting_user.user_id == prescription.doctor_id:
+            pass
+        case _:
+            raise UnauthorizedError
 
+    medications_list = []
     for pres_med in prescription.prescription_medications:
-        med_details = pres_med.medication.to_dict()
-        med_details.update({
-            "prescription_medication_id": pres_med.prescription_medication_id,
-            "dosage": pres_med.dosage,
-            "medical_instructions": pres_med.medical_instructions
-        })
+        med_details = pres_med.medication.to_dict() | pres_med.to_dict()
+        med_details.update({'status': prescription.status.name})
         medications_list.append(med_details)
     return medications_list
 
@@ -91,13 +95,13 @@ def get_pharmacy_medications_inventory(pharmacy_id):
         medications_list.append(item.to_dict())
     return medications_list
 
-def get_medications_history_by_patient(patient_id):
+def get_medications_history_by_patient(patient_id, requesting_user: User|None=None):
     prescriptions = Prescription.query.filter_by(patient_id=patient_id).all()
     if not prescriptions:
         raise ValueError("No prescriptions found for the patient")
     medications_history = []
     for prescription in prescriptions:
-        medications = get_medications_by_prescription(prescription.prescription_id)
+        medications = get_medications_by_prescription(prescription.prescription_id, requesting_user=requesting_user)
         medications_history.append(medications)
     return medications_history
 

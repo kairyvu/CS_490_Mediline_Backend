@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import func
 from flask import jsonify, Response
 
-from flaskr.models import Prescription, Patient, Pharmacy
+from flaskr.models import Prescription, Patient, Pharmacy, User
 from flaskr.extensions import db
 
 def get_all_pharmacy_patients(pharmacy_id, new_request_time=datetime.now() - timedelta(hours=24)):
@@ -39,7 +39,7 @@ def validate_rx(data: dict) -> Response|tuple[int, int, list]:
     if not data:
         return jsonify({"error": "No input data provided"}), 400
     
-    med_schema = {'dosage', 'instructions', 'medication_id'}
+    med_schema = {'dosage', 'instructions', 'medication_id', 'taken_date', 'duration'}
     patient_id = data.get('patient_id')
     doctor_id = data.get('doctor_id')
     medications = data.get('medications')
@@ -62,9 +62,47 @@ def validate_rx(data: dict) -> Response|tuple[int, int, list]:
             return jsonify({
                 'error': f'medication {med} has missing attributes'
             }), 400
+    return patient_id, doctor_id, medications
 
-def add_pt_rx(pharmacy_id, patient_id, doctor_id, medications): # TODO - need to do with RabbitMQ
-    pass
+# Helper to ensure doctor sending the rx is allowed to
+def check_rx_auth(patient_id, doctor_id, pharmacy_id, requesting_user) -> bool:
+    _u: User = requesting_user
+    pt: User = User.query.filter_by(user_id=patient_id).first()
+    if _u.user_id != doctor_id:
+        return False
+    if pt.patient.doctor_id != doctor_id:
+        return False
+    if pt.patient.pharmacy_id != pharmacy_id:
+        return False
+    return True 
+
+
+def add_pt_rx(pharmacy_id, patient_id, doctor_id, medications):
+    import os
+    import json
+    from google.cloud.pubsub_v1 import PublisherClient
+    from google.api_core.exceptions import NotFound
+
+    publisher = PublisherClient()
+    topic_path = publisher.topic_path(
+        os.environ.get('GCLOUD_PROJECT_ID'),
+        os.environ.get('GCLOUD_TOPIC_ID'))
+
+    payload = {
+        "pharmacy_id": pharmacy_id,
+        "doctor_id": doctor_id,
+        "patient_id": patient_id,
+        "medications": medications
+    }
+    try:
+        data_str = json.dumps(payload)
+        data = data_str.encode('utf-8')
+        future = publisher.publish(topic_path, data)
+        return future
+    except NotFound as e:
+        raise e
+    except Exception as e:
+        raise e
 
 def get_pharmacy_info(pharmacy_id):
     pharmacy = Pharmacy.query.filter_by(user_id=pharmacy_id).first()

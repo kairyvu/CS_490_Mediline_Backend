@@ -1,0 +1,53 @@
+Get latest report
+---
+tags:
+  - report
+parameters:
+  - name: user_id
+    in: path
+    type: integer
+    required: true
+    description: User ID
+responses:
+  200:
+    description: fetch latest report associated to a user ID
+    schema:
+      type: object
+      properties:
+        patient_report_id:
+          type: integer
+        report_id:
+          type: integer
+        patient_id:
+          type: integer
+        doctor_id:
+          type: integer
+        height:
+          type: number
+          format: float
+        weight:
+          type: number
+          format: float
+        calories_intake:
+          type: integer
+        hours_of_exercise:
+          type: integer
+        hours_of_sleep:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+      examples:
+      application/json:
+        {
+          "patient_report_id": "3",
+          "report_id": "12",
+          "patient_id": "2",
+          "doctor_id": "4",
+          "height": "48.84",
+          "weight": "84.38",
+          "calories_intake": "488",
+          "hours_of_exercise": "3",
+          "hours_of_sleep": "3",
+          "created_at": "2000-01-01T12:59:59Z",
+        }

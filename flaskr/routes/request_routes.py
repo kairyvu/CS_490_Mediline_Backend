@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, current_user
 from flaskr.services import add_patient_request, delete_patient_request, \
-    get_patient_requests_by_doctor_id, update_doctor_by_patient_id, USER_NOT_AUTHORIZED, UnauthorizedError
+    get_patient_requests_by_user_id, update_doctor_by_patient_id, USER_NOT_AUTHORIZED, UnauthorizedError
 from flaskr.models import User
 from flasgger import swag_from
 
@@ -9,12 +9,14 @@ request_bp = Blueprint("request", __name__)
 
 @request_bp.route('/patient/<int:patient_id>/doctor/<int:doctor_id>', methods=['POST'])
 @jwt_required()
-@swag_from('../docs/request_routes/add_request.yml')
-def add_request(patient_id, doctor_id):
+@swag_from('../docs/request_routes/select_doctor.yml')
+def select_doctor(patient_id, doctor_id):
     _user: User = current_user
     _user_id = _user.user_id
     match _user_id, _user.account_type.name:
-        case (_, 'SuperUser') | (_, 'Patient') if _user_id == patient_id:
+        case (_, 'SuperUser'):
+            pass
+        case (_, 'Patient') if _user_id == patient_id:
             pass
         case _:
             return USER_NOT_AUTHORIZED(_user_id)
@@ -22,7 +24,7 @@ def add_request(patient_id, doctor_id):
         return jsonify({"error": "you can't request yourself..?"}), 400
 
     try:
-        request_data = add_patient_request(patient_id, doctor_id)
+        request_data = update_doctor_by_patient_id(patient_id, doctor_id, requesting_user=_user)
         return jsonify(request_data), 201
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
@@ -66,22 +68,25 @@ def delete_request(request_id):
         
     return jsonify({"error": "Invalid request"}), 400
 
-@request_bp.route('/<int:doctor_id>', methods=['GET'])
+@request_bp.route('/<int:user_id>', methods=['GET'])
 @jwt_required()
-@swag_from('../docs/request_routes/get_request_by_doctor_id.yml')
-def get_request_by_doctor_id(doctor_id, sort_by='created_at', order='desc'):
+@swag_from('../docs/request_routes/get_request_by_user_id.yml')
+def get_request_by_user_id(user_id, sort_by='created_at', order='desc'):
     _user: User = current_user
     _user_id = _user.user_id
-    match _user_id, _user.account_type.name:
-        case (_, 'SuperUser') | (_, 'Doctor') if _user_id == doctor_id:
-            pass
-        case _:
+    account_type = _user.account_type.name
+    
+    if account_type in ('SuperUser', 'Doctor', 'Patient'):
+        if account_type != 'SuperUser' and _user_id != user_id:
             return USER_NOT_AUTHORIZED(_user_id)
+    else:
+        return USER_NOT_AUTHORIZED(_user_id)
+    
     sort_by = request.args.get('sort_by', sort_by)
     order = request.args.get('order', order)
 
     try:
-        requests = get_patient_requests_by_doctor_id(doctor_id, sort_by=sort_by, order=order)
+        requests = get_patient_requests_by_user_id(_user_id, sort_by=sort_by, order=order)
         return jsonify(requests), 200
     except ValueError as e:
         return jsonify({"error": str(e)}), 400

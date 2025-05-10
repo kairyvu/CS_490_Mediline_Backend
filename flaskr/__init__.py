@@ -41,7 +41,6 @@ def create_app(config_mapping: dict|None=None):
         app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
     elif os.getenv('FLASK_ENV') in ['prod', 'production']:
         # Production on gcloud
-        # TODO: celery integration
         from flaskr.extensions import connector
         from pymysql.connections import Connection
         app.config['FLASK_ENV'] = 'prod'
