@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import func
 from flask import jsonify, Response
 
-from flaskr.models import Prescription, Patient, Pharmacy, User
+from flaskr.models import Prescription, Patient, Pharmacy, User, Notification
 from flaskr.extensions import db
 
 def get_all_pharmacy_patients(pharmacy_id, new_request_time=datetime.now() - timedelta(hours=24)):
@@ -110,3 +110,32 @@ def get_pharmacy_info(pharmacy_id):
         return None
 
     return pharmacy.to_dict()
+
+def fetch_rx_requests(pharmacy_id):
+    requests: list[Notification] = Notification.query.filter_by(user_id=pharmacy_id).all()
+    return [r.to_dict() for r in requests]
+
+def update_prescriptions(pharmacy_id, rx_str):
+    import json
+    rx = json.loads(rx_str)
+    print(rx)
+    return
+
+def handle_rx_request(pharmacy_id, rx_id, status):
+    request: Notification = Notification.query.filter_by(notification_id=rx_id).first()
+    if not request:
+        return None
+    if 'status' == 'accepted':
+        update_prescriptions(pharmacy_id, request.notification_content)
+    db.session.delete(request)
+    db.session.commit()
+    return request.to_dict()
+
+def validate_body(body: dict) -> Response | dict:
+    if 'notification_id' not in body:
+        return jsonify({'error': 'request body must include notification_id'})
+    if 'status' not in body:
+        return jsonify({'error': 'request body must include status'})
+    if body['status'] not in ['accepted', 'rejected']:
+        return jsonify({'error': "status must be 'accepted' or 'rejected'"})
+    return body['notification_id'], body['status']

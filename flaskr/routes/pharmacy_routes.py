@@ -3,7 +3,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, current_user
 from flaskr.models import User
 from flaskr.services import get_all_pharmacy_patients, add_pt_rx, \
-    USER_NOT_AUTHORIZED, validate_rx, check_rx_auth
+    USER_NOT_AUTHORIZED, validate_rx, check_rx_auth, fetch_rx_requests, handle_rx_request, validate_body
 from flasgger import swag_from
 
 pharmacy_bp = Blueprint('pharmacy', __name__)
@@ -51,3 +51,23 @@ def post_patient_prescription(pharmacy_id):
             'message': 'prescription submitted successfully'
         }), 202         # 202 to indicate async operation
     return jsonify({'error': 'failed to send prescription'}), 500
+
+@pharmacy_bp.route('/<int:pharmacy_id>/requests', methods=['GET', 'DELETE'])
+def get_new_prescriptions(pharmacy_id):
+    if request.method == 'GET':
+        try:
+            res = fetch_rx_requests(pharmacy_id)
+        except Exception as e:
+            print(e)
+            return jsonify({'error': str(e)}), 500
+        return jsonify({'msg': 'ok'})
+    elif request.method == 'DELETE':
+        if not (res1 := validate_body(request.get_json())):
+            return res
+        rx_id, status = res1
+        try:
+            res2 = handle_rx_request(pharmacy_id, rx_id, status)
+        except Exception as e:
+            print(e)
+            return jsonify({'error': str(e)}), 500
+        return jsonify({'msg': 'deleted'})
