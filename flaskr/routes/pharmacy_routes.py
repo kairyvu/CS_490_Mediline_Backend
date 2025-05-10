@@ -1,9 +1,9 @@
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, Response
 from flask_jwt_extended import jwt_required, current_user
 from flaskr.models import User
 from flaskr.services import get_all_pharmacy_patients, add_pt_rx, \
-    USER_NOT_AUTHORIZED, validate_rx, check_rx_auth
+    USER_NOT_AUTHORIZED, validate_rx, check_rx_auth, fetch_rx_requests, handle_rx_request, validate_body
 from flasgger import swag_from
 
 pharmacy_bp = Blueprint('pharmacy', __name__)
@@ -51,3 +51,37 @@ def post_patient_prescription(pharmacy_id):
             'message': 'prescription submitted successfully'
         }), 202         # 202 to indicate async operation
     return jsonify({'error': 'failed to send prescription'}), 500
+
+@pharmacy_bp.route('/<int:pharmacy_id>/requests', methods=['GET', 'DELETE'])
+@jwt_required()
+@swag_from('../docs/pharmacy_routes/get_new_prescriptions.yml', methods=['GET'])
+@swag_from('../docs/pharmacy_routes/delete_prescription_request.yml', methods=['DELETE'])
+def get_new_prescriptions(pharmacy_id):
+    _user: User = current_user
+    _role = _user.account_type.name
+    _id = _user.user_id
+    is_su = _role == 'SuperUser'
+    is_self = _id == pharmacy_id
+    if ((not is_su) and (not is_self)):
+        return USER_NOT_AUTHORIZED(_id)
+    if request.method == 'GET':
+        try:
+            res = fetch_rx_requests(pharmacy_id)
+        except Exception as e:
+            print(e)
+            return jsonify({'error': str(e)}), 500
+        return jsonify(res), 200
+    elif request.method == 'DELETE':
+        if isinstance((res := validate_body(request.get_json())), Response):
+            return res, 400
+        rx_id, status = res
+        try:
+            res2 = handle_rx_request(pharmacy_id, rx_id, status)
+        except ValueError as e:
+            return jsonify({'error': str(e)}), 400
+        except Exception as e:
+            print(e)
+            return jsonify({'error': str(e)}), 500
+        was_deleted = res2 == None
+
+        return (jsonify({'msg': 'deleted'}), 204) if was_deleted else (jsonify({"prescription_id": res2}), 200)

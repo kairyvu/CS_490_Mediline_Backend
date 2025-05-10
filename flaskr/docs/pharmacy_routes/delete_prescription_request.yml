@@ -1,0 +1,54 @@
+Use this route to accept or reject a prescription as a pharmacy
+---
+tags:
+  - request
+parameters:
+  - name: pharmacy_id
+    in: path
+    type: integer
+    required: true
+    description: Request ID to delete
+  - name: status
+    in: body
+    schema:
+      properties:
+        notification_id:
+          type: integer
+          description: id of the request
+        status:
+          type: string
+          enum:
+            - accepted
+            - rejected
+          description: id of the request
+    description: Status of the request
+    required: true
+responses:
+  200:
+    description: Accept a prescription
+    schema:
+      type: object
+      properties:
+        prescription_id:
+          type: integer
+  204:
+    description: Reject a prescription
+    schema:
+      type: object
+      properties:
+        msg:
+          type: string
+  400:
+    description: Invalid request deletion
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          enum:
+            - "Request not found"
+            - "Invalid request ID"
+    examples:
+      application/json:
+        error: Request not found
+
