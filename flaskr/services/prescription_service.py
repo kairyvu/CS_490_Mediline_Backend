@@ -4,7 +4,14 @@ from flaskr.extensions import db
 from sqlalchemy import func
 from flaskr.struct import PrescriptionStatus
 
-def get_prescriptions(user_id, sort_by='created_at', order='asc'):
+def get_prescriptions(user_id, requesting_user=None, sort_by='created_at', order='asc'):
+    pharmacy_check = False
+    if requesting_user and requesting_user.account_type.name == 'Pharmacy':
+        belongs = Prescription.query.filter_by(pharmacy_id=requesting_user.user_id, patient_id=user_id).first()
+        if not belongs:
+            raise ValueError("User not authorized to view this prescription")
+        pharmacy_check = True
+    
     is_patient = Patient.query.filter_by(user_id=user_id).first() is not None
     is_doctor = Doctor.query.filter_by(user_id=user_id).first() is not None
     is_pharmacy = Pharmacy.query.filter_by(user_id=user_id).first() is not None
@@ -15,6 +22,8 @@ def get_prescriptions(user_id, sort_by='created_at', order='asc'):
     query = Prescription.query
     if is_patient:
         query = query.filter(Prescription.patient_id == user_id)
+        if pharmacy_check:
+            query = query.filter(Prescription.pharmacy_id == requesting_user.user_id)
     elif is_doctor:
         query = query.filter(Prescription.doctor_id == user_id)
     elif is_pharmacy:
