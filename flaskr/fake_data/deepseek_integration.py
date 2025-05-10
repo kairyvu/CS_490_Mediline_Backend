@@ -16,7 +16,7 @@ def generate_cities_for_countries(countries: list[str], min_count: int = 2, max_
     )
     for attempt in range(1, max_retries + 1):
         resp = client.chat.completions.create(
-            model="deepseek/deepseek-chat-v3-0324:free",
+            model="deepseek/deepseek-prover-v2:free",
             messages=[
                 {"role": "system", "content": "You are a JSON‑output assistant."},
                 {"role": "user",   "content": prompt},
@@ -71,7 +71,7 @@ def generate_addresses_for_cities(country: str, cities: list[str], min_address: 
         "You are a JSON-output assistant."
         "Given a country and a list of cities, produce exactly a JSON object "
         "where each key is a city name and its value is an array of unique street "
-        "must have a comma between each object"
+        "each address object must be separated by a comma. "
         "address objects (with address1, address2, state, zipcode)."
     )
     user_payload = {
@@ -82,7 +82,7 @@ def generate_addresses_for_cities(country: str, cities: list[str], min_address: 
     }
     for attempt in range(1, max_retries + 1):
         resp = client.chat.completions.create(
-            model="deepseek/deepseek-chat-v3-0324:free",
+            model="deepseek/deepseek-prover-v2:free",
             messages=[
                 {"role": "system", "content": system_msg},
                 {"role": "user",   "content": json.dumps(user_payload)}
@@ -142,7 +142,7 @@ def generate_doctor_profiles(count: int = 20, max_retries: int = 3) -> list[dict
     )
     for attempt in range(1, max_retries + 1):
         resp = client.chat.completions.create(
-            model="deepseek/deepseek-chat-v3-0324:free",
+            model="deepseek/deepseek-prover-v2:free",
             messages=[
                 {"role":"system", "content": system_msg},
                 {"role":"user",   "content": json.dumps({"count": count})}
@@ -235,7 +235,7 @@ def generate_exercises(count: int = 20, max_retries: int = 3) -> list[dict]:
     )
     for attempt in range(1, max_retries + 1):
         resp = client.chat.completions.create(
-            model="deepseek/deepseek-chat-v3-0324:free",
+            model="deepseek/deepseek-prover-v2:free",
             messages=[
                 {"role":"system", "content": system_msg},
                 {"role":"user",   "content": json.dumps({"count": count})}
@@ -310,7 +310,7 @@ def generate_medications(count: int = 50, max_retries: int = 3) -> list[dict]:
     )
     for attempt in range(1, max_retries + 1):
         resp = client.chat.completions.create(
-            model="deepseek/deepseek-chat-v3-0324:free",
+            model="deepseek/deepseek-prover-v2:free",
             messages=[
                 {"role":"system", "content": system_msg},
                 {"role":"user",   "content": json.dumps({"count": count})}
@@ -385,7 +385,7 @@ def generate_social_media_posts(count: int = 30, max_retries: int = 3) -> list[d
     )
     for attempt in range(1, max_retries + 1):
         resp = client.chat.completions.create(
-            model="deepseek/deepseek-chat-v3-0324:free",
+            model="deepseek/deepseek-prover-v2:free",
             messages=[
                 {"role":"system", "content": system_msg},
                 {"role":"user",   "content": json.dumps({"count": count})}
