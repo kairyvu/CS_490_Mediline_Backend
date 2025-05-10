@@ -9,3 +9,11 @@ class Notification(db.Model):
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
     user = db.relationship('User', backref=db.backref('notifications', lazy=True))
+
+    def to_dict(self):
+        return {
+            "notification_id": self.notification_id,
+            "user_id": self.user_id,
+            "notification_content": self.notification_content,
+            "created_at": self.created_at.isoformat()
+        }
