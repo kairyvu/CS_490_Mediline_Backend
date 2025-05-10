@@ -25,8 +25,6 @@ def get_patient_info_other_authenticated(user_id):
     _user: User = current_user
     _user_id = _user.user_id
     assert isinstance(_user, User)
-    print(_user.account_type.name)
-    print(set(p.user_id for p in _user.doctor.patients))
     match _user.account_type.name:
         case 'SuperUser': 
             pass
