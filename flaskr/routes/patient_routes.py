@@ -28,7 +28,9 @@ def get_patient_info_other_authenticated(user_id):
     print(_user.account_type.name)
     print(set(p.user_id for p in _user.doctor.patients))
     match _user.account_type.name:
-        case 'SuperUser' | 'Patient' if _user_id == user_id:
+        case 'SuperUser': 
+            pass
+        case 'Patient' if _user_id == user_id:
             pass
         case 'Patient' if _user_id != user_id:
             return USER_NOT_AUTHORIZED(_user_id)
@@ -58,7 +60,9 @@ def update_patient_info(user_id):
     _user: User = current_user
     _user_id = _user.user_id
     match _user.account_type.name:
-        case 'SuperUser' | 'Patient' if _user_id == user_id:
+        case 'SuperUser':
+            pass
+        case 'Patient' if _user_id == user_id:
             pass
         case 'Patient' if _user_id != user_id:
             print('here')

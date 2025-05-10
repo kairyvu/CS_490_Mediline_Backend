@@ -18,8 +18,12 @@ responses:
         properties:
           prescription_medication_id:
             type: integer
+          prescription_id:
+            type: integer
           medication_id:
             type: integer
+          medication_name:
+            type: string
           name: 
             type: string
           description:

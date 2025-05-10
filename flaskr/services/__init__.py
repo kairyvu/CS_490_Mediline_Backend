@@ -8,7 +8,7 @@ from .auth_service import user_id_credentials
 from .exercise_service import get_exercises, get_all_patient_exercise, add_patient_exercise, update_patient_exercise
 from .payment_service import get_invoices_by_user, update_invoice_status, assign_invoice_appoinmtnet, delete_invoice
 from .appointment_service import get_upcoming_appointments, add_appointment, update_appointment, get_appointment
-from .report_service import get_patient_report_result, add_patient_report
+from .report_service import get_patient_report_result, add_patient_report, get_latest_report_by_user
 from .prescription_service import get_medications_by_prescription, get_prescriptions, get_prescription_count_by_pharmacy, get_pharmacy_medications_inventory, get_medications_history_by_patient, update_medication_inventory, update_prescription_status
 from .chat_service import get_current_chat, add_message
 from .social_media_service import get_all_posts, get_comments_of_post, delete_comment, delete_post, update_comment, update_post, create_comment, create_post
@@ -29,7 +29,7 @@ __all__ = [
     'get_exercises', 'get_all_patient_exercise', 'add_patient_exercise', 'update_patient_exercise',
     'get_invoices_by_user', 'update_invoice_status', 'assign_invoice_appoinmtnet', 'delete_invoice',
     'get_upcoming_appointments', 'add_appointment', 'update_appointment', 'get_appointment',
-    'get_patient_report_result', 'add_patient_report',
+    'get_patient_report_result', 'add_patient_report', 'get_latest_report_by_user',
     'get_medications_by_prescription', 'get_prescriptions',
     'get_prescription_count_by_pharmacy', 'get_pharmacy_medications_inventory', 'get_medications_history_by_patient', 'update_prescription_status',
     'get_current_chat', 'add_message', 

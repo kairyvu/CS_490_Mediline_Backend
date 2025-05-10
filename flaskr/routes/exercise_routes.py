@@ -33,7 +33,9 @@ def get_exercise_by_user(user_id):
     _user_id = _user.user_id
     _acct_type = _user.account_type.name
     match _acct_type:
-        case 'SuperUser' | 'Patient' if _user_id == user_id:
+        case 'SuperUser':
+            pass
+        case 'Patient' if _user_id == user_id:
             pass
         case 'Doctor' if user_id in set([
             p.user_id for p in _user.doctor.patients]):
@@ -64,7 +66,9 @@ def add_exercise(exercise_id):
     _user_id = _user.user_id
     _acct_type = _user.account_type.name
     match _user_id, _acct_type:
-        case 'SuperUser' | 'Doctor' if ((doctor_id == _user_id) 
+        case 'SuperUser':
+            pass
+        case 'Doctor' if ((doctor_id == _user_id) 
             and patient_id in set([p.user_id for p in _user.doctor.patients])):
             # Doctor who is assigned a patient can edit that patient's exercises
             pass

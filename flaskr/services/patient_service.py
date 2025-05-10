@@ -222,9 +222,37 @@ def update_doctor_by_patient_id(patient_id, doctor_id, requesting_user=None):
     doctor = Doctor.query.filter_by(user_id=doctor_id).first()
     if not doctor:
         raise ValueError(f'Doctor with id {doctor_id} not found')
+    patient = Patient.query.filter_by(user_id=patient_id).first()
+    if not patient:
+        raise ValueError(f'Patient with id {patient_id} not found')
+    if not doctor.accepting_patients:
+        raise ValueError(f'Doctor is not accepting patients at the moment')
+    if patient.doctor_id == doctor_id:
+        raise ValueError(f'Patient with id {patient_id} already chose doctor with id {doctor_id}')
 
     match requesting_user.account_type.name:
         case 'SuperUser' | 'Doctor' if requesting_user.user_id == doctor_id:
+            pass
+        case 'Patient' if requesting_user.user_id == patient_id:
+            pass
+        case _:
+            raise UnauthorizedError
+    patient.doctor = doctor
+    db.session.commit()
+    return patient.to_dict()
+
+def update_doctor_by_patient_id_old(patient_id, doctor_id, requesting_user=None):
+    from flaskr.services import UnauthorizedError
+    if not requesting_user:
+        return NoAuthorizationError
+    doctor = Doctor.query.filter_by(user_id=doctor_id).first()
+    if not doctor:
+        raise ValueError(f'Doctor with id {doctor_id} not found')
+
+    match requesting_user.account_type.name:
+        case 'SuperUser':
+            pass
+        case 'Doctor' if requesting_user.user_id == doctor_id:
             pass
         case _:
             raise UnauthorizedError

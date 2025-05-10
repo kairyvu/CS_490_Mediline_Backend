@@ -14,7 +14,9 @@ def get_pharmacy_patients(pharmacy_id):
     _user_id = _user.user_id
     _acct_type = _user.account_type.name
     match _acct_type:
-        case 'SuperUser' | 'Pharmacy' if _user_id == pharmacy_id:
+        case 'SuperUser':
+            pass
+        case 'Pharmacy' if _user_id == pharmacy_id:
             pass
         case _:
             return USER_NOT_AUTHORIZED(_user_id)

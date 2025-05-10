@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, current_user
-from flaskr.models import User
+from flask_jwt_extended.exceptions import NoAuthorizationError
+from flaskr.models import User, Prescription
 from flaskr.services import get_medications_by_prescription, get_prescriptions, \
     get_prescription_count_by_pharmacy, get_pharmacy_medications_inventory, \
     get_medications_history_by_patient, USER_NOT_AUTHORIZED, UnauthorizedError, update_prescription_status
@@ -14,13 +15,19 @@ prescription_bp = Blueprint("prescription", __name__)
 def get_prescription_by_user(user_id):
     _user_id = current_user.user_id
     _acct_type = current_user.account_type.name
-    if (_user_id != user_id) and (_acct_type != 'SuperUser'):
+    if _acct_type == 'SuperUser' or _user_id == user_id:
+        pass
+    elif _acct_type == 'Pharmacy':
+        belongs = Prescription.query.filter_by(pharmacy_id=_user_id, patient_id=user_id).first()
+        if not belongs:
+            return USER_NOT_AUTHORIZED(_user_id)
+    else:
         return USER_NOT_AUTHORIZED(_user_id)
     sort_by = request.args.get('sort_by', 'created_at')
     order = request.args.get('order', 'asc')
 
     try:
-        prescriptions = get_prescriptions(user_id=user_id, sort_by=sort_by, order=order)
+        prescriptions = get_prescriptions(user_id=user_id, requesting_user=current_user, sort_by=sort_by, order=order)
         return jsonify(prescriptions), 200
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
@@ -80,21 +87,24 @@ def get_medications_history(patient_id):
     _user_id = _user.user_id
     _acct_type = _user.account_type.name
     match _acct_type:
-        case 'SuperUser' | 'Patient' if _user_id == patient_id:
+        case 'SuperUser' | 'Pharmacy':
+            pass
+        case 'Patient' if _user_id == patient_id:
             pass
         case 'Doctor' if patient_id in set([
             p.user_id for p in _user.doctor.patients]):
             pass
-        case 'Pharmacy' if patient_id in set([
-            p.user_id for p in _user.pharmacy.patients]):
-            pass
         case _:
             return USER_NOT_AUTHORIZED(_user_id)
     try:
-        history = get_medications_history_by_patient(patient_id)
+        history = get_medications_history_by_patient(patient_id, requesting_user=_user)
         return jsonify(history), 200
     except ValueError as e:
         return jsonify({'error': str(e)}), 404
+    except NoAuthorizationError:
+        return USER_NOT_AUTHORIZED()
+    except UnauthorizedError:
+        return USER_NOT_AUTHORIZED(_user_id)
     except Exception as e:
         return jsonify({'error': 'An error occurred while fetching the medications history'}), 500
 
