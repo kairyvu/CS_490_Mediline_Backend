@@ -1,13 +1,12 @@
 from datetime import timedelta
 import random
+import contextlib
+from collections import defaultdict
+from sqlalchemy import MetaData, text
 from faker import Faker
 from flaskr.models import User, Patient, Doctor, Pharmacy, SuperUser, Post, Comment, Report, PatientReport, RatingSurvey, Invoice, Notification, MedicalRecord, Prescription, PrescriptionMedication, Medication, Inventory, ExerciseBank, PatientExercise, Chat, Message, Appointment, AppointmentDetail, Address, City, Country
-import contextlib
-from sqlalchemy import MetaData
 from flaskr.struct import AccountType, ReportType, PaymentStatus, AppointmentStatus, ExerciseStatus, PrescriptionStatus, Gender
-from collections import defaultdict
 from flaskr.extensions import db
-from sqlalchemy import text
 from .deepseek_integration import generate_cities_for_countries, generate_addresses_for_cities, generate_doctor_profiles, generate_exercises, generate_medications, generate_social_media_posts
 
 faker = Faker('en_US')
