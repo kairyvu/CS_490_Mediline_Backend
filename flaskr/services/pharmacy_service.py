@@ -157,7 +157,10 @@ def accept_prescription(pharmacy_id, rx_str):
         status=PrescriptionStatus.UNPAID
     )
     db.session.add(new_rx)
-    db.session.flush()
+    try:
+        db.session.flush()
+    except Exception as e:
+        raise e
 
     for m in ms:
         new_rx_med = PrescriptionMedication(
@@ -169,6 +172,12 @@ def accept_prescription(pharmacy_id, rx_str):
             duration=m['duration']
         )
         db.session.add(new_rx_med)
+        try:
+            db.session.flush()
+        except Exception as e:
+            raise e
+    db.session.commit()
+
     
 def handle_rx_request(pharmacy_id, rx_id, status):
     request: Notification = Notification.query.filter_by(notification_id=rx_id).first()
