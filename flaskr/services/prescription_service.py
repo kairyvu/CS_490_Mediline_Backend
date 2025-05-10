@@ -8,7 +8,8 @@ def get_prescriptions(user_id, requesting_user=None, sort_by='created_at', order
     pharmacy_check = False
     if requesting_user and requesting_user.account_type.name == 'Pharmacy':
         belongs = Prescription.query.filter_by(pharmacy_id=requesting_user.user_id, patient_id=user_id).first()
-        if not belongs:
+        is_self = user_id == requesting_user.user_id
+        if (not belongs and (not is_self)):
             raise ValueError("User not authorized to view this prescription")
         pharmacy_check = True
     
