@@ -1,3 +1,4 @@
+import json
 from datetime import datetime, timedelta
 from sqlalchemy import func
 from flask import jsonify, Response
@@ -130,11 +131,22 @@ def get_pharmacy_info(pharmacy_id):
 
 def fetch_rx_requests(pharmacy_id):
     requests: list[Notification] = Notification.query.filter_by(user_id=pharmacy_id).all()
-    return [r.to_dict() for r in requests]
+    rtn = []
+    for r in requests:
+        res = {}
+        try:
+            content = json.loads(r.notification_content)
+        except Exception as e:
+            raise e
+        res = r.to_dict()
+        res['created_at'] = r.created_at.isoformat()
+        res['notification_content'] = content
+        rtn.append(res)
+
+    return rtn
 
 # internal use
 def accept_prescription(pharmacy_id, rx_str):
-    import json
     try:
         rx = json.loads(rx_str)
     except:
@@ -167,7 +179,7 @@ def accept_prescription(pharmacy_id, rx_str):
             prescription_id=new_rx.prescription_id,
             medication_id=m['medication_id'],
             dosage=m['dosage'],
-            medical_instructions=m['medical_instructions'],
+            medical_instructions=m['instructions'],
             taken_date=m['taken_date'],
             duration=m['duration']
         )
@@ -191,7 +203,7 @@ def handle_rx_request(pharmacy_id, rx_id, status):
         id = accept_prescription(pharmacy_id, request.notification_content)
     db.session.delete(request)
     db.session.commit()
-    return id if did_accept else request.to_dict() 
+    return id if did_accept else None
 
 def validate_body(body: dict) -> tuple[bool, Response] | tuple[int, str]:
     if 'notification_id' not in body:

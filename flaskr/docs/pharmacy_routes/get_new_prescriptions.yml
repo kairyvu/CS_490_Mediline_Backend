@@ -1,0 +1,46 @@
+Get prescription requests by pharmacy ID
+---
+tags:
+  - request
+parameters:
+  - name: prescription_id
+    in: path
+    type: integer
+    required: true
+    description: Pharmacy ID to get requests for
+responses:
+  200:
+    description: Retrieved requests successfully
+    schema:
+      type: array
+      items:
+        type: object
+        properties:
+          created_at:
+            type: string
+            format: date-time
+          notification_content:
+            type: object
+            properties:
+              dosage:
+                type: integer
+              duration:
+                type: integer
+              instructions:
+                type: string
+              medication_id:
+                type: integer
+              taken_date:
+                type: string
+                format: date-time
+          notification_id:
+            type: integer
+          user_id:
+            type: integer
+  500:
+    description: Invalid request retrieval
+    schema:
+      type: object
+      properties:
+        error:
+          type: string

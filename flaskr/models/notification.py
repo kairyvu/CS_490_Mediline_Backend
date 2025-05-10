@@ -15,5 +15,5 @@ class Notification(db.Model):
             "notification_id": self.notification_id,
             "user_id": self.user_id,
             "notification_content": self.notification_content,
-            "created_at": self.created_at
+            "created_at": self.created_at.isoformat()
         }

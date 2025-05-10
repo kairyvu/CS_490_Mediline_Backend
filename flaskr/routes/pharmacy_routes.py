@@ -53,6 +53,9 @@ def post_patient_prescription(pharmacy_id):
     return jsonify({'error': 'failed to send prescription'}), 500
 
 @pharmacy_bp.route('/<int:pharmacy_id>/requests', methods=['GET', 'DELETE'])
+@jwt_required()
+@swag_from('../docs/pharmacy_routes/get_new_prescriptions.yml', methods=['GET'])
+@swag_from('../docs/pharmacy_routes/delete_prescription_request.yml', methods=['DELETE'])
 def get_new_prescriptions(pharmacy_id):
     if request.method == 'GET':
         try:
@@ -60,7 +63,7 @@ def get_new_prescriptions(pharmacy_id):
         except Exception as e:
             print(e)
             return jsonify({'error': str(e)}), 500
-        return jsonify({'msg': 'ok'})
+        return jsonify(res), 200
     elif request.method == 'DELETE':
         if isinstance((res := validate_body(request.get_json())), Response):
             return res, 400
@@ -72,4 +75,4 @@ def get_new_prescriptions(pharmacy_id):
         except Exception as e:
             print(e)
             return jsonify({'error': str(e)}), 500
-        return jsonify({'msg': 'deleted'}), 204
+        return jsonify({'msg': 'deleted'}), 204 if not res2 else jsonify({"prescription_id": res2}), 200
