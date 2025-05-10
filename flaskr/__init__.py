@@ -5,6 +5,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_migrate import Migrate
 
+from redis import Redis
 from flaskr.extensions import db, swag, jwt, sio
 from flaskr.models import User
 from flaskr.routes import register_routes
@@ -57,6 +58,14 @@ def create_app(config_mapping: dict|None=None):
         app.config['SQLALCHEMY_ENGINE_OPTIONS'] = { "creator": getconn }
         app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
                                             
+        app.config['SESSION_TYPE'] = 'redis'
+    app.config['SESSION_REDIS'] = Redis(
+        host=os.getenv("REDIS_HOST"),
+        port=int(os.getenv("REDIS_PORT")),
+        decode_responses=True,
+        username=os.getenv("REDIS_USER"),
+        password=os.getenv("REDIS_PASS"),
+    )
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'super-secret-key')
     app.config['JWT_SECRET_KEY'] = os.getenv('SECRET_KEY', 'super-secret-key')
     app.config['SWAGGER'] = { 'doc_dir': './docs/' }
