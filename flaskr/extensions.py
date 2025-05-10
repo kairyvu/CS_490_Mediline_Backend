@@ -1,9 +1,8 @@
 import os
 
-from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO
 from flasgger import Swagger
 
 from google.cloud.sql.connector import Connector, IPTypes
@@ -19,7 +18,6 @@ swag = Swagger(
 )
 
 jwt = JWTManager()
-server_sess = Session()
 
 ## SocketIO stuff
 sio = SocketIO(
