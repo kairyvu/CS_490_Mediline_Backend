@@ -7,3 +7,4 @@
 - WTForms
 - Alembic (through flask-migrate)
 - Flasgger for Swagger/OpenAPI documentation
+- [Pharmacy BE](https://github.com/bmaca01/CS_490_Mediline_Pharmacy_Backend)
