@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, current_user
-from flaskr.models import User
+from flaskr.models import User, Patient
 from flaskr.services import get_patient_report_result, add_patient_report, get_latest_report_by_user, USER_NOT_AUTHORIZED
 from flasgger import swag_from
 
@@ -69,22 +69,22 @@ def add_report(user_id):
     
 @report_bp.route('/user/<int:user_id>/latest', methods=['GET'])
 @jwt_required()
-# @swag_from('../docs/report_routes/get_latest_report.yml')
+@swag_from('../docs/report_routes/get_latest_report.yml')
 def get_latest_report(user_id):
-    _user: User = current_user
-    _user_id = _user.user_id
-    _acct_type = _user.account_type.name
-    match _acct_type:
-        case 'SuperUser':
-            pass
-        case 'Patient' if _user_id == user_id:
-            pass
-        case 'Doctor' if user_id in set([
-            p.user_id for p in _user.doctor.patients]):
-            pass
-        case _:
+    _user_id = current_user.user_id
+    _acct_type = current_user.account_type.name
+    if _acct_type == 'SuperUser' or _user_id == user_id:
+        pass
+    elif _acct_type == 'Pharmacy':
+        belongs = Patient.query.filter_by(user_id=user_id, pharmacy_id=_user_id).first()
+        if not belongs:
             return USER_NOT_AUTHORIZED(_user_id)
-    
+    elif _acct_type == 'Doctor':
+        belongs = Patient.query.filter_by(user_id=user_id, doctor_id=_user_id).first()
+        if not belongs:
+            return USER_NOT_AUTHORIZED(_user_id)
+    else:
+        return USER_NOT_AUTHORIZED(_user_id)
     try:
         report = get_latest_report_by_user(user_id=user_id)
         return jsonify(report), 200
