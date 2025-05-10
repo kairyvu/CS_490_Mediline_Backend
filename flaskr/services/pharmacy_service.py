@@ -176,29 +176,19 @@ def accept_prescription(pharmacy_id, rx_str):
             db.session.flush()
         except Exception as e:
             raise e
-    db.session.commit()
-
+    try:
+        db.session.commit()
+    except Exception as e:
+        raise e
+    return new_rx.prescription_id
     
 def handle_rx_request(pharmacy_id, rx_id, status):
     request: Notification = Notification.query.filter_by(notification_id=rx_id).first()
     if not request:
         raise ValueError('request not found')
-    if status == 'accepted':
-        accept_prescription(pharmacy_id, request.notification_content)
-    """
+    did_accept = status == 'accepted'
+    if did_accept:
+        id = accept_prescription(pharmacy_id, request.notification_content)
     db.session.delete(request)
     db.session.commit()
-    return request.to_dict()
-    """
-    return
-
-def validate_body(body: dict) -> tuple[bool, Response] | tuple[int, str]:
-    if 'notification_id' not in body:
-        return jsonify({'error': 'request body must include notification_id'})
-    if not isinstance(body['notification_id'], int):
-        return jsonify({'error': 'notification_id must be int'})
-    if 'status' not in body:
-        return jsonify({'error': 'request body must include status'})
-    if body['status'] not in ['accepted', 'rejected']:
-        return jsonify({'error': "status must be 'accepted' or 'rejected'"})
-    return body['notification_id'], body['status']
+    return id if did_accept else request.to_dict() 
