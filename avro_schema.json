@@ -1,0 +1,50 @@
+{
+  "type": "record",
+  "name": "prescription_order",
+  "fields": [
+    {
+      "name": "pharmacy_id",
+      "type": "int"
+    },
+    {
+      "name": "doctor_id",
+      "type": "int"
+    },
+    {
+      "name": "patient_id",
+      "type": "int"
+    },
+    {
+      "name": "medications",
+      "type": {
+        "type": "array",
+        "items": {
+          "name": "medication",
+          "type": "record",
+          "fields": [
+            {
+              "name": "medication_id",
+              "type": "int"
+            },
+            {
+              "name": "dosage",
+              "type": "int"
+            },
+            {
+              "name": "instructions",
+              "type": "string"
+            },
+            {
+              "name": "taken_date",
+              "type": "string"
+            },
+            {
+              "name": "duration",
+              "type": "int"
+            }
+          ]
+        }
+      }     
+    }
+  ]
+}

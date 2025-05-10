@@ -24,10 +24,15 @@ parameters:
             type: object
             properties:
               dosage:
-                type: string
+                type: integer
               instructions:
                 type: string
               medication_id:
+                type: integer
+              taken_date:
+                type: string
+                format: date-time
+              duration:
                 type: integer
 responses:
   202:
