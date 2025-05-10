@@ -192,3 +192,14 @@ def handle_rx_request(pharmacy_id, rx_id, status):
     db.session.delete(request)
     db.session.commit()
     return id if did_accept else request.to_dict() 
+
+def validate_body(body: dict) -> tuple[bool, Response] | tuple[int, str]:
+    if 'notification_id' not in body:
+        return jsonify({'error': 'request body must include notification_id'})
+    if not isinstance(body['notification_id'], int):
+        return jsonify({'error': 'notification_id must be int'})
+    if 'status' not in body:
+        return jsonify({'error': 'request body must include status'})
+    if body['status'] not in ['accepted', 'rejected']:
+        return jsonify({'error': "status must be 'accepted' or 'rejected'"})
+    return body['notification_id'], body['status']
