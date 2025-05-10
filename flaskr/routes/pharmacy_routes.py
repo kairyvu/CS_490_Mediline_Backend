@@ -1,5 +1,5 @@
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, Response
 from flask_jwt_extended import jwt_required, current_user
 from flaskr.models import User
 from flaskr.services import get_all_pharmacy_patients, add_pt_rx, \
@@ -62,12 +62,14 @@ def get_new_prescriptions(pharmacy_id):
             return jsonify({'error': str(e)}), 500
         return jsonify({'msg': 'ok'})
     elif request.method == 'DELETE':
-        if not (res1 := validate_body(request.get_json())):
-            return res
-        rx_id, status = res1
+        if isinstance((res := validate_body(request.get_json())), Response):
+            return res, 400
+        rx_id, status = res
         try:
             res2 = handle_rx_request(pharmacy_id, rx_id, status)
+        except ValueError as e:
+            return jsonify({'error': str(e)}), 400
         except Exception as e:
             print(e)
             return jsonify({'error': str(e)}), 500
-        return jsonify({'msg': 'deleted'})
+        return jsonify({'msg': 'deleted'}), 204
