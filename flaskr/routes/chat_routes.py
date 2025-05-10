@@ -1,6 +1,8 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, current_user
+from flask_socketio import emit, join_room, rooms, send
 from flaskr.services import get_current_chat, add_message, USER_NOT_AUTHORIZED, UnauthorizedError
+from flaskr.extensions import sio
 from flasgger import swag_from
 
 chat_bp = Blueprint('chat', __name__)
@@ -35,3 +37,21 @@ def put_message(appointment_id):
         return jsonify({"error": "Invalid appointment id"}), 404
 
     return jsonify(result), 201
+
+# Socket IO
+@sio.event(namespace='/chat')
+def connect():
+    emit('Connected to chat')
+
+@sio.on('join', namespace='/chat')
+def handle_join(data):
+    # Expecting json payload with appointment id
+    room = data['appointment_id']
+    join_room(room)
+
+@sio.on('message', namespace='/chat')
+def handle_message(data):
+    # Expecting json payload with:
+    # appointment_id, user_id, message content
+    send(data['message'], to=data['appointment_id'])
+    add_message(data['appointment_id'], data['user_id'])

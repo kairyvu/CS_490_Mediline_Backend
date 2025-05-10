@@ -5,7 +5,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_migrate import Migrate
 
-from flaskr.extensions import db, swag, jwt, sio
+from flaskr.extensions import db, swag, jwt, sio 
 from flaskr.models import User
 from flaskr.routes import register_routes
 from flaskr.cli import register_commands
@@ -61,6 +61,7 @@ def create_app(config_mapping: dict|None=None):
     app.config['JWT_SECRET_KEY'] = os.getenv('SECRET_KEY', 'super-secret-key')
     app.config['SWAGGER'] = { 'doc_dir': './docs/' }
 
+    #server_sess.init_app(app)
     db.init_app(app)
     migrate = Migrate(app, db)
     swag.init_app(app)
