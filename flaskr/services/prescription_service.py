@@ -47,7 +47,6 @@ def get_medications_by_prescription(prescription_id, requesting_user: User|None=
     prescription = Prescription.query.get(prescription_id)
     if not prescription:
         raise ValueError("Prescription not found")
-    medications_list = []
     if not requesting_user:
         raise NoAuthorizationError
     match requesting_user.account_type.name:
@@ -63,8 +62,10 @@ def get_medications_by_prescription(prescription_id, requesting_user: User|None=
         case _:
             raise UnauthorizedError
 
+    medications_list = []
     for pres_med in prescription.prescription_medications:
         med_details = pres_med.medication.to_dict() | pres_med.to_dict()
+        med_details.update({'status': prescription.status.name})
         medications_list.append(med_details)
     return medications_list
 
