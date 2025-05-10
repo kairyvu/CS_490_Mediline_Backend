@@ -120,7 +120,7 @@ workflows:
             - lint
           filters:
             branches:
-              only: main
+              only: circleci_setup
       - deploy:
           requires:
             - build-and-push-docker-image
