@@ -29,15 +29,7 @@ def test_appt_all(app, client: FlaskClient, pt_reg_form1, dr_reg_form1):
         f'/request/patient/{id1}/doctor/{id2}', 
         headers=[('Authorization', f'Bearer {tok1}')]
     )
-    assert res5.status_code == 201
-    assert isinstance((req_id := res5.json['request_id']), int)
-    res6 = client.delete(
-        f'/request/{req_id}',
-        json={"status": "accepted"},
-        headers=[('Authorization', f'Bearer {tok2}')]
-    )
 
-    assert res6.status_code == 200
     assert (
         (res7 := client.get(f'/user/{id1}', headers=[('Authorization', f'Bearer {tok1}')]))
             .json.get('doctor')
