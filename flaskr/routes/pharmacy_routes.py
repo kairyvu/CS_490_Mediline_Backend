@@ -57,6 +57,13 @@ def post_patient_prescription(pharmacy_id):
 @swag_from('../docs/pharmacy_routes/get_new_prescriptions.yml', methods=['GET'])
 @swag_from('../docs/pharmacy_routes/delete_prescription_request.yml', methods=['DELETE'])
 def get_new_prescriptions(pharmacy_id):
+    _user: User = current_user
+    _role = _user.account_type.name
+    _id = _user.user_id
+    is_su = _role == 'SuperUser'
+    is_self = _id == pharmacy_id
+    if ((not is_su) and (not is_self)):
+        return USER_NOT_AUTHORIZED(_id)
     if request.method == 'GET':
         try:
             res = fetch_rx_requests(pharmacy_id)
