@@ -28,11 +28,19 @@
             },
             {
               "name": "dosage",
-              "type": "string"
+              "type": "int"
             },
             {
               "name": "instructions",
               "type": "string"
+            },
+            {
+              "name": "taken_date",
+              "type": "string"
+            },
+            {
+              "name": "duration",
+              "type": "int"
             }
           ]
         }
