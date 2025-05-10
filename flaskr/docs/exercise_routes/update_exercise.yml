@@ -16,8 +16,8 @@ parameters:
         status: 
           type: string
           enum:
-          - in_progress
-          - completed
+          - IN_PROGRESS
+          - COMPLETED
         reps: 
           type: string
     description: the exercise details to update
