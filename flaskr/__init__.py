@@ -6,7 +6,7 @@ from flask_cors import CORS
 from flask_migrate import Migrate
 
 from redis import Redis
-from flaskr.extensions import db, swag, jwt, sio
+from flaskr.extensions import db, swag, jwt, sio, server_sess
 from flaskr.models import User
 from flaskr.routes import register_routes
 from flaskr.cli import register_commands
@@ -40,6 +40,12 @@ def create_app(config_mapping: dict|None=None):
         port = os.getenv("DB_PORT", "3306")
         connection_string += f'{username}:{password}@{host}:{port}/{database}'
         app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
+        app.config['SESSION_REDIS'] = Redis(
+            host='localhost',
+            port=6379,
+            username=os.getenv("REDIS_USER"),
+            password=os.getenv("REDIS_PASS"),
+        )
     elif os.getenv('FLASK_ENV') in ['prod', 'production']:
         # Production on gcloud
         from flaskr.extensions import connector
@@ -57,19 +63,21 @@ def create_app(config_mapping: dict|None=None):
             return conn
         app.config['SQLALCHEMY_ENGINE_OPTIONS'] = { "creator": getconn }
         app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
+        app.config['SESSION_REDIS'] = Redis(
+            host=os.getenv("REDIS_HOST"),
+            port=int(os.getenv("REDIS_PORT")),
+            decode_responses=True,
+            username=os.getenv("REDIS_USER"),
+            password=os.getenv("REDIS_PASS"),
+        )
                                             
-        app.config['SESSION_TYPE'] = 'redis'
-    app.config['SESSION_REDIS'] = Redis(
-        host=os.getenv("REDIS_HOST"),
-        port=int(os.getenv("REDIS_PORT")),
-        decode_responses=True,
-        username=os.getenv("REDIS_USER"),
-        password=os.getenv("REDIS_PASS"),
-    )
+
+    app.config['SESSION_TYPE'] = 'redis'
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'super-secret-key')
     app.config['JWT_SECRET_KEY'] = os.getenv('SECRET_KEY', 'super-secret-key')
     app.config['SWAGGER'] = { 'doc_dir': './docs/' }
 
+    server_sess.init_app(app)
     db.init_app(app)
     migrate = Migrate(app, db)
     swag.init_app(app)
