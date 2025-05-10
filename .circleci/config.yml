@@ -97,7 +97,8 @@ jobs:
               --image $IMAGE_URI \
               --region $CLOUDRUN_REGION \
               --platform managed \
-              --allow-unauthenticated
+              --allow-unauthenticated \
+              --quiet
 workflows:
   build-and-test:
     when:
@@ -126,4 +127,4 @@ workflows:
             - build-and-push-docker-image
           filters:
             branches:
-              only: main
+              only: circleci_setup
