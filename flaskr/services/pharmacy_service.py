@@ -39,7 +39,7 @@ def validate_rx(data: dict) -> Response|tuple[int, int, list]:
     if not data:
         return jsonify({"error": "No input data provided"}), 400
     
-    med_schema = {'dosage', 'instructions', 'medication_id'}
+    med_schema = {'dosage', 'instructions', 'medication_id', 'taken_date', 'duration'}
     patient_id = data.get('patient_id')
     doctor_id = data.get('doctor_id')
     medications = data.get('medications')

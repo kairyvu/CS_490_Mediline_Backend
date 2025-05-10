@@ -28,7 +28,6 @@ def get_pharmacy_patients(pharmacy_id):
     except Exception as e:
         return jsonify({'error': 'An error occurred while fetching the medications history'}), 500
 
-# This route is only returning {'message': 'ok', 'status': 202} for now and not working as intended
 @pharmacy_bp.route('/<int:pharmacy_id>', methods=['POST'])
 @swag_from('../docs/pharmacy_routes/post_patient_prescription.yml')
 def post_patient_prescription(pharmacy_id):
