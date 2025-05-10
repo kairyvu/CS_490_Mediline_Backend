@@ -231,7 +231,9 @@ def update_doctor_by_patient_id(patient_id, doctor_id, requesting_user=None):
         raise ValueError(f'Patient with id {patient_id} already chose doctor with id {doctor_id}')
 
     match requesting_user.account_type.name:
-        case 'SuperUser' | 'Doctor' if requesting_user.user_id == doctor_id:
+        case 'SuperUser':
+            pass
+        case 'Doctor' if requesting_user.user_id == doctor_id:
             pass
         case 'Patient' if requesting_user.user_id == patient_id:
             pass

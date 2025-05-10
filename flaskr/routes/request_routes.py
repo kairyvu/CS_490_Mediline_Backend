@@ -14,7 +14,9 @@ def select_doctor(patient_id, doctor_id):
     _user: User = current_user
     _user_id = _user.user_id
     match _user_id, _user.account_type.name:
-        case (_, 'SuperUser') | (_, 'Patient') if _user_id == patient_id:
+        case (_, 'SuperUser'):
+            pass
+        case (_, 'Patient') if _user_id == patient_id:
             pass
         case _:
             return USER_NOT_AUTHORIZED(_user_id)
