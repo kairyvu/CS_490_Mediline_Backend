@@ -64,12 +64,7 @@ def get_medications_by_prescription(prescription_id, requesting_user: User|None=
             raise UnauthorizedError
 
     for pres_med in prescription.prescription_medications:
-        med_details = pres_med.medication.to_dict()
-        med_details.update({
-            "prescription_medication_id": pres_med.prescription_medication_id,
-            "dosage": pres_med.dosage,
-            "medical_instructions": pres_med.medical_instructions
-        })
+        med_details = pres_med.medication.to_dict() | pres_med.to_dict()
         medications_list.append(med_details)
     return medications_list
 
