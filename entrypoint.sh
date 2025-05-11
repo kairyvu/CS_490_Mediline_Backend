@@ -2,4 +2,4 @@
 
 make upgrade_models
 
-gunicorn --threads=2 'flaskr:create_app()' -b 0.0.0.0:8080
+gunicorn --preload --threads 8 -b 0.0.0.0:8080 'flaskr:create_app()' 
