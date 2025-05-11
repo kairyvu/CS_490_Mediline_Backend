@@ -102,7 +102,6 @@ def update_exercise(exercise_id):
     
     status = data.get('status')
     reps = data.get('reps')
-    print("heelo")
 
     if not status or not reps:
         return jsonify({"error": "status and reps are required"}), 400
