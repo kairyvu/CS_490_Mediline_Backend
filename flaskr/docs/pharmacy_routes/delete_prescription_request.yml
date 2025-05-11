@@ -1,7 +1,7 @@
 Use this route to accept or reject a prescription as a pharmacy
 ---
 tags:
-  - request
+  - pharmacy
 parameters:
   - name: pharmacy_id
     in: path

@@ -1,9 +1,9 @@
 Get prescription requests by pharmacy ID
 ---
 tags:
-  - request
+  - pharmacy
 parameters:
-  - name: prescription_id
+  - name: pharmacy_id
     in: path
     type: integer
     required: true
