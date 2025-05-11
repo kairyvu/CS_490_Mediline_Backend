@@ -38,12 +38,13 @@ def add_patient_exercise(exercise_id, patient_id, doctor_id, reps, requesting_us
     check_exercise = PatientExercise.query.filter_by(exercise_id=exercise_id, patient_id=patient_id, doctor_id=doctor_id).first()
     if check_exercise:
         json_exercise = check_exercise.to_dict()
-        return update_patient_exercise(
+        update_patient_exercise(
             exercise_id=json_exercise['patient_exercise_id'],
             status=json_exercise['status'],
             reps=reps,
             requesting_user=requesting_user
         )
+        return json_exercise['patient_exercise_id']
     exercise = PatientExercise(
         exercise_id=exercise_id,
         patient_id=patient_id,

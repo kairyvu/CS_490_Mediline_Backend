@@ -1,6 +1,6 @@
 Assign an exercise to a patient given the exercise ID
 ---
-tags: 
+tags:
   - exercise
 parameters:
   - name: exercise_id
@@ -11,7 +11,7 @@ parameters:
   - name: Patient Exercise
     in: body
     required: true
-    schema: 
+    schema:
       type: object
       properties:
         doctor_id:
@@ -23,8 +23,8 @@ parameters:
         status:
           type: string
           enum:
-          - in_progress
-          - completed
+            - IN_PROGRESS
+            - COMPLETED
     description: Patient Exercise details
 responses:
   201:
@@ -48,7 +48,7 @@ responses:
         error:
           type: string
           enum:
-          - "Missing required fields"
+            - "Missing required fields"
     examples:
-      application/json: 
+      application/json:
         error: <exception string>
