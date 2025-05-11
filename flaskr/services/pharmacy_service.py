@@ -84,6 +84,10 @@ def check_rx_auth(patient_id, doctor_id, pharmacy_id, requesting_user) -> bool:
 def add_pt_rx(pharmacy_id, patient_id, doctor_id, medications):
     import os
     import json
+    # First check the given pharmacy_id is a pharmacy
+    pharm = Pharmacy.query.filter_by(user_id=pharmacy_id).first()
+    if not pharm:
+        raise ValueError(f'Pharmacy with id {pharmacy_id} not found')
     payload = {
         "pharmacy_id": pharmacy_id,
         "doctor_id": doctor_id,
@@ -175,6 +179,7 @@ def accept_prescription(pharmacy_id, rx_str):
         raise e
 
     for m in ms:
+        m['taken_date'] = datetime.fromisoformat(m['taken_date'].replace('Z', '+00:00'))
         new_rx_med = PrescriptionMedication(
             prescription_id=new_rx.prescription_id,
             medication_id=m['medication_id'],

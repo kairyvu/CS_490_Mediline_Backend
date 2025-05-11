@@ -1,13 +1,13 @@
 Use this route to accept or reject a prescription as a pharmacy
 ---
 tags:
-  - request
+  - pharmacy
 parameters:
   - name: pharmacy_id
     in: path
     type: integer
     required: true
-    description: Request ID to delete
+    description: ID of pharmacy that's deleting a request
   - name: status
     in: body
     schema:
@@ -20,8 +20,7 @@ parameters:
           enum:
             - accepted
             - rejected
-          description: id of the request
-    description: Status of the request
+          description: status
     required: true
 responses:
   200:

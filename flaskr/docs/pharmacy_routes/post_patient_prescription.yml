@@ -1,5 +1,4 @@
 Send prescription request
-NOT WORKING RIGHT NOW
 ---
 tags: 
   - pharmacy
@@ -36,7 +35,7 @@ parameters:
                 type: integer
 responses:
   202:
-    description: Created an appointment successfully
+    description: Send a prescription request
     schema:
       type: object
       properties:
@@ -62,7 +61,7 @@ responses:
       application/json: 
         error: end_date must be after start_date
   500:
-    description: Server error with RabbitMQ
+    description: Server error
     schema:
       type: object
       properties:
