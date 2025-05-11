@@ -150,11 +150,7 @@ def fetch_rx_requests(pharmacy_id):
     return rtn
 
 # internal use
-def accept_prescription(pharmacy_id, rx_str):
-    try:
-        rx = json.loads(rx_str)
-    except:
-        raise ValueError('invalid prescription')
+def accept_prescription(rx):
     prices = dict()
     for m in (ms := rx['medications']):
         units = m['dosage'] # Treat dosage as item units
@@ -199,13 +195,20 @@ def accept_prescription(pharmacy_id, rx_str):
         raise e
     return new_rx.prescription_id
     
-def handle_rx_request(pharmacy_id, rx_id, status):
+def handle_rx_request(pharmacy_id, rx_id, status, acct_type):
+    from flaskr.services import UnauthorizedError
     request: Notification = Notification.query.filter_by(notification_id=rx_id).first()
     if not request:
         raise ValueError('request not found')
+    try:
+        rx = json.loads(request.notification_content)
+    except:
+        raise ValueError('invalid prescription')
+    if ((rx['pharmacy_id'] != pharmacy_id) and (acct_type != 'SuperUser')):
+        raise UnauthorizedError
     did_accept = status == 'accepted'
     if did_accept:
-        id = accept_prescription(pharmacy_id, request.notification_content)
+        id = accept_prescription(rx)
     db.session.delete(request)
     db.session.commit()
     if did_accept:
