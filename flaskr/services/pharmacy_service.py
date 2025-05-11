@@ -175,6 +175,7 @@ def accept_prescription(pharmacy_id, rx_str):
         raise e
 
     for m in ms:
+        m['taken_date'] = datetime.fromisoformat(m['taken_date'].replace('Z', '+00:00'))
         new_rx_med = PrescriptionMedication(
             prescription_id=new_rx.prescription_id,
             medication_id=m['medication_id'],
