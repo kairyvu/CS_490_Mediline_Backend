@@ -59,7 +59,6 @@ def patient_info(user_id):
     }
 
 def update_patient(user_id, updates: dict) -> dict:
-    #patient: Patient = Patient.query.filter_by(user_id=user_id).first()
     patient: User = db.session.scalar(
         select(User)
         .where(User.user_id == user_id)
@@ -86,6 +85,8 @@ def update_patient(user_id, updates: dict) -> dict:
     # Fetch city and country
     curr_pt_info = patient.patient.to_dict()
     curr_addr_info = patient.address.to_dict()
+    # Track this in case of change to change username
+    curr_email = curr_pt_info['email']
     curr_city = db.session.scalar( 
         select(City)
         .where(City.city_id == patient.address.city.city_id)
@@ -121,6 +122,7 @@ def update_patient(user_id, updates: dict) -> dict:
     # True if difference
     city_diff = curr_city.city != _city['city']
     country_diff = curr_country.country != _country['country']
+    email_diff = curr_email != _updates['email']
     addr_diff = not all([ 
         addr_info_new == curr_addr_info[k] 
         for k, addr_info_new in addr_info_updates.items()
@@ -134,6 +136,10 @@ def update_patient(user_id, updates: dict) -> dict:
         not addr_diff and  
         not pt_diff):
         return {"message": "no updates performed"}
+
+    # On email update change username too
+    if email_diff:
+        _updates['username'] = _updates['email']
 
     # Pass to registration form
     updates_form = ImmutableMultiDict(list(_updates.items()))
@@ -192,7 +198,15 @@ def update_patient(user_id, updates: dict) -> dict:
             )
         except OperationalError as e:
             raise e
-
+    if (email_diff):
+        try:
+            db.session.execute(
+                update(User)
+                .where(User.user_id == user_id)
+                .values({"username": _updates['email']})
+            )
+        except Exception as e:
+            raise e
     try:
         db.session.commit()
     except IntegrityError as e:
