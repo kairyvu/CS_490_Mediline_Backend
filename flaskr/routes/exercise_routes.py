@@ -65,7 +65,7 @@ def add_exercise(exercise_id):
     _user: User = current_user
     _user_id = _user.user_id
     _acct_type = _user.account_type.name
-    match _user_id, _acct_type:
+    match _acct_type:
         case 'SuperUser':
             pass
         case 'Doctor' if ((doctor_id == _user_id) 
