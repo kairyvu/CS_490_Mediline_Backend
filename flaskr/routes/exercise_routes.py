@@ -58,26 +58,27 @@ def add_exercise(exercise_id):
     data = request.get_json()
     if not data:
         return jsonify({"error": "No input data provided"}), 400
-    
     patient_id = data.get('patient_id')
     doctor_id = data.get('doctor_id')
     reps = data.get('reps')
     _user: User = current_user
     _user_id = _user.user_id
     _acct_type = _user.account_type.name
-    match _user_id, _acct_type:
+    match _acct_type:
         case 'SuperUser':
             pass
-        case 'Doctor' if ((doctor_id == _user_id) 
-            and patient_id in set([p.user_id for p in _user.doctor.patients])):
-            # Doctor who is assigned a patient can edit that patient's exercises
-            pass
-        case 'Patient' if patient_id == _user_id:
-            # Patient can assign their own exercise
-            pass
+        case 'Doctor':
+            if doctor_id == _user_id:
+                pass
+            else:
+                return USER_NOT_AUTHORIZED(_user_id)
+        case 'Patient':
+            if patient_id == _user_id:
+                pass
+            else:
+                return USER_NOT_AUTHORIZED(_user_id)
         case _:
             return USER_NOT_AUTHORIZED(_user_id)
-    
     if not all([patient_id, doctor_id, reps]):
         return jsonify({"error": "Missing required fields"}), 400
     try:
