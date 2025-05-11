@@ -1,7 +1,6 @@
 from flaskr.models import User, ExerciseBank, PatientExercise
 from flaskr.struct import ExerciseStatus
 from flaskr.extensions import db
-
 from sqlalchemy.exc import IntegrityError   # For exception handling (foreign key constraint failure)
 
 def get_exercises(sort_by='exercise_id', order='asc'):
@@ -35,7 +34,16 @@ def get_all_patient_exercise(user_id, sort_by='exercise_id', order='asc'):
         result.append(ex_dict)
     return result
 
-def add_patient_exercise(exercise_id, patient_id, doctor_id, reps):
+def add_patient_exercise(exercise_id, patient_id, doctor_id, reps, requesting_user: User|None=None):
+    check_exercise = PatientExercise.query.filter_by(exercise_id=exercise_id, patient_id=patient_id, doctor_id=doctor_id).first()
+    if check_exercise:
+        json_exercise = check_exercise.to_dict()
+        return update_patient_exercise(
+            exercise_id=json_exercise['patient_exercise_id'],
+            status=json_exercise['status'],
+            reps=reps,
+            requesting_user=requesting_user
+        )
     exercise = PatientExercise(
         exercise_id=exercise_id,
         patient_id=patient_id,
@@ -43,12 +51,10 @@ def add_patient_exercise(exercise_id, patient_id, doctor_id, reps):
         reps=reps,
         status=ExerciseStatus.IN_PROGRESS
     )
-
     db.session.add(exercise)
     try:
         db.session.commit()
     except IntegrityError as e:
-        print("hello")
         raise e
     # Successful commit; return the created entry id
     return exercise.patient_exercise_id
@@ -60,7 +66,6 @@ def update_patient_exercise(exercise_id, status, reps,
     exercise = PatientExercise.query.filter_by(patient_exercise_id=exercise_id).first()
     if not exercise:
         raise ValueError("Exercise not found")
-    
     if requesting_user:
         match requesting_user.account_type.name:
             case 'SuperUser':

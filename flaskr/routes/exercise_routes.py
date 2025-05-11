@@ -67,22 +67,19 @@ def add_exercise(exercise_id):
     match _acct_type:
         case 'SuperUser':
             pass
-        case 'Doctor':
-            if doctor_id == _user_id:
-                pass
-            else:
-                return USER_NOT_AUTHORIZED(_user_id)
-        case 'Patient':
-            if patient_id == _user_id:
-                pass
-            else:
-                return USER_NOT_AUTHORIZED(_user_id)
+        case 'Doctor' if ((doctor_id == _user_id) 
+            and patient_id in set([p.user_id for p in _user.doctor.patients])):
+            # Doctor who is assigned a patient can edit that patient's exercises
+            pass
+        case 'Patient' if patient_id == _user_id:
+            # Patient can assign their own exercise
+            pass
         case _:
             return USER_NOT_AUTHORIZED(_user_id)
     if not all([patient_id, doctor_id, reps]):
         return jsonify({"error": "Missing required fields"}), 400
     try:
-        patient_exercise_id = add_patient_exercise(exercise_id=exercise_id, patient_id=patient_id, doctor_id=doctor_id, reps=reps)
+        patient_exercise_id = add_patient_exercise(exercise_id=exercise_id, patient_id=patient_id, doctor_id=doctor_id, reps=reps, requesting_user=_user)
         return jsonify(
             {
                 "message": "Exercise added successfully",
