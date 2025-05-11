@@ -3,7 +3,8 @@ from flask import Blueprint, jsonify, request, Response
 from flask_jwt_extended import jwt_required, current_user
 from flaskr.models import User
 from flaskr.services import get_all_pharmacy_patients, add_pt_rx, \
-    USER_NOT_AUTHORIZED, validate_rx, check_rx_auth, fetch_rx_requests, handle_rx_request, validate_body
+    USER_NOT_AUTHORIZED, validate_rx, check_rx_auth, fetch_rx_requests, \
+    handle_rx_request, validate_body, UnauthorizedError
 from flasgger import swag_from
 
 pharmacy_bp = Blueprint('pharmacy', __name__)
@@ -78,9 +79,11 @@ def get_new_prescriptions(pharmacy_id):
             return res, 400
         rx_id, status = res
         try:
-            res2 = handle_rx_request(pharmacy_id, rx_id, status)
+            res2 = handle_rx_request(pharmacy_id, rx_id, status, _role)
         except ValueError as e:
             return jsonify({'error': str(e)}), 400
+        except UnauthorizedError:
+            return USER_NOT_AUTHORIZED(_id)
         except Exception as e:
             print(e)
             return jsonify({'error': str(e)}), 500
