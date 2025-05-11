@@ -30,6 +30,12 @@ class PatientExercise(db.Model):
     patient = db.relationship('Patient', backref='patient_exercises', lazy=True)
     doctor = db.relationship('Doctor', backref='patient_exercises', lazy=True)
 
+    # Fix sql alchemy "StaleData" error maybe ..?
+    __mapper_args__ = {
+        'version_id_col': patient_exercise_id,
+        'version_id_generator': False
+    }
+
     def to_dict(self):
         return {
             "patient_exercise_id": self.patient_exercise_id,
