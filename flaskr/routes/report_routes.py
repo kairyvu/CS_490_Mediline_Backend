@@ -53,8 +53,9 @@ def add_report(user_id):
     hours_of_exercise = data.get('hours_of_exercise')
     hours_of_sleep = data.get('hours_of_sleep')
 
-    if not all([report_id, doctor_id, height, weight, calories_intake, 
-                hours_of_exercise, hours_of_sleep]):
+    fields = [report_id, doctor_id, height, weight,
+            calories_intake, hours_of_exercise, hours_of_sleep]
+    if any(f is None for f in fields):
         return jsonify({"error": "Missing required fields"}), 400
 
     try:
