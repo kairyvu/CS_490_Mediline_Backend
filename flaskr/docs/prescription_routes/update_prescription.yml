@@ -10,13 +10,13 @@ parameters:
     description: Prescription ID
   - name: status
     in: body
-    type: JSON
-    properties:
-      status:
-        type: string
-        enum:
-          - paid
-          - unpaid
+    schema:
+      properties:
+        status:
+          type: string
+          enum:
+            - paid
+            - unpaid
     required: true
     description: Status to be updated
 responses:
