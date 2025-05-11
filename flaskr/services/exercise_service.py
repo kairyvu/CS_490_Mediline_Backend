@@ -43,10 +43,12 @@ def add_patient_exercise(exercise_id, patient_id, doctor_id, reps):
         reps=reps,
         status=ExerciseStatus.IN_PROGRESS
     )
+
     db.session.add(exercise)
     try:
         db.session.commit()
     except IntegrityError as e:
+        print("hello")
         raise e
     # Successful commit; return the created entry id
     return exercise.patient_exercise_id
