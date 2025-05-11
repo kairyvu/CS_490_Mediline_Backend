@@ -84,6 +84,10 @@ def check_rx_auth(patient_id, doctor_id, pharmacy_id, requesting_user) -> bool:
 def add_pt_rx(pharmacy_id, patient_id, doctor_id, medications):
     import os
     import json
+    # First check the given pharmacy_id is a pharmacy
+    pharm = Pharmacy.query.filter_by(user_id=pharmacy_id).first()
+    if not pharm:
+        raise ValueError(f'Pharmacy with id {pharmacy_id} not found')
     payload = {
         "pharmacy_id": pharmacy_id,
         "doctor_id": doctor_id,

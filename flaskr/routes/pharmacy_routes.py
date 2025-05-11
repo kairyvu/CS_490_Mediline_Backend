@@ -42,10 +42,12 @@ def post_patient_prescription(pharmacy_id):
         return USER_NOT_AUTHORIZED(current_user.user_id)
     try:
         res = add_pt_rx(pharmacy_id, patient_id, doctor_id, medications)
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
     except Exception as e:
         print(type(e))
         print(str(e))
-        return jsonify({'error': f'{str(e)}'}), 500
+        return jsonify({'error': str(e)}), 500
     if res:
         return jsonify({
             'message': 'prescription submitted successfully'
