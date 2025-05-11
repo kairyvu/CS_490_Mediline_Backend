@@ -1,8 +1,10 @@
 # CS_490_Mediline_Backend
 
 ### Tech stack
+
 - gunicorn for WSGI server production deployment
 - Google Cloud Build for automated deployment through Google Cloud Run
+- CircleCI
 - SQLAlchemy ORM
 - WTForms
 - Alembic (through flask-migrate)
