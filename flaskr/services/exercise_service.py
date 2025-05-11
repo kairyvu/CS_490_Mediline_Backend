@@ -1,8 +1,6 @@
 from flaskr.models import User, ExerciseBank, PatientExercise
 from flaskr.struct import ExerciseStatus
 from flaskr.extensions import db
-from flask import jsonify
-
 from sqlalchemy.exc import IntegrityError   # For exception handling (foreign key constraint failure)
 
 def get_exercises(sort_by='exercise_id', order='asc'):
@@ -40,7 +38,6 @@ def add_patient_exercise(exercise_id, patient_id, doctor_id, reps, requesting_us
     check_exercise = PatientExercise.query.filter_by(exercise_id=exercise_id, patient_id=patient_id, doctor_id=doctor_id).first()
     if check_exercise:
         json_exercise = check_exercise.to_dict()
-        print(json_exercise)
         return update_patient_exercise(
             exercise_id=json_exercise['patient_exercise_id'],
             status=json_exercise['status'],
