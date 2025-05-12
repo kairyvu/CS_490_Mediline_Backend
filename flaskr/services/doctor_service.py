@@ -22,27 +22,15 @@ def all_doctors(sort_by='user_id', order='asc'):
     else:
         raise ValueError(f"Invalid order: {order}")
 
-    doctors = (
-        Doctor.query
-        .with_entities(
-            Doctor.user_id,
-            Doctor.first_name,
-            Doctor.last_name,
-            Doctor.specialization,
-            Doctor.gender,
-        )
-        .order_by(column)
-        .all()
-    )
-    return [
-        {
-            "user_id": doc.user_id,
-            "name": f"{doc.first_name} {doc.last_name}",
-            "specialization": doc.specialization,
-            "gender": doc.gender.value if isinstance(doc.gender, Gender) else doc.gender,
-        }
-        for doc in doctors
-    ]
+    doctors = db.paginate(
+        db.select(Doctor)
+        .order_by(column), error_out=False)
+    return [{
+        "gender": doc.gender.value,
+        "name": f'{doc.first_name} {doc.last_name}',
+        "specialization": doc.specialization,
+        "user_id": doc.user_id
+    } for doc in doctors]
 
 def doctor_details(doctor_id):
     doctor = Doctor.query.filter_by(user_id=doctor_id).first()

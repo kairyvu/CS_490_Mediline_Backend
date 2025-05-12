@@ -13,7 +13,7 @@ def get_all_posts(sort_by='created_at', order='asc'):
         column = column.asc()
     else:
         raise ValueError(f"Invalid order: {order}")
-    posts = Post.query.order_by(column).all()
+    posts = db.paginate(db.select(Post).order_by(column), error_out=False)
     
     return [post.to_dict() for post in posts]
 
@@ -30,7 +30,10 @@ def get_comments_of_post(post_id, sort_by='created_at', order='asc'):
         column = column.asc()
     else:
         raise ValueError(f"Invalid order: {order}")
-    comments = Comment.query.filter_by(post_id=post_id).order_by(column).all()
+    #comments = Comment.query.filter_by(post_id=post_id).order_by(column).all()
+    comments = db.paginate(db.select(Comment)
+                           .where(Comment.post_id == post_id)
+                           .order_by(column), error_out=False)
 
     return [comment.to_dict() for comment in comments]
 

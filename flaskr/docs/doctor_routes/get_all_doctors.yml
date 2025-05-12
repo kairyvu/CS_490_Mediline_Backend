@@ -2,6 +2,34 @@ A list of all registered doctors
 ---
 tags: 
   - doctor
+parameters:
+  - name: sort_by
+    in: query
+    type: string
+    default: user_id
+    required: false
+    description: set column to sort by
+  - name: order_by
+    in: query
+    type: string
+    default: asc
+    enum: 
+      - asc 
+      - desc
+    required: false
+    description: set ascending or descending order
+  - name: page
+    in: query
+    type: integer
+    default: 1
+    required: false
+    description: which page of results
+  - name: per_page
+    in: query
+    type: integer
+    default: 20
+    required: false
+    description: results per page
 responses:
   200:
     description: fetch a list of all doctors
@@ -10,18 +38,11 @@ responses:
       items:
         type: object
         properties:
-          user_id:
-            type: integer
+          gender:
+            type: string
           name:
             type: string
           specialization:
             type: string
-    examples:
-      application/json:
-        [
-          {
-            "user_id": "1",
-            "name": "FirstName LastName",
-            "specialization": "SpecializationString",
-          }
-        ]
+          user_id:
+            type: integer
