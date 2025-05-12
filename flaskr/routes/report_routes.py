@@ -52,6 +52,7 @@ def add_report(user_id):
     calories_intake = data.get('calories_intake')
     hours_of_exercise = data.get('hours_of_exercise')
     hours_of_sleep = data.get('hours_of_sleep')
+    created_at = data.get('created_at')
 
     fields = [report_id, doctor_id, height, weight,
             calories_intake, hours_of_exercise, hours_of_sleep]
@@ -63,7 +64,7 @@ def add_report(user_id):
                            height=height, weight=weight,
                            calories_intake=calories_intake,
                            hours_of_exercise=hours_of_exercise,
-                           hours_of_sleep=hours_of_sleep)
+                           hours_of_sleep=hours_of_sleep, created_at=created_at)
         return jsonify({"message": "Report added successfully"}), 201
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
