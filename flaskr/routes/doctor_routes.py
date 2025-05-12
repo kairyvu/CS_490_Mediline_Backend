@@ -13,7 +13,7 @@ from sqlalchemy.exc import OperationalError, IntegrityError
 doctor_bp = Blueprint('doctor_bp', __name__)
 
 ### ---PUBLIC ROUTES---
-@doctor_bp.route('/all', methods=['GET'])
+@doctor_bp.route('/', methods=['GET'])
 @swag_from('../docs/doctor_routes/get_all_doctors.yml')
 def get_all_doctors():
     sort_by = request.args.get('sort_by', 'user_id')

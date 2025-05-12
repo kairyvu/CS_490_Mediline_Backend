@@ -7,7 +7,7 @@ from flasgger import swag_from
 
 social_media_bp = Blueprint('social_media', __name__)
 
-@social_media_bp.route('/posts', methods=['GET'])
+@social_media_bp.route('/', methods=['GET'])
 @swag_from('../docs/social_media_routes/get_posts.yml')
 def get_posts():
     sort_by = request.args.get('sort_by', 'created_at')
