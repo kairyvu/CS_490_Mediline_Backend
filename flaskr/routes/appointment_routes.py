@@ -124,13 +124,13 @@ def create_appointment():
 @jwt_required()
 @swag_from('../docs/appointment_routes/get_appointment_by_id.yml')
 def get_appointment_by_id(appointment_id):
-    _acct_type = current_user.account_type.name
+    _role = current_user.account_type.name
     _user_id = current_user.user_id
+    _is_su = _role == 'SuperUser'
     try:
         appointment = get_appointment(appointment_id)
-        if not (_acct_type in {'SuperUser', 'Doctor', 'Patient'} 
-                and _user_id in {appointment['doctor_id'], 
-                                 appointment['patient_id']}):
+        participants = {appointment['doctor_id'], appointment['patient_id']}
+        if ((not _is_su) and (_user_id not in participants)):
             return USER_NOT_AUTHORIZED(_user_id)
         return jsonify(appointment), 200
     except ValueError as e:
