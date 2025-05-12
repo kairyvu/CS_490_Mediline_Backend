@@ -1,3 +1,4 @@
+from datetime import datetime
 from flaskr.models import PatientReport
 from flaskr.extensions import db
 
@@ -16,7 +17,10 @@ def get_patient_report_result(user_id, sort_by='created_at', order='asc'):
     return [report.to_dict() for report in reports]
 
 def add_patient_report(report_id, patient_id, doctor_id, height=None, weight=None,
-                       calories_intake=None, hours_of_exercise=None, hours_of_sleep=None):
+                       calories_intake=None, hours_of_exercise=None, hours_of_sleep=None,
+                       created_at=datetime.now()):
+    if not created_at:
+        created_at = datetime.now()
     new_report = PatientReport(
         report_id=report_id,
         patient_id=patient_id,
@@ -25,7 +29,8 @@ def add_patient_report(report_id, patient_id, doctor_id, height=None, weight=Non
         weight=weight,
         calories_intake=calories_intake,
         hours_of_exercise=hours_of_exercise,
-        hours_of_sleep=hours_of_sleep
+        hours_of_sleep=hours_of_sleep,
+        created_at=created_at
     )
     db.session.add(new_report)
     db.session.commit()
