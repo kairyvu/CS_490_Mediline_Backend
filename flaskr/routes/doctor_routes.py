@@ -5,7 +5,7 @@ from flaskr.services import all_doctors, doctor_details, \
     upcoming_appointments_count, pending_appointments_count, \
     doctor_patients_count_and_list, todays_patient, doctor_rating_detail, new_appointments_request, update_doctor,\
     last_completed_appointment, doctor_general_discussion, assign_survey,\
-    USER_NOT_AUTHORIZED, UnauthorizedError
+    USER_NOT_AUTHORIZED, all_specialties
 from flasgger import swag_from
 from sqlalchemy.exc import OperationalError, IntegrityError
 
@@ -34,6 +34,17 @@ def doctor_ratings(doctor_id):
         return jsonify(doctor_rating_detail(doctor_id, sort_by, order)), 200
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
+
+@doctor_bp.route('/specialties', methods=['GET'])
+@swag_from('../docs/doctor_routes/specialties.yml')
+def doctor_specialties():
+    order = request.args.get('order', 'asc')
+
+    try:
+        s_ls = all_specialties(order=order)
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    return jsonify(s_ls), 200
 ### ---END PUBLIC ROUTES---
 
 ### ---PROTECTED ROUTES---
