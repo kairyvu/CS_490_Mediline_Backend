@@ -7,7 +7,7 @@ from flasgger import swag_from
 
 social_media_bp = Blueprint('social_media', __name__)
 
-@social_media_bp.route('/', methods=['GET'])
+@social_media_bp.route('/', methods=['GET'], strict_slashes=False)
 @swag_from('../docs/social_media_routes/get_posts.yml')
 def get_posts():
     sort_by = request.args.get('sort_by', 'created_at')
@@ -19,7 +19,7 @@ def get_posts():
         print(str(e))
         return jsonify({"error": str(e)}), 500
 
-@social_media_bp.route('/post/<int:post_id>/comments', methods=['GET'])
+@social_media_bp.route('/post/<int:post_id>/comments', methods=['GET'], strict_slashes=False)
 @swag_from('../docs/social_media_routes/get_post_comments.yml')
 def get_post_comments(post_id):
     sort_by = request.args.get('sort_by', 'created_at')
