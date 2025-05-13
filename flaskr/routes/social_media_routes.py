@@ -19,7 +19,7 @@ def get_posts():
         print(str(e))
         return jsonify({"error": str(e)}), 500
 
-@social_media_bp.route('/post/<int:post_id>/comments', methods=['GET'], strict_slashes=False)
+@social_media_bp.route('/<int:post_id>/comments', methods=['GET'], strict_slashes=False)
 @swag_from('../docs/social_media_routes/get_post_comments.yml')
 def get_post_comments(post_id):
     sort_by = request.args.get('sort_by', 'created_at')
