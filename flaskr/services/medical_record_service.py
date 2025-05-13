@@ -9,14 +9,24 @@ def get_medical_records_by_user(user_id, sort_by='created_at', order='desc', req
     is_doctor = Doctor.query.get(user_id) is not None
     if not (is_patient or is_doctor):
         raise ValueError("User not found as either patient or doctor")
-    if ((user_id != requesting_user.user_id) 
-        and (requesting_user.account_type.name != 'SuperUser')):
-        raise UnauthorizedError
+
     query = MedicalRecord.query
     if is_patient:
         query = query.filter(MedicalRecord.appointment.has(patient_id=user_id))
     elif is_doctor:
         query = query.filter(MedicalRecord.appointment.has(doctor_id=user_id))
+    _id = requesting_user.user_id
+    _is_su = requesting_user.account_type.name == 'SuperUser'
+    _is_dr = requesting_user.account_type.name == 'Doctor'
+    _is_pt = requesting_user.account_type.name == 'Patient'
+    _dr_pts = None
+    _pt_dr = None
+    if _is_dr:
+        _dr_pts = [p.user_id for p in requesting_user.doctor.patients]
+    if ((is_patient) and not (_is_su or (_is_dr and (user_id in _dr_pts)) or (_is_pt and (_id == user_id)))):
+        raise UnauthorizedError
+    if ((is_doctor) and not (_is_su or (_is_dr and (user_id == _id)))):
+        raise UnauthorizedError
     if not hasattr(MedicalRecord, sort_by):
         raise ValueError(f"Invalid sort field: {sort_by}")
     column = getattr(MedicalRecord, sort_by)
