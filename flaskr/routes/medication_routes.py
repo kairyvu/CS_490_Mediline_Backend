@@ -4,7 +4,7 @@ from flasgger import swag_from
 
 medication_bp = Blueprint('medication', __name__)
 
-@medication_bp.route('/', methods= ['GET'])
+@medication_bp.route('/', methods= ['GET'], strict_slashes=False)
 @swag_from('../docs/medication_routes/all_medications.yml')
 def all_medications():
     sort_by = request.args.get('sort_by', 'medication_id')
