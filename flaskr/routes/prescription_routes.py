@@ -69,7 +69,11 @@ def get_prescription_count(pharmacy_id):
 def get_pharmacy_inventory(pharmacy_id):
     _user_id = current_user.user_id
     _acct_type = current_user.account_type.name
-    if (_user_id != pharmacy_id) and (_acct_type != 'SuperUser'):
+    _is_su = _acct_type == 'SuperUser'
+    _is_dr = _acct_type == 'Doctor'
+    _is_self = _user_id == pharmacy_id
+    
+    if ((not _is_self) and (not (_is_su or _is_dr))):
         return USER_NOT_AUTHORIZED(_user_id)
     try:
         inventory = get_pharmacy_medications_inventory(pharmacy_id)
