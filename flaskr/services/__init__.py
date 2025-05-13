@@ -1,8 +1,5 @@
-from functools import wraps
-import jwt
 from flask import request, Response, current_app, jsonify
 from flask_jwt_extended.exceptions import JWTExtendedException
-from flaskr.models import User
 
 from .auth_service import user_id_credentials
 from .exercise_service import get_exercises, get_all_patient_exercise, add_patient_exercise, update_patient_exercise
@@ -14,12 +11,12 @@ from .chat_service import get_current_chat, add_message
 from .social_media_service import get_all_posts, get_comments_of_post, delete_comment, delete_post, update_comment, update_post, create_comment, create_post
 from .doctor_service import all_doctors, doctor_details, upcoming_appointments_count, pending_appointments_count,\
     doctor_patients_count_and_list, todays_patient, doctor_rating_detail, last_completed_appointment, doctor_general_discussion, \
-    new_appointments_request, update_doctor, assign_survey
+    new_appointments_request, update_doctor, assign_survey, all_specialties
 from .pharmacy_service import get_all_pharmacy_patients, add_pt_rx, get_pharmacy_info, validate_rx, check_rx_auth, fetch_rx_requests,\
     handle_rx_request, validate_body
 from .patient_service import patient_info, update_patient, update_primary_pharmacy, update_doctor_by_patient_id
 from .registration_service import add_user
-from .medication_service import medication_info
+from .medication_service import medication_info, all_meds
 from .user_service import get_user_info_by_id
 from .request_service import add_patient_request, delete_patient_request, get_patient_requests_by_user_id
 from .medical_record_service import get_medical_records_by_user, create_medical_record, update_medical_record, delete_medical_record
@@ -37,7 +34,7 @@ __all__ = [
     'get_all_posts', 'get_comments_of_post', 'delete_comment', 'delete_post', 'update_comment', 'update_post', 'create_comment', 'create_post',
     'all_doctors', 'doctor_details', 'upcoming_appointments_count', 'pending_appointments_count', 'doctor_patients_count_and_list', 'todays_patient', 'doctor_rating_detail', 'last_completed_appointment', 'doctor_general_discussion', 'get_all_pharmacy_patients', 'get_pharmacy_info', 'add_pt_rx', 'validate_rx', 'check_rx_auth', 'fetch_rx_requests', 'handle_rx_request', 'validate_body'
     'patient_info', 'update_patient','patient_medical_history', 'create_medical_record', 'update_primary_pharmacy', 'update_doctor_by_patient_id',
-    'add_user', 'new_appointments_request', 'update_doctor', 'assign_survey',
+    'add_user', 'new_appointments_request', 'update_doctor', 'assign_survey', 'all_specialties',
     'medication_info',
     'get_user_info_by_id',
     'add_patient_request', 'delete_patient_request', 'get_patient_requests_by_user_id',

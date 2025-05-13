@@ -1,0 +1,35 @@
+A list of all doctor specialties
+---
+tags: 
+  - doctor
+parameters:
+  - name: order_by
+    in: query
+    type: string
+    default: asc
+    enum: 
+      - asc 
+      - desc
+    required: false
+    description: set ascending or descending order
+responses:
+  200:
+    description: fetch a list of all doctors
+    schema:
+      type: array
+      items:
+        type: string
+  400:
+    description: invalid sort field
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+  500:
+    description: Internal server error
+    schema:
+      type: object
+      properties:
+        error:
+          type: string

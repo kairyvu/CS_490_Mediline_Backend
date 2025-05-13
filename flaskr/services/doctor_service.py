@@ -36,8 +36,18 @@ def doctor_details(doctor_id):
     doctor = Doctor.query.filter_by(user_id=doctor_id).first()
     if not doctor:
         return None
-
     return doctor.to_dict()
+
+def all_specialties(order='asc'):
+    reverse = False
+    if order.lower() == 'desc':
+        reverse = True
+    elif order.lower() == 'asc':
+        reverse = False
+    else:
+        raise ValueError(f'Invalid order: {order}')
+    all_docs = db.session.scalars(db.select(Doctor)).all()
+    return sorted(list({d.specialization for d in all_docs}), reverse=reverse)
 
 def upcoming_appointments_count(doctor_id):
     upcoming_count = Appointment.query.filter_by(doctor_id=doctor_id).join(AppointmentDetail).filter(AppointmentDetail.status == "CONFIRMED").count()
