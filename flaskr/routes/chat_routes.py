@@ -57,7 +57,7 @@ def handle_message(data):
     emit('message', {
         'user_id': data['user_id'], 
         'message': data['message'], 
-        'timestamp': datetime.now(tz=timezone.utc)
+        'timestamp': datetime.now(tz=timezone.utc).isoformat()
     }, namespace='/chat', to=data['appointment_id'])
 
     add_message(data['appointment_id'], data['user_id'], data['message'])
