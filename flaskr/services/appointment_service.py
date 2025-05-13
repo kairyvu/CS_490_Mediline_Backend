@@ -82,7 +82,7 @@ def update_appointment(appointment_id, treatment, start_date,
             raise ValueError("Invalid start_date format") from e
         # No end date supplied; check newly submitted start date is before
         # previously submitted end date
-        if appointment_detail.end_date <= start_date:
+        if (appointment_detail.end_date != None) and (appointment_detail.end_date <= start_date):
             raise ValueError(f"end_date {appointment_detail.end_date} " +
                              f"must be after start_date {start_date}")
         
