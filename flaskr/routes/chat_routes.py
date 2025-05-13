@@ -54,12 +54,10 @@ def handle_join(data):
 def handle_message(data):
     # Expecting json payload with:
     # appointment_id, user_id, message content
-    send({
-        'user_id': data['user_id'],
-        'message': data['message'],
+    emit('message', {
+        'user_id': data['user_id'], 
+        'message': data['message'], 
         'timestamp': datetime.now(tz=timezone.utc)
-    }, json=True, namespace='/chat', to=data['appointment_id'], 
-    callback=lambda: 
-        print(f"Sent back: {data['message']} to room: {data['appointment_id']}"))
+    }, namespace='/chat', to=data['appointment_id'])
 
     add_message(data['appointment_id'], data['user_id'], data['message'])
