@@ -59,6 +59,6 @@ def handle_message(data):
         'message': data['message'],
         'timestamp': datetime.now(tz=timezone.utc)
     }, json=True, to=data['appointment_id'], 
-    callback=lambda: print(f'Sent back: {data['message']} to room: {data['appointment_id']}'))
+    callback=lambda: print(f"Sent back: {data['message']} to room: {data['appointment_id']}"))
 
     add_message(data['appointment_id'], data['user_id'], data['message'])
