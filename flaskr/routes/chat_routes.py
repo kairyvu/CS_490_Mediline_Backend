@@ -54,4 +54,4 @@ def handle_message(data):
     # Expecting json payload with:
     # appointment_id, user_id, message content
     send(data['message'], to=data['appointment_id'])
-    add_message(data['appointment_id'], data['user_id'])
+    add_message(data['appointment_id'], data['user_id'], data['message'])
