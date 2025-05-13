@@ -84,6 +84,12 @@ def update_patient_exercise(exercise_id, status, reps,
         raise ValueError("reps is required")
     if not status:
         raise ValueError("status is required")
-    exercise.reps = reps
-    exercise.status = status
+    if exercise.reps == reps:
+        pass
+    else:
+        exercise.reps = reps
+    if status == exercise.status:
+        pass
+    else:
+        exercise.status = status
     db.session.commit()
