@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, current_user
 from flask_socketio import emit, join_room, rooms, send
-from flaskr.services import get_current_chat, add_message, USER_NOT_AUTHORIZED, UnauthorizedError
+from flaskr.services import get_current_chat, add_message, USER_NOT_AUTHORIZED, UnauthorizedError, handle_meeting_end
 from flaskr.extensions import sio
 from flasgger import swag_from
 
@@ -61,3 +61,15 @@ def handle_message(data):
     }, namespace='/chat', to=data['appointment_id'])
 
     add_message(data['appointment_id'], data['user_id'], data['message'])
+
+@sio.on('endChat', namespace='/chat')
+def handle_end(data):
+    # Expecting json payload with:
+    # appointment_id
+    emit('endChat', { 'msg': 'this meeting has finished' }, 
+         namespace='/chat', to=data['appointment_id'])
+
+    # Generate invoice on message end
+    invoice_id = handle_meeting_end(data['appointment_id'])
+    emit('endChat', { 'msg': 'invoice generated', 'invoice_id': invoice_id },
+         namespace='/chat', to=data['appointment_id'])
