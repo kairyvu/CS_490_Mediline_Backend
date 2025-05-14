@@ -1,7 +1,8 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from flask import Response
+from flaskr.struct import AppointmentStatus
 from flaskr.models import User, Chat, Message, Appointment
-from flaskr.services import assign_invoice_appoinmtnet
+from flaskr.services import assign_invoice_appoinmtnet, update_appointment
 from flaskr.extensions import db
 
 def get_current_chat(appointment_id, requesting_user: User|None=None):
@@ -58,9 +59,17 @@ def add_message(appointment_id, user_id, message_content):
 
 def handle_meeting_end(appointment_id):
     appt: Appointment = Appointment.query.filter_by(appointment_id=appointment_id).first()
+    appt_dts: dict = appt.appointment_detail.to_dict()
     appt_dr = appt.doctor.user
     dr_id = appt.doctor_id
     pt_id = appt.patient_id
+    update_appointment(
+        appointment_id, 
+        start_date=appt_dts.get('start_date', datetime.now(tz=timezone.utc).isoformat()), 
+        status=AppointmentStatus.COMPLETED,
+        end_date=datetime.now(tz=timezone.utc).isoformat(),
+        requesting_user=appt_dr
+    )
 
     res: Response = assign_invoice_appoinmtnet(dr_id, appointment_id, pt_id, appt_dr)
     return res.json['invoice_id']
