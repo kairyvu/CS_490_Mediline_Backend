@@ -95,11 +95,16 @@ def update_appointment(appointment_id, treatment, start_date,
             raise ValueError(f"end_date {end_date} " + 
                              f"must be after start_date {start_date}")
         else:
-            appointment_detail.end_date = end_date
+            if appointment_detail.end_date != end_date:
+                appointment_detail.end_date = end_date
 
-    appointment_detail.treatment = treatment
-    appointment_detail.start_date = start_date
-    appointment_detail.status = status
+    # TODO: This code could be written way better but im lazy and pushing quick fixes
+    if appointment_detail.treatment != treatment:
+        appointment_detail.treatment = treatment
+    if appointment_detail.start_date != start_date:
+        appointment_detail.start_date = start_date
+    if appointment_detail.status != status:
+        appointment_detail.status = status
     db.session.commit()
     return
 
