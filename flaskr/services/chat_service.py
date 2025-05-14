@@ -67,7 +67,7 @@ def handle_meeting_end(appointment_id):
         appointment_id, 
         treatment=appt_dts.get('treatment'),
         start_date=appt_dts.get('start_date', datetime.now(tz=timezone.utc).isoformat()), 
-        status=AppointmentStatus.COMPLETED,
+        status=AppointmentStatus.COMPLETED.name,
         end_date=datetime.now(tz=timezone.utc).isoformat(),
         requesting_user=appt_dr
     )
