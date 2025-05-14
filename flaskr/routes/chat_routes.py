@@ -71,5 +71,14 @@ def handle_end(data):
 
     # Generate invoice on message end
     invoice_id = handle_meeting_end(data['appointment_id'])
+    """
     emit('endChat', { 'msg': 'invoice generated', 'invoice_id': invoice_id },
          namespace='/chat', to=data['appointment_id'])
+    """
+
+@sio.on('disconnect', namespace='/chat')
+def handle_disconnect(reason):
+    print(f'client disconnected: {reason}')
+    
+
+    
