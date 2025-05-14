@@ -58,7 +58,7 @@ def add_message(appointment_id, user_id, message_content):
 
 def handle_meeting_end(appointment_id):
     appt: Appointment = Appointment.query.filter_by(appointment_id=appointment_id).first()
-    appt_dr = appt.doctor
+    appt_dr = appt.doctor.user
     dr_id = appt.doctor_id
     pt_id = appt.patient_id
 
