@@ -26,4 +26,5 @@ sio = SocketIO(
     always_connect=True, 
     namespaces='*',
     logger=True,
+    engineio_logger=True
 )

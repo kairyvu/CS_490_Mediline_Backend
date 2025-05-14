@@ -63,14 +63,23 @@ def handle_meeting_end(appointment_id):
     appt_dr = appt.doctor.user
     dr_id = appt.doctor_id
     pt_id = appt.patient_id
-    update_appointment(
-        appointment_id, 
-        treatment=appt_dts.get('treatment'),
-        start_date=appt_dts.get('start_date', datetime.now(tz=timezone.utc).isoformat()), 
-        status=AppointmentStatus.COMPLETED.name,
-        end_date=datetime.now(tz=timezone.utc).isoformat(),
-        requesting_user=appt_dr
-    )
+    try:
+        update_appointment(
+            appointment_id, 
+            treatment=appt_dts.get('treatment'),
+            start_date=appt_dts.get('start_date', datetime.now(tz=timezone.utc).isoformat()), 
+            status=AppointmentStatus.COMPLETED.name,
+            end_date=datetime.now(tz=timezone.utc).isoformat(),
+            requesting_user=appt_dr
+        )
+    except Exception as e:
+        print(str(e))
+    finally:
+        try:
+            res: Response = assign_invoice_appoinmtnet(dr_id, appointment_id, pt_id, appt_dr)
+        except Exception as e:
+            print(str(e))
+        else:
+            return res.json['invoice_id']
+        
 
-    res: Response = assign_invoice_appoinmtnet(dr_id, appointment_id, pt_id, appt_dr)
-    return res.json['invoice_id']
