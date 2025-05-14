@@ -65,6 +65,7 @@ def handle_meeting_end(appointment_id):
     pt_id = appt.patient_id
     update_appointment(
         appointment_id, 
+        treatment=appt_dts.get('treatment'),
         start_date=appt_dts.get('start_date', datetime.now(tz=timezone.utc).isoformat()), 
         status=AppointmentStatus.COMPLETED,
         end_date=datetime.now(tz=timezone.utc).isoformat(),
