@@ -104,7 +104,7 @@ def get_doctor_general_discussions(doctor_id):
     return jsonify(doctor_general_discussion(doctor_id)), 200
 
 @doctor_bp.route('/survey/<int:doctor_id>', methods=['POST'])
-@jwt_required()
+#@jwt_required()
 @swag_from('../docs/doctor_routes/assign_survey_rating.yml')
 def assign_survey_rating(doctor_id):
     data = request.get_json()

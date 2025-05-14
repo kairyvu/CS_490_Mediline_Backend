@@ -80,6 +80,6 @@ def handle_meeting_end(appointment_id):
         except Exception as e:
             print(str(e))
         else:
-            return res.json['invoice_id']
+            return
         
 
