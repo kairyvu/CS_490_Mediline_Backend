@@ -382,15 +382,19 @@ def update_doctor(user_id, updates: dict) -> dict:
         raise e
     return {"message": "Doctor updated successfully"}
 
-def assign_survey(doctor_id, patient_id, stars, comment=None, requesting_user: User|None=None):
+def assign_survey(doctor_id, patient_id, stars, comment=None):
+    """
     if not requesting_user:
         raise NoAuthorizationError('must be authenticated')
+    """
     if stars < 1 or stars > 5:
         raise ValueError("Rating must be between 1 and 5")
 
+    """
     dr_pts = Doctor.query.filter_by(user_id=doctor_id).first().patients
     if requesting_user.user_id not in {pt.user_id for pt in dr_pts}:
         raise NoAuthorizationError(f'User with ID: {requesting_user.user_id} is not authorized')
+    """
 
     new_survvey = RatingSurvey(
         doctor_id = doctor_id,
